@@ -1,0 +1,46 @@
+% \vspace{-8pt}
+\section{Related Work}  %0.5 pages
+\label{sec:relatedwork}
+% 更新25年最新论
+% \subsection{Hardware Accelerators for Attention}
+% \label{sec:transopt}
+
+\textbf{Hardware Accelerators for Attention.} 
+Recent works have considered the inherent parallelism and memory access patterns to design customized accelerators~\cite{ham20203,lu2020hardware,ham2021elsa,zhou2022transpim,fan2022adaptable,wang2023cta,you2023vitcod,qin2023fact,zhao2024hardware,bai2024swat,he2025papi,gu2025pim}. %$A^3$~\cite{ham20203} integrates approximate computing and hardware-aware pruning to target energy-efficient acceleration on FPGAs.
+%Lu et al.~\cite{lu2020hardware} employ matrix partitioning to improve systolic array utilization and design efficient nonlinear function implementations.
+ELSA~\cite{ham2021elsa} utilizes an approximate similarity computation scheme to filter out insignificant relations.
+%and leverages specialized hardware for improved performance.
+%Fan et al.~\cite{fan2022adaptable} introduce FABNet that employs a unified butterfly sparsity pattern, along with a reconfigurable accelerator to enhance hardware efficiency.
+%TransPIM~\cite{zhou2022transpim} accelerates Transformer models using memory-based processing that adopts a token-based dataflow and implements lightweight hardware modifications.
+%FACT~\cite{qin2023fact} employs an eager prediction mechanism to estimate attention matrices early, thereby reducing redundant computations.
+%CTA~\cite{wang2023cta} compresses token sequences to remove semantic repetitions, reducing computation complexity quadratically while preserving model accuracy.
+%prunes and 
+ViTCoD~\cite{you2023vitcod} polarizes attention maps into denser and sparser patterns to reduce data movement.
+%while incorporating auto-encoder
+%a lightweight auto-encoder module 
+%SWAT~\cite{bai2024swat} exploits the structured sparsity of sliding window attention by integrating a row-major dataflow that aligns with the distributed memory of FPGAs.
+%SALO2~\cite{zhao2024hardware} enables both static and dynamic sparse attention mechanisms by optimizing dataflow, pattern matching, and accelerator architecture.
+%\textcolor{blue}{CENT~\cite{gu2025pim} built a GPU-free LLM inference system that uses a scalable CXL network to link PIM devices, offering high memory bandwidth and capacity to handle memory-bound tasks efficiently without costly, underutilized compute.}
+He et al.~\cite{he2025papi} propose a PIM-enabled heterogeneous system that accelerates LLM decoding with a dynamic online scheduler.
+This work focuses on attention optimizations on GPU, but has the potential to be applied to the emerging accelerators.
+
+
+% 在大规划 内 按照时间顺序
+\noindent \textbf{Auto-tuning for Scientific Applications.} %The complex computational processes of scientific applications constitute a huge search space, and .that significantly affect execution efficiency
+Existing works have designed auto-tuning approaches to handle the complexity 
+%computation 
+of scientific applications~\cite{dongarra2018autotuning,pfaffe2019efficient,sun2021cstuner,sun2022gtuner,sun2023adaptive,randall2023transfer,cho2023harnessing,swann2024seer,xu2024enabling,wang2025accelerating}. Donggarra et al.~\cite{dongarra2018autotuning} perform batched calculation self-tuning on GPU for a series of numerically dense linear algebra operators.
+%such as Cholesky factorization. 
+%LLAMA~\cite{romero2021llama} iteratively adjusts processing pipelines by considering the latest information about execution flow and resource availability. 
+%csTuner~\cite{sun2021cstuner} reduces the search cost with approximate genetic algorithms and determined the optimal parameter setting for stencil computations. 
+%On this basis, %GSTuner~\cite{sun2023adaptive} treats performance prediction as a regression problem and exploits pre-trained machine learning models to guide search space sampling to avoid actual execution. 
+%Liu et al.~\cite{liu2023faz} propose an adaptive error-bounded lossy compression with a four-stage auto-tuning pipeline. 
+Randall et al.~\cite{randall2023transfer} propose a generative method that achieves automatic adjustment based on few-shot transfer-learning. 
+%Cho et al.~\cite{cho2023harnessing} adopt transfer-learning data collected from users and analyze parameter sensitivity to improve tuning efficiency. 
+%Seer~\cite{swann2024seer} proposes a decision tree-based runtime kernel selector that analyzes sparsity-related features and dynamically chooses optimal load-balancing strategies.
+%Xu et al.~\cite{xu2024enabling} propose three orthogonal design principles based on theoretical computation models, enabling dynamic kernel optimization for SpMM computations. 
+Plasticine~\cite{wang2025accelerating} introduces multi-level stencil representations and selects the better fusion strategy of stencil operators with a CNN-GNN-based model.
+%\textcolor{blue}{Moirae~\cite{liu2024moirae} generates high-performance code for composite stencils by using a lightweight cost model, based on fine-grained memory access analysis, to guide an evolutionary search that optimizes both graph and kernel operations.}
+The above works provide references for the implementation of this paper.
+
+%\textcolor{red}{The above works provide important references for the performance auto-tuning implementation of this paper. We further propose a search mechanism based on expert-guided operator grouping and reward-based sampling to optimize the fusion scheme.}

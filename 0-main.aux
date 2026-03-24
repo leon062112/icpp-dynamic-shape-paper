@@ -1,0 +1,310 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
+\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
+\global\let\oldnewlabel\newlabel
+\gdef\newlabel#1#2{\newlabelxx{#1}#2}
+\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
+\AtEndDocument{\ifx\hyper@anchor\@undefined
+\let\newlabel\oldnewlabel
+\fi}
+\fi}
+\global\let\hyper@last\relax 
+\gdef\HyperFirstAtBeginDocument#1{#1}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\bibstyle{ACM-Reference-Format}
+\citation{chang2024survey,achiam2023gpt,guo2025deepseek}
+\citation{ouyang2022training}
+\citation{zhao2023survey}
+\citation{devlin2019bert,radford2019language,Raffel2020T5}
+\citation{fang2021turbotransformers}
+\citation{aminabadi2022deepspeed}
+\providecommand \oddpage@label [2]{}
+\@writefile{toc}{\contentsline {section}{Abstract}{1}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:introduction}{{1}{1}{Introduction}{section.1}{}}
+\citation{vaswani2017A}
+\citation{dao2022flashattention,zhai2023bytetransformer}
+\citation{child2019generating}
+\citation{wang2024raptor}
+\citation{zaheer2020big,beltagy2020longformer}
+\citation{wang2024flashmask,dong2024flex}
+\citation{zheng2020ansor,ma2020rammer}
+\citation{zheng2022astitch,ansel2024pytorch}
+\citation{niu2021dnnfusion,zheng2021neoflow,shi2023welder}
+\citation{zheng2023chimera,zhang2024mcfuser}
+\citation{devlin2019bert}
+\citation{radford2019language}
+\citation{touvron2023llama}
+\citation{dosovitskiy2020image}
+\citation{Raffel2020T5}
+\citation{vaswani2017A}
+\citation{adnan2024keyformer,liu2023deja,lin2022survey,roy2021efficient,beltagy2020longformer,zaheer2020big,child2019generating}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Background}{2}{section.2}\protected@file@percent }
+\newlabel{sec:background}{{2}{2}{Background}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Sparsity in Transformer Models}{2}{subsection.2.1}\protected@file@percent }
+\newlabel{sec:transformer_sparsity}{{2.1}{2}{Sparsity in Transformer Models}{subsection.2.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.1}Transformer Structure}{2}{subsubsection.2.1.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Atomic and compound sparse attention patterns.\relax }}{2}{figure.caption.5}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:bg-mask}{{1}{2}{Atomic and compound sparse attention patterns.\relax }{figure.caption.5}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.2}Sparse Attention Patterns}{2}{subsubsection.2.1.2}\protected@file@percent }
+\citation{dong2024flex,wang2024flashmask,wang2024raptor,zhai2023bytetransformer,dao2022flashattention,wang2022lightseq2,fang2021turbotransformers,zheng2023chimera,zhang2024mcfuser,xFormers2022,nvidia22faster}
+\citation{zhai2023bytetransformer}
+\citation{shah2024flashattention3}
+\citation{dao2022flashattention}
+\citation{dao2023flashattention2}
+\citation{wang2024flashmask}
+\citation{ma2019paddlepaddle}
+\citation{zhang2024mcfuser}
+\citation{zheng2023chimera}
+\citation{dong2024flex}
+\citation{gupta2025splat}
+\citation{chen2018tvm,zhao2021akg,tillet2019triton}
+\citation{zheng2022astitch,ansel2024pytorch}
+\citation{niu2021dnnfusion,shi2023welder}
+\citation{zheng2023chimera,zhang2024mcfuser}
+\citation{zheng2020ansor,li2023exploiting}
+\citation{zheng2020flextensor,xing2022bolt,xu2023alt,chen2024evt}
+\citation{xing2022bolt}
+\citation{nvidia22cutlass}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Fused Kernel for MHA Structure}{3}{subsection.2.2}\protected@file@percent }
+\newlabel{sec:kfam}{{2.2}{3}{Fused Kernel for MHA Structure}{subsection.2.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Kernel fusion for MHA computation.\relax }}{3}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:bg-fusion}{{2}{3}{Kernel fusion for MHA computation.\relax }{figure.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Hierarchical Space Exploration}{3}{subsection.2.3}\protected@file@percent }
+\newlabel{sec:hse}{{2.3}{3}{Hierarchical Space Exploration}{subsection.2.3}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.1}Operator Fusion Opportunities}{3}{subsubsection.2.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.2}Search Space Construction}{3}{subsubsection.2.3.2}\protected@file@percent }
+\citation{zheng2020ansor}
+\citation{zheng2021tenset}
+\citation{ragan2013halide,ansel2024pytorch}
+\citation{kao2023flat,li2024accelerated}
+\citation{tillet2019triton}
+\citation{cheng2025pipethreader}
+\citation{zheng2022astitch}
+\citation{shi2023welder}
+\citation{zheng2023chimera}
+\citation{zhang2024mcfuser}
+\citation{xing2022bolt}
+\citation{child2019generating}
+\citation{wang2024flashmask}
+\citation{zhai2023bytetransformer,dong2024flex}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.3}Auto-tuning Techniques}{4}{subsubsection.2.3.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Comparison of representative works with STOF.\relax }}{4}{table.caption.7}\protected@file@percent }
+\newlabel{tab:fused}{{1}{4}{Comparison of representative works with STOF.\relax }{table.caption.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Motivation}{4}{section.3}\protected@file@percent }
+\newlabel{sec:motivation}{{3}{4}{Motivation}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Diverse Features of Masking Patterns}{4}{subsection.3.1}\protected@file@percent }
+\newlabel{sec:sparsity}{{3.1}{4}{Diverse Features of Masking Patterns}{subsection.3.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Features of typical masking patterns.\relax }}{4}{table.caption.10}\protected@file@percent }
+\newlabel{tab:moti_A_sparsity}{{2}{4}{Features of typical masking patterns.\relax }{table.caption.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Potential Fusion Opportunities}{4}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:atuo-fusion}{{3.2}{4}{Potential Fusion Opportunities}{subsection.3.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces The running configurations of fused operators.\relax }}{4}{table.caption.11}\protected@file@percent }
+\newlabel{tab:moti_B_Config}{{3}{4}{The running configurations of fused operators.\relax }{table.caption.11}{}}
+\newlabel{fig:detached}{{3a}{5}{NVIDIA RTX 4090 GPU\relax }{figure.caption.8}{}}
+\newlabel{sub@fig:detached}{{a}{5}{NVIDIA RTX 4090 GPU\relax }{figure.caption.8}{}}
+\newlabel{fig:fused}{{3b}{5}{NVIDIA A100 GPU\relax }{figure.caption.8}{}}
+\newlabel{sub@fig:fused}{{b}{5}{NVIDIA A100 GPU\relax }{figure.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Performance comparison of detached operators and fused operator under different configurations.\relax }}{5}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:triton_operators}{{3}{5}{Performance comparison of detached operators and fused operator under different configurations.\relax }{figure.caption.8}{}}
+\newlabel{fig:single-config}{{4a}{5}{NVIDIA RTX 4090 GPU\relax }{figure.caption.9}{}}
+\newlabel{sub@fig:single-config}{{a}{5}{NVIDIA RTX 4090 GPU\relax }{figure.caption.9}{}}
+\newlabel{fig:fused-config}{{4b}{5}{NVIDIA A100 GPU\relax }{figure.caption.9}{}}
+\newlabel{sub@fig:fused-config}{{b}{5}{NVIDIA A100 GPU\relax }{figure.caption.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Performance comparison of fused operators using parameter settings from individual tuning and post-fusion tuning.\relax }}{5}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:triton_configs}{{4}{5}{Performance comparison of fused operators using parameter settings from individual tuning and post-fusion tuning.\relax }{figure.caption.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Challenges in Parameter Tuning}{5}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:cos}{{3.3}{5}{Challenges in Parameter Tuning}{subsection.3.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Methodology}{5}{section.4}\protected@file@percent }
+\newlabel{sec:method}{{4}{5}{Methodology}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Design Overview}{5}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:overview}{{4.1}{5}{Design Overview}{subsection.4.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces The design overview of STOF.\relax }}{5}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:4-method-overview}{{5}{5}{The design overview of STOF.\relax }{figure.caption.12}{}}
+\citation{cai2025survey}
+\citation{niu2022tilespgemm,fan2025spinfer}
+\citation{dao2023flashattention2}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Unified MHA Kernels}{6}{subsection.4.2}\protected@file@percent }
+\newlabel{subsec:unified-mha}{{4.2}{6}{Unified MHA Kernels}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Sparse Storage Format}{6}{subsubsection.4.2.1}\protected@file@percent }
+\newlabel{sec:fmk}{{4.2.1}{6}{Sparse Storage Format}{subsubsection.4.2.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}Kernel Implementation}{6}{subsubsection.4.2.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces MHA computation with two-level storage format.\relax }}{6}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:4-method-Attn-kernel}{{6}{6}{MHA computation with two-level storage format.\relax }{figure.caption.13}{}}
+\@writefile{loa}{\contentsline {algocf}{\numberline {1}{\ignorespaces MHA Kernel with Unified Format\relax }}{7}{algocf.1}\protected@file@percent }
+\newlabel{alg:AttnKernel}{{1}{7}{Kernel Implementation}{algocf.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3}Kernel Selection}{7}{subsubsection.4.2.3}\protected@file@percent }
+\newlabel{equ:kernel-seclector-1}{{1}{7}{Kernel Selection}{equation.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Fusion Scheme Conversion}{7}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:fse}{{4.3}{7}{Fusion Scheme Conversion}{subsection.4.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces The workflow of fusion scheme converter.\relax }}{7}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:4-method-encoding}{{7}{7}{The workflow of fusion scheme converter.\relax }{figure.caption.15}{}}
+\citation{ansel2024pytorch}
+\citation{tillet2019triton}
+\citation{cheng2025pipethreader}
+\citation{dao2023flashattention2}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Search Space Exploration}{8}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:psc}{{4.4}{8}{Search Space Exploration}{subsection.4.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces The workflow of hierarchical search engine.\relax }}{8}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:4-method-search}{{8}{8}{The workflow of hierarchical search engine.\relax }{figure.caption.16}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.1}Fusion Scheme Initialization}{8}{subsubsection.4.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.2}Two-Stage Tuning Procedure}{8}{subsubsection.4.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Implementation Details}{8}{subsection.4.5}\protected@file@percent }
+\newlabel{sec:impdetails}{{4.5}{8}{Implementation Details}{subsection.4.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Evaluation}{8}{section.5}\protected@file@percent }
+\newlabel{sec:evaluation}{{5}{8}{Evaluation}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Experiment Setup}{8}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:setup}{{5.1}{8}{Experiment Setup}{subsection.5.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.1.1}Hardware and Software Platforms}{8}{subsubsection.5.1.1}\protected@file@percent }
+\citation{beltagy2020longformer}
+\citation{zaheer2020big}
+\citation{devlin2019bert}
+\citation{radford2019language}
+\citation{touvron2023llama}
+\citation{Raffel2020T5}
+\citation{dosovitskiy2021vit}
+\citation{ansel2024pytorch}
+\citation{dao2023flashattention2}
+\citation{dong2024flex}
+\citation{zhai2023bytetransformer}
+\citation{xing2022bolt}
+\citation{zhang2024mcfuser}
+\citation{gupta2025splat}
+\citation{aminabadi2022deepspeed}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces The MHA performance of the methods normalized to that of PyTorch Native on NVIDIA RTX 4090 GPU.\relax }}{9}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:MHA-evalaution-4090}{{9}{9}{The MHA performance of the methods normalized to that of PyTorch Native on NVIDIA RTX 4090 GPU.\relax }{figure.caption.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces The MHA performance of the methods normalized to that of PyTorch Native on NVIDIA A100 GPU.\relax }}{9}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:MHA-evalaution-A100}{{10}{9}{The MHA performance of the methods normalized to that of PyTorch Native on NVIDIA A100 GPU.\relax }{figure.caption.18}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.1.2}Comparison Configurations and Methods}{9}{subsubsection.5.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}MHA Performance}{9}{subsection.5.2}\protected@file@percent }
+\newlabel{sec:fusedMHA}{{5.2}{9}{MHA Performance}{subsection.5.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces The end-to-end performance of the methods normalized to that of PyTorch Native on RTX 4090 and A100 GPUs.\relax }}{10}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:eva-EE-4090-A100}{{11}{10}{The end-to-end performance of the methods normalized to that of PyTorch Native on RTX 4090 and A100 GPUs.\relax }{figure.caption.19}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Tuning time of STOF, MCFuser, and Bolt for end-to-end inference on A100 GPU in seconds.\relax }}{10}{table.caption.20}\protected@file@percent }
+\newlabel{tab:tuning_time}{{4}{10}{Tuning time of STOF, MCFuser, and Bolt for end-to-end inference on A100 GPU in seconds.\relax }{table.caption.20}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}End-to-end Performance}{10}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:end2end}{{5.3}{10}{End-to-end Performance}{subsection.5.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Tuning Cost}{10}{subsection.5.4}\protected@file@percent }
+\newlabel{sec:search}{{5.4}{10}{Tuning Cost}{subsection.5.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Ablation Study}{10}{subsection.5.5}\protected@file@percent }
+\newlabel{sec:ablation}{{5.5}{10}{Ablation Study}{subsection.5.5}{}}
+\citation{jiang2024minference}
+\citation{ham20203,lu2020hardware,ham2021elsa,zhou2022transpim,fan2022adaptable,wang2023cta,you2023vitcod,qin2023fact,zhao2024hardware,bai2024swat,he2025papi,gu2025pim}
+\citation{ham2021elsa}
+\citation{you2023vitcod}
+\citation{he2025papi}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces The speedup of STOF with only MHA module or only fusion module over PyTorch Native on A100 GPU.\relax }}{11}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:5-ablation}{{12}{11}{The speedup of STOF with only MHA module or only fusion module over PyTorch Native on A100 GPU.\relax }{figure.caption.21}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Overhead Analysis}{11}{subsection.5.6}\protected@file@percent }
+\newlabel{sec:overhead}{{5.6}{11}{Overhead Analysis}{subsection.5.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Time breakdown of the STOF overhead normalized to the tuning process on A100 GPU.\relax }}{11}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:5-Percentage}{{13}{11}{Time breakdown of the STOF overhead normalized to the tuning process on A100 GPU.\relax }{figure.caption.22}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.7}Discussion}{11}{subsection.5.7}\protected@file@percent }
+\newlabel{sec:discussion}{{5.7}{11}{Discussion}{subsection.5.7}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.7.1}Newer GPU Architectures}{11}{subsubsection.5.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.7.2}Longer Sequence Lengths}{11}{subsubsection.5.7.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.7.3}Dynamic Mask Patterns}{11}{subsubsection.5.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Related Work}{11}{section.6}\protected@file@percent }
+\newlabel{sec:relatedwork}{{6}{11}{Related Work}{section.6}{}}
+\citation{dongarra2018autotuning,pfaffe2019efficient,sun2021cstuner,sun2022gtuner,sun2023adaptive,randall2023transfer,cho2023harnessing,swann2024seer,xu2024enabling,wang2025accelerating}
+\citation{dongarra2018autotuning}
+\citation{randall2023transfer}
+\citation{wang2025accelerating}
+\bibdata{bibliography}
+\bibcite{achiam2023gpt}{{1}{2023}{{Achiam et~al\mbox  {.}}}{{}}}
+\bibcite{adnan2024keyformer}{{2}{2024}{{Adnan et~al\mbox  {.}}}{{}}}
+\bibcite{aminabadi2022deepspeed}{{3}{2022}{{Aminabadi et~al\mbox  {.}}}{{}}}
+\bibcite{ansel2024pytorch}{{4}{2024}{{Ansel et~al\mbox  {.}}}{{}}}
+\bibcite{bai2024swat}{{5}{2024}{{Bai et~al\mbox  {.}}}{{}}}
+\bibcite{beltagy2020longformer}{{6}{2020}{{Beltagy et~al\mbox  {.}}}{{}}}
+\bibcite{xFormers2022}{{7}{2022}{{Benjamin et~al\mbox  {.}}}{{}}}
+\bibcite{cai2025survey}{{8}{2025}{{Cai et~al\mbox  {.}}}{{}}}
+\bibcite{chang2024survey}{{9}{2024}{{Chang et~al\mbox  {.}}}{{}}}
+\bibcite{chen2018tvm}{{10}{2018}{{Chen et~al\mbox  {.}}}{{}}}
+\bibcite{chen2024evt}{{11}{2024}{{Chen et~al\mbox  {.}}}{{}}}
+\bibcite{cheng2025pipethreader}{{12}{2025}{{Cheng et~al\mbox  {.}}}{{}}}
+\bibcite{child2019generating}{{13}{2019}{{Child et~al\mbox  {.}}}{{}}}
+\bibcite{cho2023harnessing}{{14}{2023}{{Cho et~al\mbox  {.}}}{{}}}
+\bibcite{dao2023flashattention2}{{15}{2024}{{Dao}}{{}}}
+\bibcite{dao2022flashattention}{{16}{2022}{{Dao et~al\mbox  {.}}}{{}}}
+\bibcite{devlin2019bert}{{17}{2019}{{Devlin et~al\mbox  {.}}}{{}}}
+\bibcite{dong2024flex}{{18}{2024}{{Dong et~al\mbox  {.}}}{{}}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{12}{section.7}\protected@file@percent }
+\newlabel{sec:conclusion}{{7}{12}{Conclusion}{section.7}{}}
+\@writefile{toc}{\contentsline {section}{References}{12}{section*.25}\protected@file@percent }
+\bibcite{dongarra2018autotuning}{{19}{2018}{{Dongarra et~al\mbox  {.}}}{{}}}
+\bibcite{dosovitskiy2020image}{{20}{2020}{{Dosovitskiy et~al\mbox  {.}}}{{}}}
+\bibcite{dosovitskiy2021vit}{{21}{2021}{{Dosovitskiy et~al\mbox  {.}}}{{}}}
+\bibcite{fan2022adaptable}{{22}{2022}{{Fan et~al\mbox  {.}}}{{}}}
+\bibcite{fan2025spinfer}{{23}{2025}{{Fan et~al\mbox  {.}}}{{}}}
+\bibcite{fang2021turbotransformers}{{24}{2021}{{Fang et~al\mbox  {.}}}{{}}}
+\bibcite{gu2025pim}{{25}{2025}{{Gu et~al\mbox  {.}}}{{}}}
+\bibcite{guo2025deepseek}{{26}{2025}{{Guo et~al\mbox  {.}}}{{}}}
+\bibcite{gupta2025splat}{{27}{2025}{{Gupta et~al\mbox  {.}}}{{}}}
+\bibcite{ham20203}{{28}{2020}{{Ham et~al\mbox  {.}}}{{}}}
+\bibcite{ham2021elsa}{{29}{2021}{{Ham et~al\mbox  {.}}}{{}}}
+\bibcite{he2025papi}{{30}{2025}{{He et~al\mbox  {.}}}{{}}}
+\bibcite{jiang2024minference}{{31}{2024}{{Jiang et~al\mbox  {.}}}{{}}}
+\bibcite{kao2023flat}{{32}{2023}{{Kao et~al\mbox  {.}}}{{}}}
+\bibcite{li2024accelerated}{{33}{2024}{{Li et~al\mbox  {.}}}{{}}}
+\bibcite{li2023exploiting}{{34}{2023}{{Li et~al\mbox  {.}}}{{}}}
+\bibcite{lin2022survey}{{35}{2022}{{Lin et~al\mbox  {.}}}{{}}}
+\bibcite{liu2023deja}{{36}{2023}{{Liu et~al\mbox  {.}}}{{}}}
+\bibcite{lu2020hardware}{{37}{2020}{{Lu et~al\mbox  {.}}}{{}}}
+\bibcite{ma2020rammer}{{38}{2020}{{Ma et~al\mbox  {.}}}{{}}}
+\bibcite{ma2019paddlepaddle}{{39}{2019}{{Ma et~al\mbox  {.}}}{{}}}
+\bibcite{niu2021dnnfusion}{{40}{2021}{{Niu et~al\mbox  {.}}}{{}}}
+\bibcite{niu2022tilespgemm}{{41}{2022}{{Niu et~al\mbox  {.}}}{{}}}
+\bibcite{nvidia22faster}{{42}{2022a}{{NVIDIA}}{{}}}
+\bibcite{nvidia22cutlass}{{43}{2022b}{{NVIDIA}}{{}}}
+\bibcite{ouyang2022training}{{44}{2022}{{Ouyang et~al\mbox  {.}}}{{}}}
+\bibcite{pfaffe2019efficient}{{45}{2019}{{Pfaffe et~al\mbox  {.}}}{{}}}
+\bibcite{qin2023fact}{{46}{2023}{{Qin et~al\mbox  {.}}}{{}}}
+\bibcite{radford2019language}{{47}{2019}{{Radford et~al\mbox  {.}}}{{}}}
+\bibcite{Raffel2020T5}{{48}{2020}{{Raffel et~al\mbox  {.}}}{{}}}
+\bibcite{ragan2013halide}{{49}{2013}{{Ragan-Kelley et~al\mbox  {.}}}{{}}}
+\bibcite{randall2023transfer}{{50}{2023}{{Randall et~al\mbox  {.}}}{{}}}
+\bibcite{roy2021efficient}{{51}{2021}{{Roy et~al\mbox  {.}}}{{}}}
+\bibcite{shah2024flashattention3}{{52}{2024}{{Shah et~al\mbox  {.}}}{{}}}
+\bibcite{shi2023welder}{{53}{2023}{{Shi et~al\mbox  {.}}}{{}}}
+\bibcite{sun2021cstuner}{{54}{2021}{{Sun et~al\mbox  {.}}}{{}}}
+\bibcite{sun2023adaptive}{{55}{2024}{{Sun et~al\mbox  {.}}}{{}}}
+\bibcite{sun2022gtuner}{{56}{2022}{{Sun et~al\mbox  {.}}}{{}}}
+\bibcite{swann2024seer}{{57}{2024}{{Swann et~al\mbox  {.}}}{{}}}
+\bibcite{tillet2019triton}{{58}{2019}{{Tillet et~al\mbox  {.}}}{{}}}
+\bibcite{touvron2023llama}{{59}{2023}{{Touvron et~al\mbox  {.}}}{{}}}
+\bibcite{vaswani2017A}{{60}{2017}{{Vaswani et~al\mbox  {.}}}{{}}}
+\bibcite{wang2024flashmask}{{61}{2024b}{{Wang et~al\mbox  {.}}}{{}}}
+\bibcite{wang2023cta}{{62}{2023}{{Wang et~al\mbox  {.}}}{{}}}
+\bibcite{wang2024raptor}{{63}{2024a}{{Wang et~al\mbox  {.}}}{{}}}
+\bibcite{wang2025accelerating}{{64}{2025}{{Wang et~al\mbox  {.}}}{{}}}
+\bibcite{wang2022lightseq2}{{65}{2022}{{Wang et~al\mbox  {.}}}{{}}}
+\bibcite{xing2022bolt}{{66}{2022}{{Xing et~al\mbox  {.}}}{{}}}
+\bibcite{xu2024enabling}{{67}{2024}{{Xu et~al\mbox  {.}}}{{}}}
+\bibcite{xu2023alt}{{68}{2023}{{Xu et~al\mbox  {.}}}{{}}}
+\bibcite{you2023vitcod}{{69}{2023}{{You et~al\mbox  {.}}}{{}}}
+\bibcite{zaheer2020big}{{70}{2020}{{Zaheer et~al\mbox  {.}}}{{}}}
+\bibcite{zhai2023bytetransformer}{{71}{2023}{{Zhai et~al\mbox  {.}}}{{}}}
+\bibcite{zhang2024mcfuser}{{72}{2024}{{Zhang et~al\mbox  {.}}}{{}}}
+\bibcite{zhao2021akg}{{73}{2021}{{Zhao et~al\mbox  {.}}}{{}}}
+\bibcite{zhao2024hardware}{{74}{2024}{{Zhao et~al\mbox  {.}}}{{}}}
+\bibcite{zhao2023survey}{{75}{2023}{{Zhao et~al\mbox  {.}}}{{}}}
+\bibcite{zheng2020ansor}{{76}{2020a}{{Zheng et~al\mbox  {.}}}{{}}}
+\bibcite{zheng2021tenset}{{77}{2021b}{{Zheng et~al\mbox  {.}}}{{}}}
+\bibcite{zheng2021neoflow}{{78}{2021a}{{Zheng et~al\mbox  {.}}}{{}}}
+\bibcite{zheng2023chimera}{{79}{2023}{{Zheng et~al\mbox  {.}}}{{}}}
+\bibcite{zheng2020flextensor}{{80}{2020b}{{Zheng et~al\mbox  {.}}}{{}}}
+\bibcite{zheng2022astitch}{{81}{2022}{{Zheng et~al\mbox  {.}}}{{}}}
+\bibcite{zhou2022transpim}{{82}{2022}{{Zhou et~al\mbox  {.}}}{{}}}
+\newlabel{tocindent-1}{0pt}
+\newlabel{tocindent0}{0pt}
+\newlabel{tocindent1}{4.65pt}
+\newlabel{tocindent2}{11.49998pt}
+\newlabel{tocindent3}{22.8pt}
+\newlabel{tocindent4}{0pt}
+\newlabel{tocindent5}{0pt}
+\newlabel{TotPages}{{15}{15}{}{page.15}{}}
+\gdef \@abspage@last{15}

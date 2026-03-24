@@ -1,0 +1,1149 @@
+% 目录 
+% BG的类 
+1. Transformer
+    1.1 Transformer 类的模型 原始
+    1.2 Transformer 优化方法 融合
+    1.3 Sparse Transformer 
+2. Kernel Fusion
+3. Auto-tuning
+%cictation的引用总数在 45以上比较好 --- RL与BG中还可加
+
+% memory efficient Attention --- 改成了脚注
+
+%
+@inproceedings{dosovitskiy2021vit,
+  title={An image is worth 16x16 words: Transformers for image recognition at scale},
+  author={Dosovitskiy, Alexey and Beyer, Lucas and Kolesnikov, Alexander and Weissenborn, Dirk and Zhai, Xiaohua and Unterthiner, Thomas and Dehghani, Mostafa and Minderer, Matthias and Heigold, Georg and Gelly, Sylvain and others},
+  booktitle={International Conference on Learning Representations (ICLR '21)},
+  year={2021}
+}
+
+
+%spinfer 重点关于 bitmap
+@inproceedings{fan2025spinfer,
+  title={Spinfer: Leveraging low-level sparsity for efficient large language model inference on gpus},
+  author={Fan, Ruibo and Yu, Xiangrui and Dong, Peijie and Li, Zeyu and Gong, Gu and Wang, Qiang and Wang, Wei and Chu, Xiaowen},
+  booktitle={Proceedings of the Twentieth European Conference on Computer Systems (EuroSys '25)},
+  year={2025}
+}
+
+% 关于稀疏pattern的综述
+@article{lin2022survey,
+  title={A survey of Transformers},
+  author={Lin, Tianyang and Wang, Yuxin and Liu, Xiangyang and Qiu, Xipeng},
+  journal={AI open},
+  volume={3},
+  pages={111--132},
+  year={2022}
+}
+
+%TileLang
+@inproceedings{cheng2025pipethreader,
+  title={PipeThreader: Software-Defined Pipelining for Efficient DNN Execution},
+  author={Cheng, Yu and Wang, Lei and Shi, Yining and Xia, Yuqing and Ma, Lingxiao and Xue, Jilong and Wang, Yang and Mo, Zhiwen and Chen, Feiyang and Yang, Fan and others},
+  booktitle={19th USENIX Symposium on Operating Systems Design and Implementation (OSDI '25)},
+  year={2025}
+}
+
+% triton 
+@inproceedings{tillet2019triton,
+  title={Triton: An intermediate language and compiler for tiled neural network computationsf},
+  author={Tillet, Philippe and Kung, Hsiang-Tsung and Cox, David},
+  booktitle={ACM SIGPLAN International Workshop on Machine Learning and Programming Languages},
+  year={2019},
+}
+
+% Raptor-T
+@article{wang2024raptor,
+  title = {Raptor-T: A fused and memory-efficient sparse Transformer for long and variable-length sequences},
+  author = {Wang, Hulin and Yang, Donglin and Xia, Yaqi and Zhang, Zheng and Wang, Qigang and Fan, Jianping and Zhou, Xiaobo and Cheng, Dazhao},
+  journal={ IEEE Transactions on Computers },
+  volume = {73},
+  number = {7},
+  pages = {1852–1865},
+  year = {2024},
+}
+
+@article{fang2024stile,
+  title={STile: Searching hybrid sparse formats for sparse deep learning operators automatically},
+  author={Fang, Jingzhi and Shen, Yanyan and Wang, Yue and Chen, Lei},
+  journal={Proceedings of the ACM on Management of Data},
+  volume = {2},
+  number = {1},
+  pages={1--26},
+  year={2024},
+}
+
+%Compute trends --- 说明参数量大的趋势
+@inproceedings{sevilla2022compute,
+  title={Compute trends across three eras of machine learning},
+  author={Sevilla, Jaime and Heim, Lennart and Ho, Anson and Besiroglu, Tamay and Hobbhahn, Marius and Villalobos, Pablo},
+  booktitle={International Joint Conference on Neural Networks (IJCNN '22)}, 
+  year={2022},
+}
+
+% 说明涌现
+@article{wei2022emergent,
+  title={Emergent abilities of large language models},
+  author={Wei, Jason and Tay, Yi and Bommasani, Rishi and Raffel, Colin and Zoph, Barret and Borgeaud, Sebastian and Yogatama, Dani and Bosma, Maarten and Zhou, Denny and Metzler, Donald and others},
+  journal={Transactions on Machine Learning Research},
+  year={2022}
+}
+
+% GPT-2
+@article{radford2019language,
+  title={Language models are unsupervised multitask learners},
+  author={Radford, Alec and Wu, Jeffrey and Child, Rewon and Luan, David and Amodei, Dario and Sutskever, Ilya and others},
+  journal={OpenAI blog},
+  volume={1},
+  number={8},
+  pages={9},
+  year={2019}
+}
+
+% GPT-3
+@inproceedings{brown2020language,
+  title={Language models are few-shot learners},
+  author={Brown, Tom and Mann, Benjamin and Ryder, Nick and Subbiah, Melanie and Kaplan, Jared D and Dhariwal, Prafulla and Neelakantan, Arvind and Shyam, Pranav and Sastry, Girish and Askell, Amanda and others},
+  booktitle = {Conference on Neural Information Processing Systems (NeurIPS '20)},
+  year={2020},
+}
+
+
+@inproceedings{sutskever2014sequence,
+  author = {Sutskever, Ilya and Vinyals, Oriol and Le, Quoc V.},
+  title = {Sequence to sequence learning with neural networks},
+  booktitle = {Conference on Neural Information Processing Systems (NeurIPS '14)},
+  year = {2014}
+}
+
+@article{qiu2020pre,
+  title={Pre-trained models for natural language processing: A survey},
+  author={Qiu, Xipeng and Sun, Tianxiang and Xu, Yige and Shao, Yunfan and Dai, Ning and Huang, Xuanjing},
+  journal={Science China technological sciences},
+  volume={63},
+  number={10},
+  pages={1872--1897},
+  year={2020}
+}
+
+% T5模型
+@article{Raffel2020T5,
+  author  = {Raffel, Colin and Shazeer, Noam and Roberts, Adam and Lee, Katherine and Narang, Sharan and MMatena, ichael and Zhou, Yanqi and Li, Wei and Liu, Peter J. },
+  title   = {Exploring the limits of transfer learning with a unified text-to-text Transformer},
+  journal = {Journal of Machine Learning Research},
+  volume  = {21},
+  number  = {140},
+  pages   = {1-67},
+  year    = {2020}
+}
+
+@inproceedings{ansel2024pytorch,
+  title={PyTorch 2: Faster machine learning through dynamic python bytecode transformation and graph compilation},
+  author={Ansel, Jason and Yang, Edward and He, Horace and Gimelshein, Natalia and Jain, Animesh and Voznesensky, Michael and Bao, Bin and Bell, Peter and Berard, David and Burovski, Evgeni and others},
+  booktitle = {International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS '24)},
+  year={2024},
+}
+
+@inproceedings{kao2023flat,
+  title={FLAT: An optimized dataflow for mitigating attention bottlenecks},
+  author={Kao, Sheng-Chun and Subramanian, Suvinay and Agrawal, Gaurav and Yazdanbakhsh, Amir and Krishna, Tushar},
+  booktitle = {International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS '23)},
+  year={2023},
+}
+
+@inproceedings{adnan2024keyformer,
+  title={Keyformer: KV cache reduction through key tokens selection for efficient generative inference},
+  author={Adnan, Muhammad and Arunkumar, Akhil and Jain, Gaurav and Nair, Prashant and Soloveychik, Ilya and Kamath, Purushotham},
+  booktitle = {Conference on Machine Learning and Systems (MLSys '24)},
+  year={2024},
+}
+
+@article{beltagy2020longformer,
+  title={Longformer: The long-document Transformer},
+  author={Beltagy, Iz and Peters, Matthew E and Cohan, Arman},
+  journal={arXiv preprint arXiv:2004.05150},
+  year={2020}
+}
+
+@inproceedings{zaheer2020big,
+    title = {Big Bird: Transformers for longer sequences},
+    author = {Zaheer, Manzil and Guruganesh, Guru and Dubey, Avinava and Ainslie, Joshua and Alberti, Chris and Ontanon, Santiago and Pham, Philip and Ravula, Anirudh and Wang, Qifan and Yang, Li and Ahmed, Amr},
+    booktitle = {Conference on Neural Information Processing Systems (NeurIPS '20)},
+    year = {2020},
+}
+
+% Long-short Transformer
+@inproceedings{zhu2021long,
+    title={Long-Short Transformer: Efficient Transformers for language and vision},
+    author={Zhu, Chen and Ping, Wei and Xiao, Chaowei and Shoeybi, Mohammad and Goldstein, Tom and Anandkumar, Anima and Catanzaro, Bryan},
+    booktitle = {Conference on Neural Information Processing Systems (NeurIPS '21)},
+    year={2021}
+}
+
+% swin Transformer
+@inproceedings{liu2022video,
+  title={Video Swin Transformer},
+  author={Liu, Ze and Ning, Jia and Cao, Yue and Wei, Yixuan and Zhang, Zheng and Lin, Stephen and Hu, Han},
+  booktitle={IEEE/CVF Computer Vision and Pattern Recognition Conference (CVPR '22)},
+  year={2022}
+}
+
+% NLP:machine translation Task1
+@article{stahlberg2020neural,
+  title={Neural machine translation: A review},
+  author={Stahlberg, Felix},
+  journal={Journal of Artificial Intelligence Research},
+  volume={69},
+  pages={343--418},
+  year={2020}
+}
+
+% NLP: machine translation Task2
+@inproceedings{yang2019xlnet,
+  title={Xlnet: Generalized autoregressive pretraining for language understanding},
+  author={Yang, Zhilin and Dai, Zihang and Yang, Yiming and Carbonell, Jaime and Salakhutdinov, Russ R and Le, Quoc V},
+  booktitle = {Conference on Neural Information Processing Systems (NeurIPS '19)},
+  year={2019},
+}
+
+% CV
+@article{li2019deep,
+  title={Deep learning for hyperspectral image classification: An overview},
+  author={Li, Shutao and Song, Weiwei and Fang, Leyuan and Chen, Yushi and Ghamisi, Pedram and Benediktsson, Jon Atli},
+  journal={IEEE Transactions on Geoscience and Remote Sensing},
+  volume={57},
+  number={9},
+  pages={6690--6709},
+  year={2019},
+  organization={IEEE}
+}
+
+%异构集群
+@inproceedings {weng2022MLaaS,
+    author = { Weng, Qizhen and Xiao, Wencong and Yu, Yinghao and Wang, Wei and Wang, Cheng and He, Jian and Li, Yong and Zhang, Liping and Lin, Wei and Ding, Yu },
+    title = {MLaaS in the wild: Workload analysis and scheduling in large-scale heterogeneous GPU clusters},
+    booktitle = {Symposium on Network System Design and Implementation (NSDI '22)},
+    year = {2022},
+}
+
+% Transformer itself----AD--改
+@inproceedings{vaswani2017A,
+  title={Attention is all you need},
+  author={Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N and Kaiser, {\L}ukasz and Polosukhin, Illia},
+  booktitle = {Conference on Neural Information Processing Systems (NeurIPS '17)},
+  year={2017},
+}
+
+%Bert---谷歌学术，arvix就这么多了
+@inproceedings{devlin2019bert,
+  title={BERT: Pre-training of deep bidirectional Transformers for language understanding},
+  author={Devlin, Jacob and Chang, Ming-Wei and Lee, Kenton and Toutanova, Kristina},
+  booktitle={Annual Conference of the North American chapter of the association for computational linguistics: human language technologies},
+  year={2019}
+}
+
+%sparse Transformer----谷歌学术，arvix也就这么多了
+@article{child2019generating,
+  title={Generating long sequences with sparse Transformers},
+  author={Child, Rewon and Gray, Scott and Radford, Alec and Sutskever, Ilya},
+  journal={arXiv preprint arXiv:1904.10509},
+  year={2019}
+}
+
+%stride mask example------AD--改
+@inproceedings{huang2022green,
+  title={Green hierarchical vision Transformer for masked image modeling},
+  author={Huang, Lang and You, Shan and Zheng, Mingkai and Wang, Fei and Qian, Chen and Yamasaki, Toshihiko},
+  booktitle = {Conference on Neural Information Processing Systems (NeurIPS '22},
+  year={2022},
+}
+
+%fixed mask example
+@inproceedings{gorbett2023sparse,
+  title={Sparse binary Transformers for multivariate time series modeling},
+  author={Gorbett, Matt and Shirazi, Hossein and Ray, Indrakshi},
+  booktitle={ACM SIGKDD Conference on Knowledge Discovery and Data Mining (SIGKDD '23)},
+  year={2023},
+}
+
+%routing Transformers----没有number--校验无误
+@article{roy2021efficient,
+  title={Efficient content-based sparse attention with routing Transformers},
+  author={Roy, Aurko and Saffar, Mohammad and Vaswani, Ashish and Grangier, David},
+  journal={Transactions of the Association for Computational Linguistics},
+  volume={9},
+  number={},
+  pages={53--68},
+  year={2021},
+}
+
+@inproceedings{liu2023deja,
+  title={Deja Vu: Contextual sparsity for efficient LLMs at inference time},
+  author={Liu, Zichang and Wang, Jue and Dao, Tri and Zhou, Tianyi and Yuan, Binhang and Song, Zhao and Shrivastava, Anshumali and Zhang, Ce and Tian, Yuandong and Re, Christopher and others},
+  booktitle={International Conference on Machine Learning (ICML '23)},
+  year={2023},
+}
+
+%low-rank Transformer 
+% linformer-------arvix搞不了
+@article{wang2020linformer,
+  title={Linformer: Self-attention with linear complexity},
+  author={Wang, Sinong and Li, Belinda Z and Khabsa, Madian and Fang, Han and Ma, Hao},
+  journal={arXiv preprint arXiv:2006.04768},
+  year={2020}
+}
+
+% PyTorch
+% Advances!!!------AD--改
+@inproceedings{paszke2019pytorch,
+  title={PyTorch: An imperative style, high-performance deep learning library},
+  author={Paszke, Adam and Gross, Sam and Massa, Francisco and Lerer, Adam and Bradbury, James and Chanan, Gregory and Killeen, Trevor and Lin, Zeming and Gimelshein, Natalia and Antiga, Luca and others},
+  booktitle = {Conference on Neural Information Processing Systems (NeurIPS '19)},
+  year={2019},
+}
+
+%tensorflow
+@inproceedings{abadi2016tensorflow,
+  title={TensorFlow: A system for large-scale machine learning},
+  author={Abadi, Mart{\'\i}n and Barham, Paul and Chen, Jianmin and Chen, Zhifeng and Davis, Andy and Dean, Jeffrey and Devin, Matthieu and Ghemawat, Sanjay and Irving, Geoffrey and Isard, Michael and others},
+  booktitle={USENIX Symposium on Operating Systems Design and Implementations (OSDI '16)},
+  year={2016},
+}
+
+% tvm
+@inproceedings{chen2018tvm,
+  title={TVM: An automated end-to-end optimizing compiler for deep learning},
+  author={Chen, Tianqi and Moreau, Thierry and Jiang, Ziheng and Zheng, Lianmin and Yan, Eddie and Shen, Haichen and Cowan, Meghan and Wang, Leyuan and Hu, Yuwei and Ceze, Luis and others},
+  booktitle={USENIX Symposium on Operating Systems Design and Implementations (OSDI '18)},
+  year={2018},
+}
+
+%halide----已校验无误
+@article{ragan2013halide,
+  title={Halide: A language and compiler for optimizing parallelism, locality, and recomputation in image processing pipelines},
+  author={Ragan-Kelley, Jonathan and Barnes, Connelly and Adams, Andrew and Paris, Sylvain and Durand, Fr{\'e}do and Amarasinghe, Saman},
+  journal={ACM Sigplan Notices},
+  volume={48},
+  number={6},
+  pages={519--530},
+  year={2013},
+}
+
+%Dnnfusion
+@inproceedings{niu2021dnnfusion,
+  title={DNNFusion: Accelerating deep neural networks execution with advanced operator fusion},
+  author={Niu, Wei and Guan, Jiexiong and Wang, Yanzhi and Agrawal, Gagan and Ren, Bin},
+  booktitle={International Conference on Programming Language Design and Implementation (PLDI '21)},
+  year={2021},
+}
+
+%TensorIR
+@inproceedings{feng2023tensorir,
+  title={TensorIR: An abstraction for automatic tensorized program optimization},
+  author={Feng, Siyuan and Hou, Bohan and Jin, Hongyi and Lin, Wuwei and Shao, Junru and Lai, Ruihang and Ye, Zihao and Zheng, Lianmin and Yu, Cody Hao and Yu, Yong and others},
+  booktitle={International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS '23)},
+  year={2023},
+}
+
+%Hidet
+@inproceedings{ding2023hidet,
+  title={Hidet: Task-mapping programming paradigm for deep learning tensor programs},
+  author={Ding, Yaoyao and Yu, Cody Hao and Zheng, Bojian and Liu, Yizhi and Wang, Yida and Pekhimenko, Gennady},
+  booktitle={International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS '22)},
+  year={2023},
+}
+
+%Welder
+@inproceedings{shi2023welder,
+  title={Welder: Scheduling deep learning memory access via tile-graph},
+  author={Shi, Yining and Yang, Zhi and Xue, Jilong and Ma, Lingxiao and Xia, Yuqing and Miao, Ziming and Guo, Yuxiao and Yang, Fan and Zhou, Lidong},
+  booktitle={USENIX Symposium on Operating Systems Design and Implementations (OSDI '23)},
+  year={2023},
+}
+
+%APOLLO---无number--已校验无误
+@inproceedings{zhao2022apollo,
+  title={Apollo: Automatic partition-based operator fusion through layer by layer optimization},
+  author={Zhao, Jie and Gao, Xiong and Xia, Ruijie and Zhang, Zhaochuang and Chen, Deshi and Chen, Lei and Zhang, Renwei and Geng, Zhen and Cheng, Bin and Jin, Xuefeng},
+  booktitle = {Conference on Machine Learning and Systems (MLSys '22)},
+  pages = {1--19},
+  year={2022}
+}
+
+@inproceedings{dao2022flashattention,
+  title={Flash{A}ttention: Fast and Memory-Efficient Exact Attention with {IO}-Awareness},
+  author={Dao, Tri and Fu, Daniel Y. and Ermon, Stefano and Rudra, Atri and R{\'e}, Christopher},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS '22)},
+  year={2022}
+}
+
+@inproceedings{dao2023flashattention2,
+  title={Flash{A}ttention-2: Faster Attention with Better Parallelism and Work Partitioning},
+  author={Dao, Tri},
+  booktitle={International Conference on Learning Representations (ICLR '23)},
+  year={2024}
+}
+
+
+@article{shah2024flashattention3,
+  title={FlashAttention-3: Fast and accurate attention with asynchrony and low-precision},
+  author={Shah, Jay and Bikshandi, Ganesh and Zhang, Ying and Thakkar, Vijay and Ramani, Pradeep and Dao, Tri},
+  journal={Advances in Neural Information Processing Systems},
+  volume={37},
+  pages={68658--68685},
+  year={2024}
+}
+
+
+% turboTransformers
+@inproceedings{fang2021turboTransformers,
+  title={TurboTransformers: An efficient GPU serving system for Transformer models},
+  author={Fang, Jiarui and Yu, Yang and Zhao, Chengduo and Zhou, Jie},
+  booktitle={ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming (PPoPP '21)},
+  year={2021},
+}
+
+% byteTransformer
+@inproceedings{zhai2023byteTransformer,
+  title={ByteTransformer: A high-performance Transformer boosted for variable-length inputs}, 
+  author={Zhai, Yujia and Jiang, Chengquan and Wang, Leyuan and Jia, Xiaoying and Zhang, Shang and Chen, Zizhong and Liu, Xin and Zhu, Yibo},
+  booktitle={International Parallel \& Distributed Processing Symposium (IPDPS '23)},
+  year={2023},
+}
+
+% sparsity-------已校验无误
+@article{fuad2023survey,
+  title={A survey on sparsity exploration in Transformer-based accelerators},
+  author={Fuad, Kazi Ahmed Asif and Chen, Lizhong},
+  journal={Electronics},
+  volume={12},
+  number={10},
+  pages={2299},
+  year={2023}
+}
+
+% Trasnformer-survey----已补齐--校验无误
+@article{Tay2022Transformersurvey,
+  title={Efficient Transformers: A survey},
+  author={Yi, Tay and Mostafa, Dehghani and Dara, Bahri and Donald, Metzler},
+  journal = {ACM Computing Surveys},
+  volume={55},
+  number={6},
+  pages={1-28},
+  year={2022}
+}
+%Tay, Y., Dehghani, M., Bahri, D. and Metzler, D., 2022. Efficient Transformers: A survey. ACM Computing Surveys, 55(6), pp.1-28.
+
+%deepspeed
+@inproceedings{aminabadi2022deepspeed,
+  title={DeepSpeed Inference: Enabling efficient inference of Transformer models at unprecedented scale},
+  author={Aminabadi, Reza Yazdani and Rajbhandari, Samyam and Awan, Ammar Ahmad and Li, Cheng and Li, Du and Zheng, Elton and Ruwase, Olatunji and Smith, Shaden and Zhang, Minjia and Rasley, Jeff and others},
+  booktitle={International Conference on High Performance Computing, Networking, Storage and Analysis (SC '22)},
+  year={2022},
+}
+
+% lightseq2
+@inproceedings{wang2022lightseq2,
+  title={LightSeq2: Accelerated training for Transformer-based models on GPUs},
+  author={Wang, Xiaohui and Wei, Yang and Xiong, Ying and Huang, Guyue and Qian, Xian and Ding, Yufei and Wang, Mingxuan and Li, Lei},
+  booktitle={International Conference on High Performance Computing, Networking, Storage and Analysis (SC '22)},
+  year={2022},
+}
+
+%data movement  --  li shigang
+@article{ivanov2021data,
+  title={Data movement is all you need: A case study on optimizing Transformers},
+  author={Ivanov, Andrei and Dryden, Nikoli and Ben-Nun, Tal and Li, Shigang and Hoefler, Torsten},
+  journal={Proceedings of Machine Learning and Systems},
+  volume={3},
+  pages={711-732},
+  year={2021}
+}
+
+%data-centric
+@inproceedings{rausch2022data,
+  title={A data-centric optimization framework for machine learning},
+  author={Rausch, Oliver and Ben-Nun, Tal and Dryden, Nikoli and Ivanov, Andrei and Li, Shigang and Hoefler, Torsten},
+  booktitle = {International Conference on Supercomputing (ICS '22)},
+  year={2022},
+}
+
+
+% Spatten Arch
+@inproceedings{wang2021spatten,
+  title={Spatten: Efficient sparse attention architecture with cascade token and head pruning},
+  author={Wang, Hanrui and Zhang, Zhekai and Han, Song},
+  booktitle={High Performance Computer Architecture (HPCA '21)},
+  year={2021},
+}
+
+% TaskFusion
+@inproceedings{fan2023taskfusion,
+  title={Taskfusion: An efficient transfer learning architecture with dual delta sparsity for multi-task natural language processing},
+  author={Fan, Zichen and Zhang, Qirui and Abillama, Pierre and Shoouri, Sara and Lee, Changwoo and Blaauw, David and Kim, Hun-Seok and Sylvester, Dennis},
+  booktitle={International Symposium on Computer Architecture (ISCA '23)},
+  year={2023},
+}
+
+%SIGMA
+@inproceedings{qin2020sigma,
+  title={SIGMA: A sparse and irregular GEMM accelerator with flexible interconnects for DNN training},
+  author={Qin, Eric and Samajdar, Ananda and Kwon, Hyoukjun and Nadella, Vineet and Srinivasan, Sudarshan and Das, Dipankar and Kaul, Bharat and Krishna, Tushar},
+  booktitle={High Performance Computer Architecture (HPCA '20)},
+  year={2020},
+}
+
+%cocktailer: to prove sync cost
+@inproceedings{zhang2023cocktailer,
+  title={Cocktailer: Analyzing and optimizing dynamic control flow in deep learning},
+  author={Zhang, Chen and Ma, Lingxiao and Xue, Jilong and Shi, Yining and Miao, Ziming and Yang, Fan and Zhai, Jidong and Yang, Zhi and Yang, Mao},
+  booktitle={USENIX Symposium on Operating Systems Design and Implementation (OSDI '23)},
+  year={2023},
+
+}
+
+% pangulu  sync_free
+@inproceedings{fu2023pangulu,
+  title={PanguLU: A scalable regular two-dimensional block-cyclic sparse direct solver on distributed heterogeneous systems},
+  author={Fu, Xu and Zhang, Bingbin and Wang, Tengcheng and Li, Wenhao and Lu, Yuechen and Yi, Enxin and Zhao, Jianqi and Geng, Xiaohan and Li, Fangying and Zhang, Jingwen and others},
+  booktitle={International Conference on High Performance Computing, Networking, Storage and Analysis (SC '23)},
+  year={2023},
+}
+
+%SFLU sync_free
+@inproceedings{zhao2021sflu,
+  title={SFLU: Synchronization-free sparse lu factorization for fast circuit simulation on GPUs},
+  author={Zhao, Jianqi and Wen, Yao and Luo, Yuchen and Jin, Zhou and Liu, Weifeng and Zhou, Zhenya},
+  booktitle={Design Automation Conference (DAC '21)},
+  year={2021},
+}
+
+%tilesptrsv sync_free----我没看懂在哪里citeTAT
+@article{lu2023tilesptrsv,
+  title={TileSpTRSV: A tiled algorithm for parallel sparse triangular solve on GPUs},
+  author={Lu, Zhengyang and Liu, Weifeng},
+  journal={CCF Transactions on High Performance Computing},
+  volume={5},
+  number={2},
+  pages={129--143},
+  year={2023}
+}
+
+%sptrsv----校验无误
+@article{zhang2021yuenyeungsptrsv,
+  title={YuenyeungSpTRSV: A thread-level and warp-level fusion synchronization-free sparse triangular solve},
+  author={Zhang, Feng and Su, Jiya and Liu, Weifeng and He, Bingsheng and Wu, Ruofan and Du, Xiaoyong and Wang, Rujia},
+  journal={IEEE Transactions on Parallel and Distributed Systems},
+  volume={32},
+  number={9},
+  pages={2321--2337},
+  year={2021}
+}
+
+
+% Fuison的相关技术
+%Astitch
+@inproceedings{zheng2022astitch,
+  title={AStitch: Enabling a new multi-dimensional optimization space for memory-intensive ML training and inference on modern SIMT architectures},
+  author={Zheng, Zhen and Yang, Xuanda and Zhao, Pengzhan and Long, Guoping and Zhu, Kai and Zhu, Feiwen and Zhao, Wenyi and Liu, Xiaoyong and Yang, Jun and Zhai, Jidong and others},
+  booktitle={International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS '18)},
+  year={2022},
+}
+
+%Chimera
+
+
+@inproceedings{zheng2023chimera,
+  title     = {Chimera: An analytical optimizing framework for effective compute-intensive operators fusion},
+  author    = {Zheng, Size and Chen, Siyuan and Song, Peidi and Chen, Renze and Li, Xiuhong and Yan, Shengen and Lin, Dahua and Leng, Jingwen and Liang, Yun},
+  booktitle = {Proceedings of the 29th IEEE International Symposium on High Performance Computer Architecture (HPCA '23)},
+  year      = {2023},
+}
+
+%flextensor
+@inproceedings{zheng2020flextensor,
+  title={FlexTensor: An automatic schedule exploration and optimization framework for tensor computation on heterogeneous system},
+  author={Zheng, Size and Liang, Yun and Wang, Shuo and Chen, Renze and Sheng, Kaiwen},
+  booktitle={International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS '20)},
+  year={2020},
+}
+
+% Auto-tuning机制 ---------------------------------------
+% 著名综述，大部分TVM相关的描述来源----校验无误
+@article{li2020deep,
+  title={The deep learning compiler: A comprehensive survey},
+  author={Li, Mingzhen and Liu, Yi and Liu, Xiaoyan and Sun, Qingxiao and You, Xin and Yang, Hailong and Luan, Zhongzhi and Gan, Lin and Yang, Guangwen and Qian, Depei},
+  journal={IEEE Transactions on Parallel and Distributed Systems},
+  volume={32},
+  number={3},
+  pages={708--727},
+  year={2020}
+}
+
+% csTuner
+@inproceedings{sun2021cstuner,
+  title={csTuner: Scalable auto-tuning framework for complex stencil computation on GPUs},
+  author={Sun, Qingxiao and Liu, Yi and Yang, Hailong and Jiang, Zhonghui and Liu, Xiaoyan and Dun, Ming and Luan, Zhongzhi and Qian, Depei},
+  booktitle={IEEE International Conference on Cluster Computing (CLUSTER '21)},
+  year={2021},
+}
+
+%与上面的csTuner配合用---没查到
+@inproceedings{dun2021optimized,
+  title={An optimized tensor completion library for multiple GPUs},
+  author={Dun, Ming and Li, Yunchun and Yang, Hailong and Sun, Qingxiao and Luan, Zhongzhi and Qian, Depei},
+  booktitle = {International Conference on Supercomputing (ICS '21)},
+  year={2021},
+}
+
+%Ansor
+@inproceedings{zheng2020ansor,
+  title={Ansor: Generating high-performance tensor programs for deep learning},
+  author={Zheng, Lianmin and Jia, Chengfan and Sun, Minmin and Wu, Zhao and Yu, Cody Hao and Haj-Ali, Ameer and Wang, Yida and Yang, Jun and Zhuo, Danyang and Sen, Koushik and others},
+  booktitle = {USENIX Symposium on Operating Systems Design and Implementation (OSDI '20)},
+  year={2020},
+}
+
+%Tenset
+@inproceedings{zheng2021tenset,
+  title={TenSet: A large-scale program performance dataset for learned tensor compilers},
+  author={Zheng, Lianmin and Liu, Ruochen and Shao, Junru and Chen, Tianqi and Gonzalez, Joseph E and Stoica, Ion and Ali, Ameer Haj},
+  booktitle={Conference on Neural Information Processing Systems (NeurIPS '21)},
+  year={2021},
+
+}
+
+%TC Facebook为了和TVM并列----arvix---日期校验无误
+@article{vasilache2018tensor,
+  title={Tensor Comprehensions: Framework-agnostic high-performance machine learning abstractions},
+  author={Vasilache, Nicolas and Zinenko, Oleksandr and Theodoridis, Theodoros and Goyal, Priya and DeVito, Zachary and Moses, William S and Verdoolaege, Sven and Adams, Andrew and Cohen, Albert},
+  journal={arXiv preprint arXiv:1802.04730},
+  year={2018}
+}
+
+% AutoTVM------AD--改
+@inproceedings{chen2018autotvm,
+  title={Learning to optimize tensor programs},
+  author={Chen, Tianqi and Zheng, Lianmin and Yan, Eddie and Jiang, Ziheng and Moreau, Thierry and Ceze, Luis and Guestrin, Carlos and Krishnamurthy, Arvind},
+  booktitle={Conference on Neural Information Processing Systems (NeurIPS '18)},
+  year={2018},
+
+}
+
+%Faith
+@inproceedings{feng2022faith,
+  title={Faith: An efficient framework for Transformer verification on GPUs},
+  author={Feng, Boyuan and Tang, Tianqi and Wang, Yuke and Chen, Zhaodong and Wang, Zheng and Yang, Shu and Xie, Yuan and Ding, Yufei},
+  booktitle={USENIX Annual Technical Conference (ATC '22)},
+  year={2022},
+}
+
+% Rammer
+@inproceedings{ma2020rammer,
+  title={Rammer: Enabling holistic deep learning compiler optimizations with rTasks},
+  author={Ma, Lingxiao and Xie, Zhiqiang and Yang, Zhi and Xue, Jilong and Miao, Youshan and Cui, Wei and Hu, Wenxiang and Yang, Fan and Zhang, Lintao and Zhou, Lidong},
+  booktitle = {USENIX Symposium on Operating Systems Design and Implementation (OSDI '20)},
+  year={2020},
+}
+
+%TASO
+@inproceedings{jia2019taso,
+  title={TASO: Optimizing deep learning computation with automatic generation of graph substitutions},
+  author={Jia, Zhihao and Padon, Oded and Thomas, James and Warszawski, Todd and Zaharia, Matei and Aiken, Alex},
+  booktitle = {ACM Symposium on Operating Systems Principles (SOSP '19)},
+  year={2019},
+}
+
+%PET
+@inproceedings{wang2021pet,
+  title={PET: Optimizing tensor programs with partially equivalent transformations and automated corrections},
+  author={Wang, Haojie and Zhai, Jidong and Gao, Mingyu and Ma, Zixuan and Tang, Shizhi and Zheng, Liyan and Li, Yuanzhi and Rong, Kaiyuan and Chen, Yuanyong and Jia, Zhihao},
+  booktitle = {USENIX Symposium on Operating Systems Design and Implementation (OSDI '21)},
+  year={2021},
+}
+
+%dietcode----无number 其余校验无误
+@inproceedings{zheng2022dietcode,
+  title={DietCode: Automatic optimization for dynamic tensor programs},
+  author={Zheng, Bojian and Jiang, Ziheng and Yu, Cody Hao and Shen, Haichen and Fromm, Joshua and Liu, Yizhi and Wang, Yida and Ceze, Luis and Chen, Tianqi and Pekhimenko, Gennady},
+  booktitle = {Conference on Machine Learning and Systems (MLSys '23)},
+  year={2022},
+}
+
+%einnet
+@inproceedings{zheng2023einnet,
+  title={EINNET: Optimizing tensor programs with derivation-based transformations},
+  author={Zheng, Liyan and Wang, Haojie and Zhai, Jidong and Hu, Muyan and Ma, Zixuan and Wang, Tuowei and Huang, Shuhong and Miao, Xupeng and Tang, Shizhi and Huang, Kezhao and others},
+  booktitle = {USENIX Symposium on Operating Systems Design and Implementation (OSDI '23)},
+  year={2023},
+
+}
+
+%TLP
+@inproceedings{zhai2023tlp,
+  title={TLP: A deep learning-based cost model for tensor program tuning},
+  author={Zhai, Yi and Zhang, Yu and Liu, Shuo and Chu, Xiaomeng and Peng, Jie and Ji, Jianmin and Zhang, Yanyong},
+  booktitle={International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS '23)},
+  year={2023},
+}
+
+%XGboost --- Cost model
+@inproceedings{chen2016xgboost,
+  title={XGBoost: A scalable tree boosting system},
+  author={Chen, Tianqi and Guestrin, Carlos},
+  booktitle={ACM SIGKDD Conference on KnowledgeDiscovery and Data Mining (SIGKDD '16)},
+  year={2016},
+
+}
+
+
+%科学计算的自调优
+@inproceedings{pfaffe2019efficient,
+  title={Efficient hierarchical online-autotuning: A case study on polyhedral accelerator mapping},
+  author={Pfaffe, Philip and Grosser, Tobias and Tillmann, Martin},
+  booktitle={International Conference on Supercomputing (ICS '19)},
+  pages = {354–366},
+  year={2019},
+  organization={ACM}
+}
+
+% dongarra - auto-tuning----校验无误
+@article{dongarra2018autotuning,
+  title={Autotuning numerical dense linear algebra for batched computation with GPU hardware accelerators},
+  author={Dongarra, Jack and Gates, Mark and Kurzak, Jakub and Luszczek, Piotr and Tsai, Yaohung M},
+  journal={Proceedings of the IEEE},
+  volume={106},
+  number={11},
+  pages={2040--2055},
+  year={2018}
+}
+
+%llama
+@article{touvron2023llama,
+  title={LLaMA: Open and Efficient Foundation Language Models},
+  author={Touvron, Hugo and Lavril, Thibaut and Izacard, Gautier and Martinet, Xavier and Lachaux, Marie-Anne and Lacroix, Timoth{\'e}e and Rozi{\`e}re, Baptiste and Goyal, Naman and Hambro, Eric and Azhar, Faisal and others},
+  journal={arXiv preprint arXiv:2302.13971},
+  year={2023}
+}
+
+@inproceedings{zhang2021lower,
+  title={I/O lower bounds for auto-tuning of convolutions in CNNs},
+  author={Zhang, Xiaoyang and Xiao, Junmin and Tan, Guangming},
+  booktitle={ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming (PPoPP '21)},
+  year={2021},
+}
+
+%harnessing IPDPS2023!
+@inproceedings{cho2023harnessing,
+  title={Harnessing the crowd for autotuning high-performance computing applications},
+  author={Cho, Younghyun and Demmel, James W and King, Jacob and Li, Xiaoye S and Liu, Yang and Luo, Hengrui},
+  booktitle={International Parallel \& Distributed Processing Symposiumm (IPDPS '23)},
+  year={2023},
+}
+
+%GTuner
+%ACM/IEEE
+@inproceedings{sun2022gtuner,
+  title={GTuner: Tuning DNN computations on GPU via graph attention network},
+  author={Sun, Qi and Zhang, Xinyun and Geng, Hao and Zhao, Yuxuan and Bai, Yang and Zheng, Haisheng and Yu, Bei},
+  booktitle={Asia and South Pacific Design Automation Conference (ASP-DAC '22)},
+  year={2022},
+
+}
+
+%adaptive加在csTuner之后----改成IEEE--检验无误
+@article{sun2023adaptive,
+  title={Adaptive auto-tuning framework for global exploration of stencil optimization on GPUs},
+  author={Sun, Qingxiao and Liu, Yi and Yang, Hailong and Jiang, Zhonghui and Luan, Zhongzhi and Qian, Depei},
+  journal={IEEE Transactions on Parallel and Distributed Systems},
+  volume={35},
+  number={1},
+  pages={20-33},
+  year={2024}
+}
+
+%transfer
+@inproceedings{randall2023transfer,
+  title={Transfer-learning-based autotuning using Gaussian copula},
+  author={Randall, Thomas and Koo, Jaehoon and Videau, Brice and Kruse, Michael and Wu, Xingfu and Hovland, Paul and Hall, Mary and Ge, Rong and Balaprakash, Prasanna},
+  booktitle={International Conference on Supercomputing (ICS '23)},
+  year={2023},
+}
+
+%FAZ
+@inproceedings{liu2023faz,
+  title={FAZ: A flexible auto-tuned modular error-bounded compression framework for scientific data},
+  author={Liu, Jinyang and Di, Sheng and Zhao, Kai and Liang, Xin and Chen, Zizhong and Cappello, Franck},
+  booktitle={International Conference on Supercomputing (ICS '23)},
+  year={2023},
+}
+%Robotis
+@article{sunderhauf2018limits,
+  title={The limits and potentials of deep learning for robotics},
+  author={S{\"u}nderhauf, Niko and Brock, Oliver and Scheirer, Walter and Hadsell, Raia and Fox, Dieter and Leitner, J{\"u}rgen and Upcroft, Ben and Abbeel, Pieter and Burgard, Wolfram and Milford, Michael and others},
+  journal={The International journal of robotics research},
+  volume={37},
+  number={4-5},
+  pages={405--420},
+  year={2018},
+}
+
+
+%LLM
+@inproceedings{ouyang2022training,
+  title={Training language models to follow instructions with human feedback},
+  author={Ouyang, Long and Wu, Jeffrey and Jiang, Xu and Almeida, Diogo and Wainwright, Carroll and Mishkin, Pamela and Zhang, Chong and Agarwal, Sandhini and Slama, Katarina and Ray, Alex and others},
+  booktitle={Conference on Neural Information Processing Systems (NeurIPS '22)},
+  year={2022},
+}
+
+@article{lan2019albert,
+  title={ALBERT: A lite BERT for self-supervised learning of language representations},
+  author={Lan, Zhenzhong and Chen, Mingda and Goodman, Sebastian and Gimpel, Kevin and Sharma, Piyush and Soricut, Radu},
+  journal={arXiv preprint arXiv:1909.11942},
+  year={2019}
+}
+
+@software{Thakkar_CUTLASS_2023,
+author = {Thakkar, Vijay and Ramani, Pradeep and Cecka, Cris and Shivam, Aniket and Lu, Honghao and Yan, Ethan and Kosaian, Jack and Hoemmen, Mark and Wu, Haicheng and Kerr, Andrew and Nicely, Matt and Merrill, Duane and Blasig, Dustyn and Qiao, Fengqi and Majcher, Piotr and Springer, Paul and Hohnerbach, Markus and Wang, Jin and Gupta, Manish},
+license = {BSD-3-Clause},
+month = jan,
+title = {{CUTLASS}},
+url = {https://github.com/NVIDIA/cutlass},
+version = {3.0.0},
+year = {2023}
+}
+
+% hardware accelerators
+@inproceedings{ham20203,
+  title={$A^3$: Accelerating attention mechanisms in neural networks with approximation},
+  author={Ham, Tae Jun and Jung, Sung Jun and Kim, Seonghak and Oh, Young H and Park, Yeonhong and Song, Yoonho and Park, Jung-Hun and Lee, Sanghee and Park, Kyoung and Lee, Jae W and others},
+  booktitle={High Performance Computer Architecture (HPCA '20)},
+  year={2020},
+}
+
+@inproceedings{lu2020hardware,
+  title={Hardware accelerator for multi-head attention and position-wise feed-forward in the Transformer},
+  author={Lu, Siyuan and Wang, Meiqi and Liang, Shuang and Lin, Jun and Wang, Zhongfeng},
+  booktitle={International System-on-Chip Conference (SOCC '20)},
+  year={2020},
+}
+
+@inproceedings{ham2021elsa,
+  title={ELSA: Hardware-software co-design for efficient, lightweight self-attention mechanism in neural networks},
+  author={Ham, Tae Jun and Lee, Yejin and Seo, Seong Hoon and Kim, Soosung and Choi, Hyunji and Jung, Sung Jun and Lee, Jae W},
+  booktitle={International Symposium on Computer Architecture (ISCA '21)},
+  year={2021},
+}
+
+@inproceedings{zhou2022transpim,
+  title={TransPIM: A memory-based acceleration via software-hardware co-design for Transformer},
+  author={Zhou, Minxuan and Xu, Weihong and Kang, Jaeyoung and Rosing, Tajana},
+  booktitle={High Performance Computer Architecture (HPCA '22)},
+  year={2022},
+}
+
+@inproceedings{fan2022adaptable,
+  title={Adaptable butterfly accelerator for attention-based NNs via hardware and algorithm co-design},
+  author={Fan, Hongxiang and Chau, Thomas and Venieris, Stylianos I and Lee, Royson and Kouris, Alexandros and Luk, Wayne and Lane, Nicholas D and Abdelfattah, Mohamed S},
+  booktitle={IEEE/ACM International Symposium on Microarchitecture (MICRO '22)},
+  year={2022},
+}
+
+@inproceedings{wang2023cta,
+  title={CTA: Hardware-software co-design for compressed token attention mechanism},
+  author={Wang, Haoran and Xu, Haobo and Wang, Ying and Han, Yinhe},
+  booktitle={High Performance Computer Architecture (HPCA '23)},
+  year={2023},
+}
+
+@inproceedings{you2023vitcod,
+  title={ViTCoD: Vision Transformer acceleration via dedicated algorithm and accelerator co-design},
+  author={You, Haoran and Sun, Zhanyi and Shi, Huihong and Yu, Zhongzhi and Zhao, Yang and Zhang, Yongan and Li, Chaojian and Li, Baopu and Lin, Yingyan},
+  booktitle={High Performance Computer Architecture (HPCA '23)},
+  year={2023},
+}
+
+
+%ACM /IEEE 
+@inproceedings{qin2023fact,
+  title={FACT: FFN-attention co-optimized Transformer architecture with eager correlation prediction},
+  author={Qin, Yubin and Wang, Yang and Deng, Dazheng and Zhao, Zhiren and Yang, Xiaolong and Liu, Leibo and Wei, Shaojun and Hu, Yang and Yin, Shouyi},
+  booktitle={International Symposium on Computer Architecture (ISCA '23)},
+  year={2023},
+}
+
+@article{zhao2024hardware,
+  author={Zhao, Jieru and Zeng, Pai and Shen, Guan and Chen, Quan and Guo, Minyi},
+  journal={IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems}, 
+  title={Hardware–software co-design enabling static and dynamic sparse attention mechanisms}, 
+  volume={43},
+  number={9},
+  pages={2783-2796},
+  year={2024},
+}
+
+@inproceedings{bai2024swat,
+  title={SWAT: Scalable and efficient window attention-based Transformers acceleration on FPGAs},
+  author={Bai, Zhenyu and Dangi, Pranav and Li, Huize and Mitra, Tulika},
+  booktitle={Design Automation Conference (DAC '24)},
+  year={2024},
+}
+
+% scientific applications
+@inproceedings{swann2024seer,
+  title={Seer: Predictive runtime kernel selection for irregular problems},
+  author={Swann, Ryan and Osama, Muhammad and Sangaiah, Karthik and Mahmud, Jalal},
+  booktitle={Code Generation and Optimization (CGO '24)},
+  year={2024},
+}
+
+@article{xu2024enabling,
+author = {Xu, Jiaming and Huang, Shan and Li, Jinhao and Huang, Guyue and Xie, Yuan and Wang, Yu and Dai, Guohao},
+title = {Enabling efficient sparse multiplications on GPUs with heuristic adaptability},
+journal = {IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems},
+year = {2024},
+pages = {1-1},
+volume = {PP},
+}
+
+% MCFuser
+@inproceedings{zhang2024mcfuser,
+  title={MCFuser: High-performance and rapid fusion of memory-bound compute-intensive operators},
+  author={Zhang, Zheng and Yang, Donglin and Zhou, Xiaobo and Cheng, Dazhao},
+  booktitle={International Conference for High Performance Computing, Networking, Storage and Analysis (SC '24)},
+  year={2024},
+}
+
+@inproceedings{xu2023alt,
+  title={ALT: Breaking the wall between data layout and loop optimizations for deep learning compilation},
+  author={Xu, Zhiying and Xu, Jiafan and Peng, Hongding and Wang, Wei and Wang, Xiaoliang and Wan, Haoran and Dai, Haipeng and Xu, Yixu and Cheng, Hao and Wang, Kun and others},
+  booktitle={European Conference on Computer Systems (EuroSys '23)},
+  year={2023},
+}
+
+@inproceedings{zhu2022roller,
+  title={ROLLER: Fast and efficient tensor compilation for deep learning},
+  author={Zhu, Hongyu and Wu, Ruofan and Diao, Yijia and Ke, Shanbin and Li, Haoyu and Zhang, Chen and Xue, Jilong and Ma, Lingxiao and Xia, Yuqing and Cui, Wei and others},
+  booktitle={USENIX Symposium on Operating Systems Design and Implementation (OSDI '22)},
+  year={2022},
+}
+
+@inproceedings{li2024accelerated,
+  title={Accelerated auto-tuning of GPU kernels for tensor computations},
+  author={Li, Chendi and Xu, Yufan and Saravani, Sina Mahdipour and Sadayappan, Ponnuswamy},
+  booktitle={International Conference on Supercomputing (ICS '24)},
+  year={2024},
+}
+
+@article{chang2024survey,
+  title={A survey on evaluation of large language models},
+  author={Chang, Yupeng and Wang, Xu and Wang, Jindong and Wu, Yuan and Yang, Linyi and Zhu, Kaijie and Chen, Hao and Yi, Xiaoyuan and Wang, Cunxiang and Wang, Yidong and others},
+  journal={ACM Transactions on Intelligent Systems and Technology},
+  volume={15},
+  number={3},
+  pages={1--45},
+  year={2024},
+}
+
+@article{zhao2023survey,
+  title={A survey of large language models},
+  author={Zhao, Wayne Xin and Zhou, Kun and Li, Junyi and Tang, Tianyi and Wang, Xiaolei and Hou, Yupeng and Min, Yingqian and Zhang, Beichen and Zhang, Junjie and Dong, Zican and others},
+  journal={arXiv preprint arXiv:2303.18223},
+  volume={1},
+  number={2},
+  year={2023}
+}
+
+% deepseek
+@article{guo2025deepseek,
+  title={DeepSeek-R1: Incentivizing reasoning capability in LLMs via reinforcement learning},
+  author={Guo, Daya and Yang, Dejian and Zhang, Haowei and Song, Junxiao and Zhang, Ruoyu and Xu, Runxin and Zhu, Qihao and Ma, Shirong and Wang, Peiyi and Bi, Xiao and others},
+  journal={arXiv preprint arXiv:2501.12948},
+  year={2025}
+}
+
+% GPT-4
+@article{achiam2023gpt,
+  title={GPT-4 technical report},
+  author={Achiam, Josh and Adler, Steven and Agarwal, Sandhini and Ahmad, Lama and Akkaya, Ilge and Aleman, Florencia Leoni and Almeida, Diogo and Altenschmidt, Janko and Altman, Sam and Anadkat, Shyamal and others},
+  journal={arXiv preprint arXiv:2303.08774},
+  year={2023}
+}
+
+@article{gu2021domain,
+  title={Domain-specific language model pretraining for biomedical natural language processing},
+  author={Gu, Yu and Tinn, Robert and Cheng, Hao and Lucas, Michael and Usuyama, Naoto and Liu, Xiaodong and Naumann, Tristan and Gao, Jianfeng and Poon, Hoifung},
+  journal={ACM Transactions on Computing for Healthcare},
+  volume={3},
+  number={1},
+  pages={1--23},
+  year={2021},
+}
+
+@article{thirunavukarasu2023large,
+  title={Large language models in medicine},
+  author={Thirunavukarasu, Arun James and Ting, Darren Shu Jeng and Elangovan, Kabilan and Gutierrez, Laura and Tan, Ting Fang and Ting, Daniel Shu Wei},
+  journal={Nature medicine},
+  volume={29},
+  number={8},
+  pages={1930--1940},
+  year={2023},
+}
+
+@inproceedings{wang2024flashmask,
+  title={FlashMask: Efficient and Rich Mask Extension of FlashAttention},
+  author={Wang, Guoxia and Zeng, Jinle and Xiao, Xiyuan and Wu, Siming and Yang, Jiabin and Zheng, Lujing and Chen, Zeyu and Bian, Jiang and Yu, Dianhai and Wang, Haifeng},
+  booktitle={International Conference on Learning Representations (ICLR '24)},
+  year={2024}
+}
+
+@article{dong2024flex,
+  title={Flex Attention: A programming model for generating optimized attention kernels},
+  author={Dong, Juechu and Feng, Boyuan and Guessous, Driss and Liang, Yanbo and He, Horace},
+  journal={arXiv preprint arXiv:2412.05496},
+  year={2024}
+}
+
+@article{zheng2021neoflow,
+  title={NeoFlow: A flexible framework for enabling efficient compilation for high performance DNN training},
+  author={Zheng, Size and Chen, Renze and Jin, Yicheng and Wei, Anjiang and Wu, Bingyang and Li, Xiuhong and Yan, Shengen and Liang, Yun},
+  journal={IEEE Transactions on Parallel and Distributed Systems},
+  volume={33},
+  number={11},
+  pages={3220--3232},
+  year={2021},
+  publisher={IEEE}
+}
+
+@article{ma2019paddlepaddle,
+  title={PaddlePaddle: An open-source deep learning platform from industrial practice},
+  author={Ma, Yanjun and Yu, Dianhai and Wu, Tian and Wang, Haifeng},
+  journal={Frontiers of Data and Computing},
+  volume={1},
+  number={1},
+  pages={105--115},
+  year={2019}
+}
+
+@Misc{xFormers2022,
+  author =       {Benjamin, Lefaudeux and Francisco, Massa and Diana, Liskovich and Wenhan, Xiong and Vittorio, Caggiano and Sean, Naren and Min, Xu and Jieru, Hu and Marta, Tintore and Susan, Zhang and Patrick, Labatut and Daniel, Haziza and Luca, Wehrstedt and Jeremy, Reizenstein and Grigory, Sizov},
+  title =        {xFormers: A modular and hackable Transformer modelling library},
+  howpublished = {\url{https://github.com/facebookresearch/xformers}},
+  year =         {2022}
+}
+
+@Misc{nvidia22faster,
+  author =       {NVIDIA},
+  howpublished = {https://github.com/NVIDIA/FasterTransformer},
+  year =         {2022}
+}
+
+@Misc{nvidia22cutlass,
+  author =       {NVIDIA},
+  howpublished = {https://github.com/NVIDIA/cutlass},
+  year =         {2022}
+}
+
+  %title =        {xFormers: A modular and hackable Transformer modelling library},
+
+@inproceedings{zhao2021akg,
+  title={AKG: Automatic kernel generation for neural processing units using polyhedral transformations},
+  author={Zhao, Jie and Li, Bojie and Nie, Wang and Geng, Zhen and Zhang, Renwei and Gao, Xiong and Cheng, Bin and Wu, Chen and Cheng, Yun and Li, Zheng and others},
+  booktitle={ACM SIGPLAN Conference on Programming Language Design and Implementation (PLDI '21)},
+  year={2021},
+}
+
+@inproceedings{li2023exploiting,
+  title={Exploiting subgraph similarities for efficient auto-tuning of tensor programs},
+  author={Li, Mingzhen and Yang, Hailong and Zhang, Shanjun and Yu, Fengwei and Gong, Ruihao and Liu, Yi and Luan, Zhongzhi and Qian, Depei},
+  booktitle={International Conference on Parallel Processing (ICPP '23)},
+  year={2023},
+}
+
+@article{xing2022bolt,
+  title={Bolt: Bridging the gap between auto-tuners and hardware-native performance},
+  author={Xing, Jiarong and Wang, Leyuan and Zhang, Shang and Chen, Jack and Chen, Ang and Zhu, Yibo},
+  journal={Proceedings of Machine Learning and Systems},
+  volume={4},
+  pages={204--216},
+  year={2022}
+}
+
+
+% ASPLOS24-EVT
+@inproceedings{chen2024evt,
+  title={EVT: Accelerating deep learning training with  Epilogue Visitor Tree},
+  author={Chen, Zhaodong and Kerr, Andrew and Cai, Richard and Kosaian, Jack and Wu, Haicheng and Ding, Yufei and Xie, Yuan},
+  booktitle={International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS '24)},
+  year={2024},
+}
+
+% TileSpGEMM-PPoPP22
+@inproceedings{niu2022tilespgemm,
+  title={TileSpGEMM: A tiled algorithm for parallel sparse general matrix-matrix multiplication on GPUs},
+  author={Niu, Yuyao and Lu, Zhengyang and Ji, Haonan and Song, Shuhui and Jin, Zhou and Liu, Weifeng},
+  booktitle={ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming (PPoPP '22)},
+  year={2022},
+}
+
+@inproceedings{gu2025pim,
+  title={PIM is all you need: A CXL-enabled GPU-free system for large language model inference},
+  author={Gu, Yufeng and Khadem, Alireza and Umesh, Sumanth and Liang, Ning and Servot, Xavier and Mutlu, Onur and Iyer, Ravi and Das, Reetuparna},
+  booktitle={Proceedings of the 30th ACM International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS '25)},
+  year={2025},
+}
+
+@inproceedings{he2025papi,
+  title={Papi: Exploiting dynamic parallelism in large language model decoding with a processing-in-memory-enabled computing system},
+  author={He, Yintao and Mao, Haiyu and Giannoula, Christina and Sadrosadati, Mohammad and G{\'o}mez-Luna, Juan and Li, Huawei and Li, Xiaowei and Wang, Ying and Mutlu, Onur},
+  booktitle={Proceedings of the 30th ACM International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS '25)},
+  year={2025},
+}
+
+@inproceedings{liu2024moirae,
+  title={Moirae: Generating High-Performance Composite Stencil Programs with Global Optimizations},
+  author={Liu, Xiaoyan and Yang, Xinyu and Ma, Kejie and Liu, Shanghao and Zhang, Kaige and Yang, Hailong and Liu, Yi and Luan, Zhongzhi and Qian, Depei},
+  booktitle={International Conference for High Performance Computing, Networking, Storage and Analysis （SC' 24）},
+  year={2024},
+}
+
+@inproceedings{wang2025accelerating,
+  title={Accelerating Complex Stencil Computations with Adaptive Fusion Strategy},
+  author={Wang, Siqi and Yang, Hailong and Wang, Pengbo and Du, Shaokang and Xu, Yufan and Sun, Qingxiao and Liu, Xiaoyan and Wang, Xuezhu and Liang, Xuning and Luan, Zhongzhi and others},
+  booktitle={Proceedings of the 39th ACM International Conference on Supercomputing (ICS '25)},
+  pages={265--278},
+  year={2025}
+}
+
+@article{dosovitskiy2020image,
+  title={An image is worth 16x16 words: Transformers for image recognition at scale},
+  author={Dosovitskiy, Alexey and Beyer, Lucas and Kolesnikov, Alexander and Weissenborn, Dirk and Zhai, Xiaohua and Unterthiner, Thomas and Dehghani, Mostafa and Minderer, Matthias and Heigold, Georg and Gelly, Sylvain and others},
+  journal={arXiv preprint arXiv:2010.11929},
+  year={2020}
+}
+
+% shepherding 补充
+@inproceedings{jiang2024minference,
+  title={Minference 1.0: Accelerating pre-filling for long-context llms via dynamic sparse attention},
+  author={Jiang, Huiqiang and Li, Yucheng and Zhang, Chengruidong and Wu, Qianhui and Luo, Xufang and Ahn, Surin and Han, Zhenhua and Abdi, Amir H and Li, Dongsheng and Lin, Chin-Yew and others},
+  booktitle={Conference on Neural Information Processing Systems (NeurIPS '24)},
+  year={2024}
+}
+
+@inproceedings{gupta2025splat,
+  title={SPLAT: A framework for optimised GPU code-generation for SParse reguLar ATtention},
+  author={Gupta, Ahan and Yuan, Yueming and Jain, Devansh and Ge, Yuhao and Aponte, David and Zhou, Yanqi and Mendis, Charith},
+  booktitle={Proceedings of the ACM on Programming Languages (OOPSLA '25)},
+  year={2025},
+}
+
+@article{cai2025survey,
+  title={A survey on mixture of experts in large language models},
+  author={Cai, Weilin and Jiang, Juyong and Wang, Fan and Tang, Jing and Kim, Sunghun and Huang, Jiayi},
+  journal={IEEE Transactions on Knowledge and Data Engineering},
+  year={2025},
+  publisher={IEEE}
+}
+

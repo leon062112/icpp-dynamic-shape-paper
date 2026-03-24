@@ -1,0 +1,128 @@
+\section{Motivation}%0.75 pages
+\label{sec:motivation}
+
+\begin{figure*}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.49\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/3-moti-4090_3_2.pdf}
+    \caption{NVIDIA RTX 4090 GPU}
+    \label{fig:detached}
+  \end{subfigure}
+  % \hspace{0.0001\linewidth}
+  \begin{subfigure}[b]{0.49\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/3-moti-A100_3_2.pdf}
+    \caption{NVIDIA A100 GPU}
+    \label{fig:fused}
+  \end{subfigure}
+  
+  %%%%%\vspace{-12pt}
+  \caption{Performance comparison of detached operators and fused operator under different configurations.}
+  \label{fig:triton_operators}
+  %%%%%%\vspace{-6pt} % 在 caption 下方添加间距（影响 caption 与下文间距）
+\end{figure*}
+
+\begin{figure*}[htbp]
+  \centering
+  \begin{subfigure}[b]{0.49\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/3-moti-4090_3_3.pdf}
+    \caption{NVIDIA RTX 4090 GPU}
+    \label{fig:single-config}
+  \end{subfigure}
+  % \hspace{0.0001\linewidth}
+  \begin{subfigure}[b]{0.49\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/3-moti-A100_3_3.pdf}
+    \caption{NVIDIA A100 GPU}
+    \label{fig:fused-config}
+  \end{subfigure}
+  
+  %%%%%\vspace{-12pt}
+  \caption{Performance comparison of fused operators using parameter settings from individual tuning and post-fusion tuning.}
+  \label{fig:triton_configs}
+  %%%%%\vspace{-6pt} 
+\end{figure*}
+
+
+% 重构motivation
+\subsection{Diverse Features of Masking Patterns}
+\label{sec:sparsity}
+
+Within the MHA structure, sparse mask blocks part of the data elements, making it easier for the model to ``focus'' on the critical information. The mask layer is inserted between \texttt{GEMM} and \texttt{Softmax} operations, and the weights of the score matrix corresponding to the mask part are close to 0. Table~\ref{tab:moti_A_sparsity} lists the features of typical masking patterns with the sequence length ($seq\_len$) of 1,024. Consistent with previous works~\cite{child2019generating}, the band width and global width are set to $\sqrt{seq\_len}$ (i.e., 32). 
+As seen, all masking patterns except the causal achieve a sparsity of over 80\%, while the sliding window even reaches 93.8\%. The above results provide optimization opportunities to skip useless computations.
+%As seen, the sparsity ratio of sliding window and dilated patterns reaches 93.8\%. Even the relatively dense Bigbird pattern has a sparsity of 80.8\%, which provides optimization opportunities to skip useless computations.}
+
+\begin{table}[htbp]
+\renewcommand{\arraystretch}{1.2}
+\centering
+\caption{Features of typical masking patterns.}
+%%%%%\vspace{-5pt}
+\tiny
+% \scriptsize
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+\begin{tabular}{|l||ll|ll|ll|}
+\hline
+\multirow{2}{*}{\begin{tabular}[c]{@{}l@{}}Masking\\ Pattern\end{tabular}} & \multicolumn{2}{l|}{\multirow{2}{*}{\begin{tabular}[c]{@{}l@{}}Masking \\ Parameters\end{tabular}}}                    & \multicolumn{2}{c|}{Element Distribution}  & \multicolumn{2}{c|}{Sparsity}    \\ \cline{4-7} 
+     & \multicolumn{2}{l|}{}    & \multicolumn{1}{l|}{Row}        & Column     & \multicolumn{1}{l|}{Type}    & Ratio  \\ \hline \hline
+Causal                                                                    &  \multicolumn{2}{l|}{--}                & \multicolumn{1}{l|}{Continuous}   & Continuous   & \multicolumn{1}{l|}{Structured} & 50.0\% \\ \hline
+     
+\tabincell{l}{Sliding\\Window}                                                             & \multicolumn{2}{l|}{band width = 32}                                                                                   & \multicolumn{1}{l|}{Continuous} & Continuous & \multicolumn{1}{l|}{Structured}   & 93.8\% \\ \hline
+Longformer                                                                 & \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}global width = 32\\ band width = 32\end{tabular}}                       & \multicolumn{1}{l|}{Discrete}   & Discrete   & \multicolumn{1}{l|}{Structured}   & 88.8\% \\ \hline
+Bigbird                                                                    & \multicolumn{2}{l|}{\begin{tabular}[c]{@{}l@{}}global width = 32\\ band width = 32\\ filling rate = 10\%\end{tabular}} & \multicolumn{1}{l|}{Discrete}   & Discrete   & \multicolumn{1}{l|}{Unstructured} & 80.8\% \\ \hline
+\end{tabular}
+\label{tab:moti_A_sparsity}
+\end{table}
+
+It is difficult for a data structure to represent sparsity features of various masking patterns. To achieve high kernel efficiency, FlashMask~\cite{wang2024flashmask} only supports the cases where the valid elements on the columns are continuous. This is because its data structure consists of four arrays that represent the start and end of two skipped regions. However, the discrete distribution of valid elements involves more skipped regions that cannot be represented. Bigbird integrates random patterns with unstructured sparsity, further complicating the mask representation. For unsupported masking patterns, previous works~\cite{zhai2023bytetransformer,dong2024flex} fall back to resetting the score matrix by subtraction after \texttt{GEMM}. This approach fails to jointly optimize \texttt{GEMM} and \texttt{Softmax} operations in the fused kernel.
+
+
+
+\subsection{Potential Fusion Opportunities}
+\label{sec:atuo-fusion}
+
+
+Transformer structure still remains opportunities for operator fusion unexplored. If we roughly identify the operator types as MI or CI, the operator mixes can be enumerated into three categories. We fuse the operators of Transformer to evaluate the performance, where \texttt{Bias}+\texttt{Layernorm}, \texttt{GEMM+Layernorm}, and \texttt{GEMM+GEMM} represent MI+MI, CI+MI, and CI+CI mixes, respectively. Figure~\ref{fig:triton_operators} shows the speedup of the fused operator over the detached operators on NVIDIA RTX 4090 and A100 GPUs, where the x-axis represents the running configurations (detailed in Table~\ref{tab:moti_B_Config}).
+
+%that includes batch size, sequence length and hidden dimension. \textcolor{red}{The detailed configuration settings are provided 
+
+\begin{table}[htbp]
+  % \footnotesize
+  \small
+  \centering
+  \caption{The running configurations of fused operators.}
+  %%%%%\vspace{-5pt}
+  %\resizebox{\columnwidth}{!}{%
+  \begin{tabular}{c || c | c | c }
+    \hline
+    Name & Batch Size & Sequence Length & Hidden Dimension \\
+    \hline   \hline
+    G1/G2 & 1 & 128 & 512/1024 \\  \hline
+    G3/G4 & 1 & 4096 & 512/1024 \\ \hline
+    G5/G6 & 8 & 128 & 512/1024 \\  \hline
+    G7/G8 & 8 & 4096 & 512/1024 \\ \hline
+  \end{tabular}%
+  %}
+\label{tab:moti_B_Config}
+\end{table}
+
+It can be observed that the effect of operator fusion varies significantly under different cases. For example, the fused \texttt{GEMM}+\texttt{Layernorm} operator achieves a maximum speedup of 16.5$\times$ and 39.1$\times$ when the hidden dimension is 512. But when the hidden dimension is 1,024, it results in significant slowdowns in most cases. The fused \texttt{GEMM}+\texttt{GEMM} operator achieves more than 2$\times$ speedup on RTX 4090 GPU when batch size and sequence length are 1 and 128, whereas it is inferior to the detached operators under all cases on A100 GPU. The above results indicate that fixed operator fusion schemes cannot adapt to diverse inference scenarios.
+%all cases, and adaptive operator fusion is necessary to ensure compatibility with 
+
+
+
+\subsection{Challenges in Parameter Tuning}
+\label{sec:cos}
+
+
+
+
+
+The combination of fusion schemes and kernel parameters constructs a hierarchical optimization space, making parameter tuning challenging. This stems from two key insights: 1) the search space of individual operators differs fundamentally from that of the fused operator; 2) the optimal parameter settings for individual and fused operators are inherently distinct. Figure~\ref{fig:triton_configs} shows the speedup of fused operators using parameter settings from post-fusion tuning over those from individual tuning on NVIDIA RTX 4090 and A100 GPUs. The x-axis represents the experimental configuration consisting of batch size, sequence length and hidden dimension. As seen, directly applying the optimal setting of individual operators to their fused implementation often leads to suboptimal performance. For example, \texttt{Bias}+\texttt{Layernorm}, \texttt{GEMM}+\texttt{Layernorm}, and \texttt{GEMM}+\texttt{GEMM} mixes achieve an average speedup of 2.4$\times$, 10.1$\times$, and 2.2$\times$ on A100 GPU, respectively. The results indicate that operator-by-operator sequential tuning is not a viable solution. On the other hand, naive global tuning can be inefficient due to the inconsistent search space.
+%of different fusion schemes. 
+%To address these problems, we introduce a novel two-stage tuning mechanism that first determines the fusion scheme through performance feedback and then searches for kernel parameters through reward-based sampling.
+

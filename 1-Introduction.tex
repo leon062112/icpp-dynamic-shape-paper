@@ -1,0 +1,72 @@
+\section{Introduction}%1.25 pages
+\label{sec:introduction}
+
+% 第一段：深度学习在很多领域很流行，近些年来大模型逐渐兴起。
+
+%Deep learning (DL) has profoundly impacted many fields, such as computer vision~\cite{li2019deep}, natural language processing~\cite{stahlberg2020neural}, and robotics~\cite{sunderhauf2018limits}. 
+
+
+Large language models (LLMs) have attracted widespread attention from industry and academia around the world~\cite{chang2024survey,achiam2023gpt,guo2025deepseek}. The massive parameters enable LLMs to capture the subtleties of human language~\cite{ouyang2022training}. In addition to general understanding, 
+%LLMs also excel in handling domain-specific tasks~\cite{gu2021domain,thirunavukarasu2023large}.
+% 第二段：大模型的核心是Transformer，基于Transformer演化出丰富的网络结构。Transformer结构具有丰富的并行性，使得其容易在GPU上部署。
+Transformer is the foundation of LLMs and the core of its powerful capabilities~\cite{zhao2023survey}. A variety of neural networks~\cite{devlin2019bert,radford2019language,Raffel2020T5} have evolved based on Transformer, while still retaining its encoding or decoding structure. The tensor operations involved in Transformer have rich parallelism, making it suitable for execution on many-core processors such as GPUs~\cite{fang2021turbotransformers}. This forces the performance optimization of Transformer for GPU architectures to become an important issue, which can bring huge economic benefits~\cite{aminabadi2022deepspeed}. 
+
+% 第三段：引入到Sparse Transformer的支持：Attention的优化非常重要，但性能高的如FlashAttention没有灵活性；尤其是Attention机制和算子不断出现，支持多样的变体非常重要。
+
+% DWH: 在Abstract中已经提到过了 MHA的简写 在这里是否还需要再提一次
+Multi-head attention (MHA) is the essential building block in the Transformer model, where the attention module calculates the correlation among tokens in the input sequence~\cite{vaswani2017A}. The high-performance implementation of MHA fuses all tensor operations into one kernel, efficiently utilizing the memory hierarchy and function units~\cite{dao2022flashattention,zhai2023bytetransformer}. The novel MHA variants introduce mask layers to reduce the computational volume while maintaining accuracy~\cite{child2019generating}. The mask layer introduces sparsity to Transformer, and fragmented computation exacerbates the memory bandwidth bottleneck~\cite{wang2024raptor}. Furthermore, the explosive growth of masking patterns~\cite{zaheer2020big,beltagy2020longformer} makes it impractical to manually optimize each MHA variant separately. Although recent approaches~\cite{wang2024flashmask,dong2024flex} have supported a broader range of masking patterns with sparse representation or score modification, they are limited to continuous element distribution or suboptimal performance.
+
+% 第四段：Transformer里除了Attention之外的算子融合机会也不少。如MI/CI。已有方法（MCFuser、Ansor等）的局限性，rule-based的局限性。没有实现灵活的融合。
+
+There are still potential optimization opportunities for downstream operators of MHA. Compilation-based operator fusion is adopted to reduce kernel launches and frequent I/O operations~\cite{zheng2020ansor,ma2020rammer}. DL frameworks~\cite{zheng2022astitch,ansel2024pytorch} generally only fuse memory-intensive (MI) operators, while compute-intensive (CI) operators are handled separately using vendor libraries. Other studies~\cite{niu2021dnnfusion,zheng2021neoflow,shi2023welder} have further explored the fusion of CI operator and MI operator to complement resource utilization such as memory bandwidth and streaming processors. The latest works~\cite{zheng2023chimera,zhang2024mcfuser} focus on the fusion of CI operators and improve performance in small-scale tensor computation with short sequences. However, the above rule-driven operator fusion schemes cannot adapt to diverse model hyperparameters and sequence lengths.
+
+%network structures and hidden dimension sizes.
+%hyperparameters and sequence lengths.
+%rule-based operator fusion (e.g., register fusion of element-wise operators) cannot adapt to diverse hyperparameters or sequence lengths.
+%masking patterns 
+% DWH: 下游算子的融合机制，似乎和MHA部分的 masking patterns 没有关联，而是和潜在的包含了CI的左右融合边界 -- 以及方案内的参数调优 有关 
+
+%For certain scenarios, MHA may also be greedily incorporated to construct a larger range of operator fusion.
+
+% 第五段：从以上的分析可知，优化Sparse Transformer存在如下挑战：1）...；2）...；3）...。我们提出...。
+
+From the above analysis, sparse Transformer optimization faces the following challenges: 1) efficient kernel implementations with flexible representation of masking patterns; 2) adaptive operator fusion with sustained high performance for various computation scales; 3) fast exploration of hierarchical search space with fusion schemes and kernel parameters. 
+We propose the STOF framework, which optimizes sparse Transformer inference through customized MHA kernels and adaptive operator fusion. STOF first determines the kernel implementation for MHA computation according to mask sparsity and sequence length. Then, STOF uses the encoding representation to specify the fusion scheme and maps it to compilation templates. Finally, STOF gradually expands the fusion range and determines the optimal scheme and its parameter setting via two-stage searching.
+%with diverse masking patterns 
+%flexible representation of masking patterns and kernel implementations considering sparsity distribution; \textit{2)} adaptive operator fusion with sustained high performance for various  scales; \textit{3)} efficient exploration of hierarchical search space with fusion schemes and kernel parameters. 
+
+To the best of our knowledge, STOF is the first system to enable both flexible masking patterns and diverse operator fusion schemes for sparse Transformer scenarios. Specifically, STOF integrates  hand-tuned MHA kernels with generative compilation templates, providing a complete stack that establishes broader optimization opportunities.
+We have selected typical networks with encoding or decoding structures including BERT~\cite{devlin2019bert}, GPT~\cite{radford2019language}, LLaMA~\cite{touvron2023llama}, ViT~\cite{dosovitskiy2020image}, and T5~\cite{Raffel2020T5} to verify the effectiveness of STOF. This paper makes the following contributions:
+
+%establishing broader optimization opportunities 
+
+%integrate hand-tuned MHA kernels with generative compilation templates specifically for the sparse Transformer scenarios with diverse masking patterns and operator fusion schemes. 
+
+
+%fusion scenario while supporting flexible masking patterns and operator fusion schemes. More importantly, STOF provides a complete stack: from high-level fusion schemes to low-level kernel execution, which establishes broader optimization opportunities for sparse Transformer inference.
+
+
+% To the best of our knowledge, STOF is the first work to optimize the entire Sparse Transformer pipeline while supporting flexible masking patterns and operator fusion schemes.We have selected typical networks with encoding or decoding structures including BERT~\cite{devlin2019bert}, GPT~\cite{radford2019language}, LLaMA~\cite{touvron2023llama}, ViT~\cite{dosovitskiy2020image}, and T5~\cite{Raffel2020T5} to verify the effectiveness of STOF. This paper makes the following contributions:
+
+
+
+\begin{itemize}
+% 分析 GPU 相关信息
+\item We comprehensively analyze the impact of different masking patterns and inference configurations to expose potential optimization opportunities.
+%illustrate potential optimization opportunities to improve performance.
+% MHA算子
+\item We propose a unified MHA module that implements row-wise and block-wise kernels with unique storage formats and optimizations. Besides, an analytical model is designed to determine kernel selection.
+% 算子融合编码
+\item We propose an operator fusion module that converts the fusion scheme into compilation templates via numerical decoding. The search engine processes the encoded numerical representation and expands the fusion range based on performance feedback.
+
+%determines the optimal scheme and its parameter setting through two-stage tuning.
+
+%rewrites the graph based on the performance feedback of compiled programs.}
+% 搜索机制
+\item We develop an inference framework STOF that enables flexible masking patterns and determines the optimal operator fusion setting on GPU. The experimental results show that STOF achieves maximum speedups of 1.6$\times$ in MHA computation and 1.4$\times$ in end-to-end inference compared to the state-of-the-art work.
+
+\end{itemize}
+
+
+%The rest of this paper is organized as follows. Section~\ref{sec:background}
+%and Section~\ref{sec:motivation} present the background and motivation. Section~\ref{sec:method} and Section~\ref{sec:evaluation} present the methodology and evaluation results. Section~\ref{sec:relatedwork} discusses the related work, and Section~\ref{sec:conclusion} concludes this paper.

@@ -1,0 +1,193 @@
+\documentclass[sigplan,screen,10pt]{acmart}
+\settopmatter{printfolios=false,printccs=true,printacmref=true}
+
+\usepackage{amsmath,amsfonts}
+\usepackage[ruled,linesnumbered]{algorithm2e}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{xcolor}
+\usepackage{lipsum}
+\usepackage{booktabs}
+\usepackage{pifont}
+\usepackage{xkeyval}
+\usepackage{array}
+\usepackage{subcaption}
+\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
+\usepackage{subcaption}
+\captionsetup[sub]{labelfont=normalfont,textfont=normalfont}
+\usepackage{microtype}
+\usepackage{mathtools}
+
+\bibliographystyle{ACM-Reference-Format}
+
+%% Some recommended packages.
+\usepackage{booktabs}   %% For formal tables:
+                        %% http://ctan.org/pkg/booktabs
+\usepackage{subcaption} %% For complex figures with subfigures/subcaptions
+                        %% http://ctan.org/pkg/subcaption
+
+%%% The following is specific to PPoPP '26 and the paper
+%%% 'Accelerating Sparse Transformer Inference on GPU'
+%%% by Wenhao Dai, Haodong Deng, Mengfei Rong, Xinyu Yang, Hongyu Liu, Fangxin Liu, Hailong Yang, Qianwen Cao, and Qingxiao Sun.
+%%%
+\setcopyright{cc}
+\setcctype{by}
+\acmDOI{10.1145/3774934.3786434}
+\acmYear{2026}
+\copyrightyear{2026}
+\acmISBN{979-8-4007-2310-0/2026/01}
+\acmConference[PPoPP '26]{Proceedings of the 31st ACM SIGPLAN Annual Symposium on Principles and Practice of Parallel Programming}{January 31 -- February 4, 2026}{Sydney, NSW, Australia}
+\acmBooktitle{Proceedings of the 31st ACM SIGPLAN Annual Symposium on Principles and Practice of Parallel Programming (PPoPP '26), January 31 -- February 4, 2026, Sydney, NSW, Australia}
+\received{2025-09-01}
+\received[accepted]{2025-11-10}
+
+
+\begin{document}
+
+%% Title information
+\title{Accelerating Sparse Transformer Inference on GPU}
+
+
+\author{Wenhao Dai}
+\affiliation{
+  \department{SSSLab, Dept. of CST}
+  \institution{China University of Petroleum-Beijing} 
+  \city{Beijing}
+  \country{China}                    %% \country is recommended
+}
+\email{wenhao.dai@student.cup.edu.cn}          %% \email is recommended
+
+\author{Haodong Deng}
+\affiliation{
+  \department{SSSLab, Dept. of CST}
+  \institution{China University of Petroleum-Beijing} 
+  \city{Beijing}
+  \country{China}                    %% \country is recommended
+}
+\email{haodong.deng@student.cup.edu.cn}          %% \email is recommended
+
+\author{Mengfei Rong}
+\affiliation{
+  \department{SSSLab, Dept. of CST}
+  \institution{China University of Petroleum-Beijing} 
+  \city{Beijing}
+  \country{China}                    %% \country is recommended
+}
+\email{mengfei.rong@student.cup.edu.cn}          %% \email is recommended
+
+\author{Xinyu Yang}
+\affiliation{
+  \department{School of Computer Science and Engineering}
+  \institution{Beihang University} 
+  \city{Beijing}
+  \country{China}                    %% \country is recommended
+}
+\email{ltyxy@buaa.edu.cn}          %% \email is recommended
+
+\author{Hongyu Liu}
+\affiliation{
+  \department{} 
+  \institution{Baidu Inc.} 
+  \city{Beijing}
+  \country{China}                    %% \country is recommended
+}
+\email{liuhongyu02@baidu.com}          %% \email is recommended
+
+\author{Fangxin Liu}
+\affiliation{
+  \department{School of Computer Science}
+  \institution{Shanghai Jiao Tong University} 
+  \city{Shanghai}
+  \country{China}
+}
+
+\email{liufangxin@sjtu.edu.cn}          %% \email is recommended
+
+\author{Hailong Yang}
+\affiliation{
+  \department{School of Computer Science and Engineering}   
+  \institution{Beihang University} 
+  \city{Beijing}
+  \country{China}
+}
+\email{hailong.yang@buaa.edu.cn}          %% \email is recommended
+
+\author{Qianwen Cao}
+\affiliation{
+  \department{College of Safety and Ocean Engineering}   
+  \institution{China University of Petroleum-Beijing} 
+  \city{Beijing}
+  \country{China}                    %% \country is recommended
+}
+\email{qwcao@cup.edu.cn}          %% \email is recommended
+
+\author{Qingxiao Sun}
+\authornote{Corresponding author} 
+\affiliation{
+  \department{School of Computer Science and Engineering}
+  \institution{Beihang University} 
+  \city{Beijing}
+  \country{China}
+}
+\email{qingxiaosun@buaa.edu.cn}
+
+\renewcommand{\shortauthors}{Dai et al.}
+
+
+\begin{abstract}
+Large language models (LLMs) are popular around the world due to their powerful understanding capabilities. As the core component of LLMs, accelerating Transformer through parallelization has gradually become a hot research topic. Mask layers introduce sparsity into Transformer to reduce calculations. However, previous works rarely focus on the performance optimization of sparse Transformer. In addition, current static operator fusion schemes fail to adapt to diverse application scenarios.
+%Moreover, rule-based mechanisms ignore the fusion opportunities of mixed-type operators and fail to adapt to various sequence lengths. 
+To address the above problems, we propose STOF, a framework that incorporates optimizations for Sparse Transformer that enables flexible masking and Operator Fusion on GPU. 
+For multi-head attention (MHA) structure, STOF maps the computation to row-wise or block-wise kernels with unique storage formats according to analytical modeling.
+For downstream operators, STOF maps the fusion scheme to compilation templates and determines the optimal running configuration through two-stage searching. 
+The experimental results show that compared to the state-of-the-art work, STOF achieves maximum speedups of 1.6$\times$ in MHA computation and 1.4$\times$ in end-to-end inference.
+
+\end{abstract}
+
+
+\begin{CCSXML}
+<ccs2012>
+   <concept>
+       <concept_id>10010147.10010257</concept_id>
+       <concept_desc>Computing methodologies~Machine learning</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10010520.10010521.10010528.10010533</concept_id>
+       <concept_desc>Computer systems organization~Multiple instruction, single data</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+ </ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Computing methodologies~Machine learning}
+\ccsdesc[500]{Computer systems organization~Multiple instruction, single data}
+
+
+\keywords{GPU, Sparse Transformer, Multi-head Attention, Operator Fusion}
+
+\maketitle
+
+\input{1-Introduction.tex} %1.25 pages
+\input{2-Background.tex}  %1.5 pages
+\input{3-Motivation.tex}  %0.75 pages 
+\input{4-Method.tex}  %3 pages
+\input{5-Evaluation.tex} %4.25 pages
+\input{6-Relatedwork.tex} %0.5 pages
+\input{7-Conclusion.tex} %0.25 pages
+
+
+\section*{Acknowledgements}
+We sincerely thank our shepherd, Gagan Agrawal, and the anonymous reviewers for their insightful feedback that greatly improved this paper. This work is supported by National Natural Science Foundation of China (Grant No. 62402525, 62322201, U23B2020, 62402526), Beijing Natural Science Foundation (Grant No. 4244086), and CCF-Baidu Open Fund. Qingxiao Sun is the corresponding author.
+
+ %and the Fundamental Research Funds for the Central Universities (Grant No. 2462023YJRC023)
+
+% \vspace{-10pt}
+% \balance
+\bibliography{bibliography}
+
+% \balance
+
+\end{document}
