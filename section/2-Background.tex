@@ -1,7 +1,7 @@
 \section{Background}%1.5 pages  0.5pages/point
 \label{sec:background}
 
-\subsection{Sparsity in Transformer Models} 
+\subsection{Dynamic-Shape workloads in Deep Learning} 
 \label{sec:transformer_sparsity}
 
 \subsubsection{Transformer Structure} Transformer is a widely recognized DL structure, where each encoder or decoder contains multiple multi-head attention (MHA) layers~\cite{vaswani2017A}. The key operation of the MHA layer is scaled dot product attention (SDPA), which calculates the dot product of $Q$ and $K$, scales the result, optionally applies a mask at this stage, then applies the \texttt{Softmax} function to obtain the probabilities ($P$) and finally calculates the dot product of $P$ and $V$. Beyond MHA, Transformer includes downstream components: \texttt{Add} retains non-linear transformation information, \texttt{Norm} mitigates internal covariate shift via mean/variance normalization, and the \texttt{Feed Forward} layer comprises chained general matrix multiply (GEMM) operations with activations like \texttt{GELU} or \texttt{ReLU}. These components enable Transformer to handle complex cross-domain tasks while introducing operator characteristics that facilitate fusion-based optimizations.
@@ -36,10 +36,7 @@ Atomic sparse attention patterns are the building blocks of current popular spar
 
 
 
-% DWH: 我们的方式可以是一个 pass 的“形式”
-% 自动与手动的根本区别在于能不能自动的发现 Attention 结构然后进行替换
-% 虽然我们是手写的 CUDA kernel 
-\subsection{Fused Kernel for MHA Structure}
+\subsection{Tiled Kernel Compilation}
 \label{sec:kfam}
 
 
@@ -69,7 +66,7 @@ SPLAT~\cite{gupta2025splat} focuses on bridging the performance gap of regular s
 
 % 搜索空间构建，突出我们结合了loop-based和template-based，在Python层做了代码转换，基于basic template derive出不同loop类型的代码骨架
 % 更新下最新工作
-\subsection{Hierarchical Space Exploration}
+\subsection{Auto-tuning Techniques}
 \label{sec:hse}
 
 % 算子融合机会，需要改动内容不多，更新下引用

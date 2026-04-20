@@ -47,7 +47,7 @@
 
 
 % 重构motivation
-\subsection{Diverse Features of Masking Patterns}
+\subsection{Static Tuning Degrades Across Shapes}
 \label{sec:sparsity}
 
 Within the MHA structure, sparse mask blocks part of the data elements, making it easier for the model to ``focus'' on the critical information. The mask layer is inserted between \texttt{GEMM} and \texttt{Softmax} operations, and the weights of the score matrix corresponding to the mask part are close to 0. Table~\ref{tab:moti_A_sparsity} lists the features of typical masking patterns with the sequence length ($seq\_len$) of 1,024. Consistent with previous works~\cite{child2019generating}, the band width and global width are set to $\sqrt{seq\_len}$ (i.e., 32). 
@@ -82,7 +82,7 @@ It is difficult for a data structure to represent sparsity features of various m
 
 
 
-\subsection{Potential Fusion Opportunities}
+\subsection{Tile Configuration Trade-offs}
 \label{sec:atuo-fusion}
 
 
@@ -115,7 +115,7 @@ It can be observed that the effect of operator fusion varies significantly under
 
 
 
-\subsection{Challenges in Parameter Tuning}
+\subsection{Bottleneck Shifts Across Shapes}
 \label{sec:cos}
 
 

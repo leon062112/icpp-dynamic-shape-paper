@@ -48,7 +48,7 @@
 \begin{document}
 
 %% Title information
-\title{Dynamic Shape-Aware Memory Topology Analysis for Efficient Deep Learning Compilation}
+\title{Memory-Access-Guided Fusion and Shape-Adaptive Auto-Tuning for Dynamic GPU Operators}
 
 
 \author{Haodong Deng}
@@ -89,7 +89,6 @@
 \email{hailong.yang@buaa.edu.cn}          %% \email is recommended
 
 
-
 \author{Qingxiao Sun}
 \authornote{Corresponding author} 
 \affiliation{
@@ -104,12 +103,13 @@
 
 
 \begin{abstract}
-Large language models (LLMs) are popular around the world due to their powerful understanding capabilities. As the core component of LLMs, accelerating Transformer through parallelization has gradually become a hot research topic. Mask layers introduce sparsity into Transformer to reduce calculations. However, previous works rarely focus on the performance optimization of sparse Transformer. In addition, current static operator fusion schemes fail to adapt to diverse application scenarios.
-To address the above problems, we propose STOF, a framework that incorporates optimizations for Sparse Transformer that enables flexible masking and Operator Fusion on GPU. 
-For multi-head attention (MHA) structure, STOF maps the computation to row-wise or block-wise kernels with unique storage formats according to analytical modeling.
-For downstream operators, STOF maps the fusion scheme to compilation templates and determines the optimal running configuration through two-stage searching. 
-The experimental results show that compared to the state-of-the-art work, STOF achieves maximum speedups of 1.6$\times$ in MHA computation and 1.4$\times$ in end-to-end inference.
-
+Large language models (LLMs) have driven increasing demand for high-performance GPU kernels. 
+Many critical operators in these workloads exhibit dynamic shapes, while their performance is highly sensitive to shapes and kernel configurations. 
+However, existing approaches typically rely on static fusion rules or shape-specific tuning results, which fail to generalize across diverse runtime shapes 
+and often incur substantial performance loss under dynamic workloads. In addition, prior works rarely provide a unified mechanism to jointly decide 
+fusion strategies and tuning configurations based on hardware-level performance characteristics.
+To address these challenges, we propose a unified framework for dynamic GPU operator optimization that combines memory-access-guided fusion and shape-adaptive auto-tuning. For fused operator generation, our framework analyzes memory access behavior to determine whether and how operators should be fused, and maps different fusion decisions to corresponding compilation templates. For runtime optimization, our framework employs a shape-adaptive auto-tuning strategy that integrates an analytical cost model with residual learning to efficiently select high-performance kernel configurations under unseen shapes. In this way, the framework jointly optimizes fusion strategy, kernel template, and tuning parameters for dynamic workloads.
+Experimental results show that our approach consistently outperforms static fusion and static tuning baselines, achieving up to x speedup over existing methods.
 \end{abstract}
 
 

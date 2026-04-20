@@ -41,7 +41,7 @@ All subsequent operators after MHA are dense and executed via template-based fus
 
 
 
-\subsection{Unified MHA Kernels}
+\subsection{Memory-Access-Driven Operator Fusion}
 \label{subsec:unified-mha}
 % 第2段：描述 block-wise 的 BSR 结构
 \subsubsection{Sparse Storage Format}
@@ -168,7 +168,7 @@ threshold = \frac{{load\_row\_ptr }[\lceil\frac{seq\_len}{16}\rceil]}{(\lceil\fr
 % DWH：补充了 \tau 的敏感性分析 -- 来自于上次的 review
 
 
-\subsection{Fusion Scheme Conversion}
+\subsection{Parameterized Kernel Templates}
 \label{sec:fse}
 
 It is essential to express the fusion scheme appropriately, quantifying the dependencies among vertical operators and identifying the fusion boundaries. Inspired by the high-low voltage levels of digital circuits, we use binary hash codes as the numerical expression of fusion schemes. STOF maps the fused operators to compilation templates so that the compiler can further add kernel-level optimizations. From the perspective of the computational graph, the captured adjacent nodes are replaced with fused nodes.
@@ -201,7 +201,7 @@ Note that the numbers are unrelated to the operator characteristics, they are in
 The numerical expression is usually in binary, but it can also be converted to hexadecimal format with a higher compression rate. Intuitively, this expression approach constructs a flexible search space that can represent any fusion scheme. On this basis, we propose a two-stage search mechanism to tune the running configuration during inference.
 %fusion expansion and search space construction. 
 
-\subsection{Search Space Exploration}
+\subsection{Hardware-Aware Cost Model}
 \label{sec:psc}
 
 STOF deploys a search engine featuring scalable fusion boundaries and parameter-tuning capabilities. As depicted in Figure~\ref{fig:4-method-search}, 
