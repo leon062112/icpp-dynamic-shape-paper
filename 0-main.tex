@@ -1,6 +1,7 @@
 % \documentclass[sigplan,screen,10pt]{acmart}
 \documentclass[sigconf,review, anonymous]{acmart}
 \settopmatter{printfolios=false,printccs=false,printacmref=false}
+\renewcommand\footnotetextcopyrightpermission[1]{}
 
 \usepackage{amsmath,amsfonts}
 \usepackage[ruled,linesnumbered]{algorithm2e}
@@ -48,68 +49,69 @@
 \begin{document}
 
 %% Title information
-\title{Memory-Access-Guided Fusion and Shape-Adaptive Auto-Tuning for Dynamic GPU Operators}
+\title{Memory-Access-Guided Fusion and Shape-Adaptive Auto-Tuning for Dynamic Tensor Programs}
 
 
-\author{Haodong Deng}
-\affiliation{
-  \department{Dept. of CST}
-  \institution{China University of Petroleum-Beijing} 
-  \city{Beijing}
-  \country{China}                    %% \country is recommended
-}
-\email{haodong.deng@student.cup.edu.cn}          %% \email is recommended
-
-\author{Jianuo Sheng}
-\affiliation{
-  \department{Dept. of CST}
-  \institution{China University of Petroleum-Beijing} 
-  \city{Beijing}
-  \country{China}                    %% \country is recommended
-}
-\email{jianuo.sheng@student.cup.edu.cn}          %% \email is recommended
-
-\author{Wenhao Dai}
-\affiliation{
-  \department{Dept. of CST}
-  \institution{China University of Petroleum-Beijing} 
-  \city{Beijing}
-  \country{China}                    %% \country is recommended
-}
-\email{wenhao.dai@student.cup.edu.cn}          %% \email is recommended
-
-
-\author{Hailong Yang}
-\affiliation{
-  \department{School of Computer Science and Engineering}   
-  \institution{Beihang University} 
-  \city{Beijing}
-  \country{China}
-}
-\email{hailong.yang@buaa.edu.cn}          %% \email is recommended
-
-
-\author{Qingxiao Sun}
-\authornote{Corresponding author} 
-\affiliation{
-  \department{School of Computer Science and Engineering}
-  \institution{Beihang University} 
-  \city{Beijing}
-  \country{China}
-}
-\email{qingxiaosun@buaa.edu.cn}
+%\author{Haodong Deng}
+%\affiliation{
+%  \department{Dept. of CST}
+%  \institution{China University of Petroleum-Beijing} 
+%  \city{Beijing}
+%  \country{China}                    %% \country is recommended
+%}
+%\email{haodong.deng@student.cup.edu.cn}          %% \email is recommended
+%
+%\author{Jianuo Sheng}
+%\affiliation{
+%  \department{Dept. of CST}
+%  \institution{China University of Petroleum-Beijing} 
+%  \city{Beijing}
+%  \country{China}                    %% \country is recommended
+%}
+%\email{jianuo.sheng@student.cup.edu.cn}          %% \email is recommended
+%
+%\author{Wenhao Dai}
+%\affiliation{
+%  \department{Dept. of CST}
+%  \institution{China University of Petroleum-Beijing} 
+%  \city{Beijing}
+%  \country{China}                    %% \country is recommended
+%}
+%\email{wenhao.dai@student.cup.edu.cn}          %% \email is recommended
+%
+%
+%\author{Hailong Yang}
+%\affiliation{
+%  \department{School of Computer Science and Engineering}   
+%  \institution{Beihang University} 
+%  \city{Beijing}
+%  \country{China}
+%}
+%\email{hailong.yang@buaa.edu.cn}          %% \email is recommended
+%
+%
+%\author{Qingxiao Sun}
+%\authornote{Corresponding author} 
+%\affiliation{
+%  \department{School of Computer Science and Engineering}
+%  \institution{Beihang University} 
+%  \city{Beijing}
+%  \country{China}
+%}
+%\email{qingxiaosun@buaa.edu.cn}
 
 % \renewcommand{\shortauthors}{Deng et al.}
 
 
 \begin{abstract}
-Large language models (LLMs) have driven increasing demand for high-performance GPU kernels. 
+% SQX：确定intro后再调整
+\textcolor{red}{Large language models (LLMs) have driven increasing demand for high-performance GPU kernels. 
 Many critical operators in these workloads exhibit dynamic shapes, while their performance is highly sensitive to shapes and kernel configurations. 
 However, existing approaches typically rely on static fusion rules or shape-specific tuning results, which fail to generalize across diverse runtime shapes 
 and often incur substantial performance loss under dynamic workloads. In addition, prior works rarely provide a unified mechanism to jointly decide 
 fusion strategies and tuning configurations based on hardware-level performance characteristics.
 To address these challenges, we propose a unified framework for dynamic GPU operator optimization that combines memory-access-guided fusion and shape-adaptive auto-tuning. For fused operator generation, our framework analyzes memory access behavior to determine whether and how operators should be fused, and maps different fusion decisions to corresponding compilation templates. For runtime optimization, our framework employs a shape-adaptive auto-tuning strategy that integrates an analytical cost model with residual learning to efficiently select high-performance kernel configurations under unseen shapes. In this way, the framework jointly optimizes fusion strategy, kernel template, and tuning parameters for dynamic workloads.
-Experimental results show that our approach consistently outperforms static fusion and static tuning baselines, achieving up to x speedup over existing methods.
+Experimental results show that our approach consistently outperforms static fusion and static tuning baselines, achieving up to x speedup over existing methods.}
 \end{abstract}
 
 
