@@ -7,11 +7,16 @@
 
 
 
-
 \subsection{Tiled Program Compilation}
 \label{sec:compilation}
-
 %Triton, TileLang, cuTile ...
+
+Tiled program compilation has become a cornerstone of modern deep learning compiler design, fundamentally transforming how tensor computations are mapped onto GPU architectures. The core principle of tiling involves partitioning large-scale tensor operations into smaller, cache-friendly sub-blocks (tiles) that fit within fast on-chip memory, such as shared memory and register files. By iteratively processing these tiles, compilers can maximize data reuse, drastically reduce costly global memory transactions, and expose fine-grained parallelism across GPU streaming multiprocessors (SMs). In the tiled compilation paradigm, high-level computational graphs are systematically decomposed into tile-level execution units, with explicit control over data movement, computation scheduling, and synchronization. This abstraction not only mitigates memory bandwidth bottlenecks but also provides a structured optimization space for hardware-aware kernel generation, laying the groundwork for domain-specific languages (DSLs) that automate low-level GPU programming.
+
+Among the tiled programming works, Triton~\cite{tillet2019triton} has emerged as a paradigm-shifting Python-based DSL and compiler infrastructure, offering a high-level interface that abstracts CUDA complexities while serving as the default backend for PyTorch 2.x's \texttt{torch.compile} (\texttt{TorchInductor}). By translating framework-level IR into optimized GPU kernels through multi-stage transformations and tile-level scheduling, Triton effectively bridges high-level optimizations with hardware execution. Nevertheless, its tile scheduling and memory planning often rely on static heuristics or compile-time auto-tuning, which can struggle to adapt efficiently to highly dynamic tensor shapes and unpredictable runtime memory access patterns. To address hardware-specific tuning needs while preserving Triton compatibility, FlagTree~\cite{zhiyuan25flagtree} introduces TLE (Triton Language Extensions), which provides layered abstractions \texttt{Lite/Struct/Raw} for explicit control over distributed execution and memory access patterns with minimal migration cost.
+
+Recent tiled compilation works further refine scheduling via hardware-aware abstractions. cuTile~\cite{nvidia25cutile} provides a Python-based interface that automatically leverages NVIDIA GPU features (e.g., Tensor Cores, TMAs) while treating tiles as first-class immutable values for fine-grained data movement control. TileLang~\cite{cheng2025pipethreader}, built upon TVM~\cite{chen2018tvm}, addresses the limitation of ad-hoc, operator-specific pipelining in prior works like Triton and CUTLASS~\cite{nvidia22cutlass} by introducing the sTask-graph abstraction, a fine-grained dependency representation that decouples tiling from pipeline scheduling, enabling automatic discovery of efficient schedules for both established patterns (e.g., FlashAttention) and emerging operators. Nevertheless, these approaches still predominantly assume static or profile-determined tensor shapes, leaving dynamic-shape adaptation as an open challenge that motivates our memory-access-guided fusion and shape-adaptive auto-tuning.
+
 
 
 \subsection{Hierarchical Auto-tuning Techniques}
