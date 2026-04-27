@@ -6,11 +6,15 @@
 \subsection{Dynamic Shape in Deep Learning} 
 \label{sec:dynamic-shape}
 
+
 Deep learning systems were historically optimized under the static-shape assumption, where tensor dimensions are fixed before compilation and remain unchanged across executions. This assumption allows compilers and vendor libraries to specialize memory layouts, loop bounds, tiling factors, and kernel launch configurations for a single concrete shape. Modern deep learning workloads, however, frequently violate this assumption. Dynamic shapes arise from intrinsic data variability, such as variable sentence lengths in NLP~\cite{vaswani2017A,devlin2019bert,zhai2023byteTransformer}, different utterance durations in speech models~\cite{amodei2016deep}, and diverse image resolutions in vision and multimodal models~\cite{ren2015faster,dosovitskiy2020image}. They also arise from system-level execution dynamics, including changing batch sizes, request composition, prompt lengths, generated sequence lengths, and KV-cache sizes in LLM serving~\cite{touvron2023llama,dao2022flashattention,jiang2024minference}. Even within a fixed model architecture, the same operator type can appear with different dimensions at different layer positions or execution phases, which turns a single static operator into a family of dynamic tensor programs~\cite{zheng2022dietcode,zhou2025helix}.
 
 The prevalence of dynamic shapes creates several practical problems for high-performance execution. A kernel schedule tuned for one sequence length, batch size, or matrix dimension may become inefficient for another because arithmetic intensity, memory footprint, data reuse, and available parallelism all change with the shape. Padding and bucketing are common workarounds, but they convert irregular inputs into a small set of supported shapes by adding redundant computation and memory traffic; when the actual input is much smaller than the padded shape, the wasted work can dominate execution~\cite{kosec2021packing,fegade2022cora,mu2024ftuner}. Compiling or auto-tuning a separate implementation for every possible shape is also impractical, since conventional tensor-program search spaces are often shape-dependent and the number of shape combinations grows quickly~\cite{chen2018tvm,ragan2013halide,zheng2020ansor,zheng2022dietcode}. Sample-driven dynamic-shape compilers reduce this cost by tuning for representative shapes, but their performance can degrade when runtime inputs fall outside the sampled set, and changing the sample set usually requires additional tuning~\cite{shen2021nimble,zhou2025helix}.
 
 Dynamic shapes further complicate graph-level optimizations. Operator fusion, memory planning, and template selection depend on tensor extents because shape values determine intermediate tensor sizes, reuse distance, and whether temporary data can fit in on-chip memory. A fusion decision that is profitable for one runtime shape may increase register pressure, exceed shared-memory capacity, or reduce occupancy for another. Therefore, dynamic-shape support is not only a representation problem; it also requires hardware-aware reasoning about how runtime shapes affect memory access behavior, fusion opportunities, and kernel configuration choices.
+
+% 示意图：shape variability: Dynamic Workload → Dynamic Tensor Programs 
+% 左边是不同的 inference request，比如（seq len 16, batch 1），右边是对应的 tensor program （GEMM → Norm → Attention → GEMM）描述出每个算子的具体形状，和左边的request对应
 
 
 \subsection{Tiled Program Compilation}
@@ -23,7 +27,8 @@ Among the tiled programming works, Triton~\cite{tillet2019triton} has emerged as
 
 Recent tiled compilation works further refine scheduling via hardware-aware abstractions. cuTile~\cite{nvidia25cutile} provides a Python-based interface that automatically leverages NVIDIA GPU features (e.g., Tensor Cores, TMAs) while treating tiles as first-class immutable values for fine-grained data movement control. TileLang~\cite{cheng2025pipethreader}, built upon TVM~\cite{chen2018tvm}, addresses the limitation of ad-hoc, operator-specific pipelining in prior works like Triton and CUTLASS~\cite{nvidia22cutlass} by introducing the sTask-graph abstraction, a fine-grained dependency representation that decouples tiling from pipeline scheduling, enabling automatic discovery of efficient schedules for both established patterns (e.g., FlashAttention) and emerging operators. Nevertheless, these approaches still predominantly assume static or profile-determined tensor shapes, leaving dynamic-shape adaptation as an open challenge that motivates our memory-access-guided fusion and shape-adaptive auto-tuning.
 
-
+% 示意图：左边是完整的gemm，体现出矩阵的形状，右边是左边的一小块放大，展示具体的block级别的计算，体现tile size，以及数据如何移动，
+% 看看能不能继续体现出tile计算是如何映射到 GPU 硬件资源上（SM，warp，shared memory...）
 
 \subsection{Hierarchical Auto-tuning Techniques}
 \label{sec:autotuning}
