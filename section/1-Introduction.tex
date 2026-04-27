@@ -39,7 +39,7 @@ for end-to-end inference, especially when the dynamic dimensions span many possi
 input lengths, batch sizes, or model states. 
 For example, in Qwen3-8B\cite{yang2025qwen3}, even considering only the linear GEMMs in
 decoder layers, 128 possible effective token counts already induce 512 distinct
-GEMM shapes, which would require 78848 profiling runs if each shape were tuned 
+GEMM shapes, which would require over 70K profiling runs if each shape were tuned 
 independently over our candidate configuration space.
 
 % 第四段：动态形状编译器（给出学术界和工业界的典型例子）被提出...但其普遍只针对单独算子来调优...未考虑整网的算子融合机会...例如CI-MI之类的...只能取得次优性能...
