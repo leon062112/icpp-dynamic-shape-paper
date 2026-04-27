@@ -1,32 +1,126 @@
-\section{Introduction}%1 page
+\section{Introduction}
 \label{sec:introduction}
 
-% 注意多加引用
-
+{\color{blue}
 % 第一段：深度学习应用的强大能力使其活跃于各个领域...从CV到NLP，再到大模型、多模态...范式在逐渐演化
+Deep learning has become a dominant computing paradigm across computer vision,
+natural language processing, speech, recommendation, and multimodal
+applications~\cite{ren2015faster,dosovitskiy2020image,vaswani2017A,devlin2019bert,amodei2016deep}.
+Recent large language models~\cite{brown2020language,touvron2023llama,achiam2023gpt} 
+further amplify this trend by turning inference into a latency-critical and throughput-intensive 
+service workload, where requests differ in prompt length, generated length, batch composition. 
+As a result, the same model often executes a large family of tensor programs rather
+than a single fixed-shape computation. Operators such as GEMM, convolution,
+normalization, and attention repeatedly appear with changing tensor extents,
+making high-performance execution increasingly dependent on how systems handle
+runtime shape variability.
 
 % 第二段：深度学习的计算量很大，使其适合在GPU或领域特定加速器上部署...为了提高性能，厂商提出了cuDNN、xx等计算库..然而，开发高性能库非常耗时，且可能跟不上快速迭代的网络形态...
+The high arithmetic intensity and massive parallelism of deep learning make
+GPUs and domain-specific accelerators natural execution targets. To exploit
+these devices, vendor libraries such as cuBLAS, cuDNN, and CUTLASS~\cite{nvidia24cublas,chetlur2014cudnn,nvidia22cutlass} 
+provide highly optimized implementations for widely used dense tensor
+operators. These libraries are indispensable building blocks, but they cannot 
+fully cover the rapidly evolving space of model structures, operator combinations. 
+Developing and maintaining hand-optimized kernels is expensive, and the gap becomes 
+more visible when a workload requires many shape-specialized variants or customized 
+fused operators beyond the scope of prebuilt library routines.
 
 % 第三段：深度学习编译器支持张量程序的自动生成，且伴有调优器来最大化性能...然而其普遍针对静态形状...动态形状很常见...以Qwen模型为例...GEMM算子形状有几百个（具体数字）...针对每一种形状单独调优不现实...
+Deep learning compilers and auto-tuning systems address this programmability
+problem by automatically generating tensor programs and searching for efficient
+schedules~\cite{abadi2016tensorflow,paszke2019pytorch,chen2018tvm,chen2018autotvm,zheng2020ansor,ansel2024pytorch}.
+However, many of their optimization decisions remain tied to concrete shapes.
+A tiling factor, warp count, pipeline depth, or memory layout tuned for one
+shape may become inefficient for another because the amount of parallelism,
+padding overhead, data reuse, and memory footprint all change with tensor
+dimensions. Exhaustively tuning every runtime shape is therefore impractical 
+for end-to-end inference, especially when the dynamic dimensions span many possible 
+input lengths, batch sizes, or model states. 
+For example, in Qwen3-8B\cite{yang2025qwen3}, even considering only the linear GEMMs in
+decoder layers, 128 possible effective token counts already induce 512 distinct
+GEMM shapes, which would require 78848 profiling runs if each shape were tuned 
+independently over our candidate configuration space.
 
 % 第四段：动态形状编译器（给出学术界和工业界的典型例子）被提出...但其普遍只针对单独算子来调优...未考虑整网的算子融合机会...例如CI-MI之类的...只能取得次优性能...
+Recent dynamic-shape systems reduce this cost through shape-generic search
+spaces, symbolic shape representations, padding reduction, representative-shape
+tuning, or runtime dispatching~\cite{zheng2022dietcode,shen2021nimble,zhu2021disc,fegade2022cora,mu2024ftuner,zhou2025helix,lai2025relax}.
+These techniques make dynamic-shape execution more practical, but they
+typically focus on compiling or tuning individual operators, or on choosing
+among pre-generated implementations. Such a local view misses important
+end-to-end optimization opportunities. In particular, graph-level operator
+fusion can remove intermediate materialization, reduce off-chip memory traffic,
+and improve locality~\cite{niu2021dnnfusion,zheng2022astitch,shi2023welder,zheng2023chimera}.
+When fusion is determined by static operator categories or fixed graph patterns, the system 
+may miss potentially beneficial fusion opportunities, leading to suboptimal performance.
 
 % 第五段：近年来...基于tile的编译器逐渐流行如Triton, TileLang, cuTile等...这类的编译器在性能和灵活性上取得了权衡..方便用户编程...我们发现其在融合算子方面有很大潜力...调优后甚至取得比厂商算子库更高的性能...但同样其调优开销过于大...不适合于动态形状...
+Tile-based programming systems such as Triton\cite{tillet2019triton}, TileLang\cite{cheng2025pipethreader}, 
+and cuTile\cite{nvidia25cutile} offer a promising substrate for this problem.
+They expose tile-level computation and data movement while retaining much of
+the productivity of high-level programming, making them suitable for building
+custom fused operators. We observe that such templates can achieve high
+performance after tuning, and can even outperform vendor-library baselines.
+They can also express fusion patterns that are 
+difficult to cover with fixed vendor-library calls. 
+Nevertheless, the presence of dynamic shapes significantly enlarges the tuning space: 
+each runtime shape may favor a different tile size, warp configuration, or pipeline depth.
+As a result, achieving high performance requires extensive auto-tuning, whose cost 
+becomes too costly in dynamic-shape scenarios. A practical system must therefore 
+obtain the flexibility of tiled fused kernels without paying full auto-tuning cost for every possible shape.
 
 % 第六段：从以上的分析可知，优化端到端动态形状推理存在如下挑战：1）融合方案难以确定...2）缺乏高质量编译模板...3）调优成本太大...我们提出xxx...其首先...然后...最后...
+These observations reveal three challenges in optimizing end-to-end
+dynamic-shape inference. First, fusion decisions require memory-access
+reasoning rather than operator-name rules: the system must understand whether
+intermediate values are reused, streamed, reduced, or materialized, and whether
+fusion will reduce memory traffic without creating excessive on-chip resource
+pressure. Second, the compiler must map profitable fusion structures to
+high-quality tiled templates; otherwise, a fusion plan that is attractive at
+the graph level may still underperform at the kernel level. Third, the runtime
+must select kernel parameters efficiently across changing shapes, avoiding both
+static one-size-fits-all configurations and exhaustive per-shape profiling.
 
 % 第七段：据我们所知...这是第一份工作xxx....本文做出如下贡献....
+To address these challenges, we propose a unified framework for
+memory-access-guided fusion and shape-adaptive auto-tuning. The framework first
+analyzes the memory access behavior of operators to identify profitable
+fusion opportunities and map them to parameterized tiled templates. It then
+constructs a hardware-pruned configuration space and uses a trait-driven
+analytical scoring model to select high-performance parameters for each
+runtime shape. By jointly reasoning about fusion strategy, compilation
+template, and tuning configuration, the framework adapts dynamic tensor
+programs without relying on static fusion rules or exhaustive shape-specific
+tuning.
 
-
+To the best of our knowledge, this is the first framework that jointly
+integrates memory-access-guided fusion, tiled-template mapping, and
+shape-adaptive parameter selection for dynamic tensor programs.
+This paper makes the following contributions:
 
 \begin{itemize}
 
-\item % 我们全面分析了动态形状下端到端全局推理的性能瓶颈并给出潜在的优化机会...
+\item We propose a memory-access-guided fusion analysis that identifies
+profitable fusion opportunities, avoiding static fusion decisions based only on
+operator categories or fixed graph patterns.
 
-\item % 在图层，我们提出xx来确认融合方案并映射到编译模板...
+\item We design tiled compilation templates for representative GEMM,
+convolution, and fused operators, mapping fusion structures to parameterized
+tile-level implementations that expose key scheduling and execution parameters, 
+including tiling strategies, pipeline depth, and warp-level parallelism.
 
-\item % 在算子层，我们提出xx来针对指定形状快速确定参数配置...
+\item We develop a lightweight shape-adaptive auto-tuning cost model that ranks
+kernel configurations with hardware-aware analytical traits, enabling
+low-overhead configuration selection for unseen runtime shapes without
+exhaustive per-shape profiling.
 
-\item % 我们实现了xx框架...其...实验结果表明....
+\item We implement the proposed framework for representative GEMM, convolution,
+and fused operators, and evaluate its operator-level and end-to-end performance
+against existing baselines. Experimental results show
+\textcolor{red}{up to X speedup} for fused kernels and
+\textcolor{red}{up to X speedup} for end-to-end inference compared with
+state-of-the-art work.
 
 \end{itemize}
+}
