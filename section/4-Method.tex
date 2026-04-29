@@ -5,24 +5,341 @@
 \subsection{Design Overview}
 \label{sec:overview}
 
-% 给出设计概要图，突出各个组件之间的关联关系
+Figure shows the overall workflow of our framework.
+The input is a dynamic tensor program represented as a computation graph, plus
+the runtime shape observed during execution.  The output is a fused tiled
+kernel instantiated with a shape-specific configuration.  The key design is 
+to decouple fusion decisions from shape-dependent tuning, and reconnect them 
+through a unified template and trait abstraction. This avoids redoing fusion 
+for dynamic shapes while still enabling shape-adaptive performance optimization.
+
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=\linewidth]{figures/4-method-overview.pdf}
+%   \caption{Overview of the proposed framework.}
+%   \Description{The framework first analyzes fusion opportunities from the
+%   computation graph, maps fusible regions to tiled templates, and then selects
+%   shape-adaptive configurations using an analytical model.}
+%   \label{fig:method-overview}
+% \end{figure}
+
+The framework consists of three stages.  First, the fusion analysis inspects
+the producer-consumer structure of the graph and determines which
+mainloop-plus-epilogue regions can be fused.  This stage reasons about how the
+mainloop output, external inputs, and final outputs are accessed by the
+candidate region.  Because these access relationships are determined by the
+program structure, the resulting fusion plan is fixed for the compiled graph
+and does not change when runtime tensor extents vary.
+
+Second, each fusible region is mapped to a parameterized tiled template.  We
+represent the dominant computation with a small set of mainloop template
+families, currently GEMM and convolution, and represent the remaining fused computation 
+as an ordered sequence of epilogue primitives such as bias addition, activation, 
+row layer normalization, or batch normalization. This mapping gives different fused 
+operators a common template interface while preserving the information needed 
+by the backend kernel implementation.
+
+Third, for each runtime shape, the configuration selector chooses tile
+parameters for the selected template. The selector receives the template, 
+primitive sequence, candidate configurations, and hardware specification.  
+It then builds an operator description for the current shape,
+projects each candidate into hardware-aware execution traits, and ranks the
+candidates with a lightweight analytical model.  In this way, the framework
+keeps graph-level fusion decisions stable while adapting tile sizes, warp
+counts, and pipeline depths to dynamic shapes.
+
+The rest of this section describes these stages in order.  Section~\ref{sec:memory-access}
+introduces the access-driven fusion analysis, Section~\ref{sec:template}
+describes the template mapping and parallelization strategy, and
+Section~\ref{sec:determination} presents the shape-adaptive configuration
+selection model. Section~\ref{sec:impdetails} describes the details of our implementation.
 
 
 \subsection{Memory-Access-Driven Operator Fusion}
 \label{sec:memory-access}
 
-% 确定算子融合方案，其只和模型结构有关，在端到端推理过程中固定，和dynamic shape变化没有关系
+The fusion stage determines which producer–consumer regions can be lowered
+to our fused templates in Section~\ref{sec:template}. Unlike prior
+approaches that rely on operator patterns or predefined fusion rules, our
+method is driven by memory-access semantics. This makes the analysis robust
+to graph variations such as operator reordering or syntactic differences,
+while focusing on whether intermediate results can be kept on-chip.
+
+Importantly, fusion decisions depend only on the program’s data-dependence
+and memory-access structure, and are therefore invariant to runtime shapes.
+While dynamic shapes may affect the optimal tile configuration, they do not
+change the underlying dataflow of the graph. As a result, fusion analysis is
+performed once on the compiled graph, and the resulting fusion pattern is
+reused across all runtime executions.
+
+\textbf{Candidate extraction.}
+We analyze the program on a traced computation graph, focusing on mainloop–epilogue 
+regions where a GEMM or convolution feeds a small downstream subgraph. For each GEMM region, 
+we identify the matmul node and extract its downstream epilogue as a separate module, 
+while recording which input corresponds to the mainloop output and which are external 
+tensors (e.g., bias, scale, residual, normalization). This classification helps
+determine whether the mainloop output can be kept within the fused computation 
+without being written to global memory and establishes the dataflow
+boundary required to reason about fusion feasibility.
+
+\textbf{Access-flow normalization.}
+To enable systematic reasoning about memory behavior, we introduce an
+access-flow normalization that rewrites the epilogue into a canonical
+form based on load, compute, and store semantics. External inputs are
+modeled as explicit loads, outputs as stores, and the mainloop result
+as an in-flight value that should ideally bypass global memory.
+
+We then apply a set of access-preserving rewrite rules to simplify the
+epilogue graph to a fixed point. These rules capture common patterns
+such as pointwise transformations, accumulation with external tensors,
+and structured reductions. By normalizing different operator sequences
+into a common access form, this step exposes whether the dataflow can
+be implemented within a fused kernel without introducing intermediate
+global-memory traffic.
+
+\textbf{Fusibility check.}
+A candidate region is considered fusible if its normalized access flow
+can be fully expressed by the template abstraction. Concretely, all
+external tensors must correspond to supported load operations, all
+outputs must map to supported store patterns, and the mainloop value
+must have a valid producer–consumer path through the epilogue.
+
+This check ensures that fusion is not tied to specific operator
+sequences, but instead to whether the underlying dataflow can be
+realized within a single kernel. Regions that violate these constraints
+are conservatively left unfused, preserving correctness while keeping
+the fusion mechanism simple and predictable.
+
 
 \subsection{Template Mapping and Parallelization}
 \label{sec:template}
 
-% fused operator到template的映射，以及template的实现以及参数化供后续调优
+After identifying a fusible region, we map it to a parameterized tiled template. 
+Rather than generating a specialized kernel for each graph pattern, 
+we introduce a unified abstraction that represents fused
+operators using a small set of reusable template families and
+composition primitives. This abstraction bridges graph-level fusion
+and low-level scheduling by exposing a common interface for
+shape-adaptive configuration.
+
+\textbf{Template families.}
+Our current implementation supports two mainloop template families.  The first
+family is a GEMM mainloop, which covers matrix multiplication and GEMM-based
+fused operators.  A candidate is represented by its logical dimensions
+$(M,N,K)$, where $M$ often corresponds to the dynamic batch/token dimension in
+inference workloads.  The second family is an implicit-GEMM convolution
+mainloop.  For a convolution with batch size $B$, input channels $C$, output
+channels $O$, input height and width $(H,W)$, and kernel size $(R,S)$, we map
+the computation to an equivalent GEMM problem:
+\[
+M_c = B \cdot H_o \cdot W_o,\quad
+N_c = O,\quad
+K_c = C \cdot R \cdot S,
+\]
+where $H_o$ and $W_o$ are the output spatial dimensions.  This mapping allows
+GEMM and convolution templates to share the same high-level tiling parameters,
+while the convolution template additionally handles the address generation
+needed to gather input windows.
+
+\textbf{Fusion primitive mapping.}
+The non-mainloop portion of a fused region is represented as an ordered
+sequence of epilogue primitives. This design enables compositional
+construction of fused operators, where different combinations of
+pointwise and reduction operations are expressed through a shared
+primitive interface.
+
+For example, a GEMM followed by bias addition and ReLU is mapped to a GEMM mainloop 
+with \texttt{bias\_add} and \texttt{relu}, while a GEMM with row-wise normalization 
+is represented using \texttt{bias\_add} and \texttt{layernorm}. 
+Similarly, convolution epilogues such as batch normalization and activation are expressed
+through corresponding primitives.
+Table~\ref{tab:template-mapping} summarizes the template mapping used in our implementation.
+
+\begin{table}[H]
+  \centering
+  \caption{Mapping fused operator regions to tiled templates.}
+  \label{tab:template-mapping}
+  \small
+  \begin{tabularx}{\linewidth}{l l X}
+    \toprule
+    Region & Mainloop & Primitives \\
+    \midrule
+    GEMM & GEMM & -- \\
+    GEMM + bias + act. & GEMM & \texttt{bias\_add}, act. \\
+    GEMM + bias + LN & GEMM & \texttt{bias\_add}, \texttt{row\_layernorm} \\
+    Conv2d & Implicit GEMM & -- \\
+    Conv2d + ReLU & Implicit GEMM & \texttt{relu} \\
+    Conv2d + BN & Implicit GEMM & \texttt{batchnorm} \\
+    Conv2d + BN + ReLU & Implicit GEMM & \texttt{batchnorm}, \texttt{relu} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\textbf{Parameterized tile templates.}
+Each template exposes a common set of tunable parameters: block sizes
+$(B_M,B_N,B_K)$, the number of warps, and the number of pipeline stages. 
+These parameters define a shared configuration space across different operators, 
+enabling uniform exploration during shape-adaptive tuning.
+
+Given a configuration, the mainloop is tiled into a two dimensional grid with
+$\lceil M / B_M \rceil \times
+ \lceil N / B_N \rceil$
+thread blocks.  Each block computes one output tile and iterates over the
+$K$ dimension in chunks of $B_K$.  The pipeline depth controls how many tiles
+are prefetched and overlapped with computation, while the warp count controls
+the amount of intra-block parallelism.
+
+For GEMM-based templates, each block loads a tile of the left operand and a
+tile of the right operand, accumulates the partial result in registers, and
+then applies the epilogue primitives before writing the output tile.  Pointwise
+primitives such as bias addition, ReLU, GELU, and SiLU are directly applied to
+the accumulator tile.  Reduction primitives, such as row layer normalization,
+introduce extra reduction work over the output tile and are therefore modeled
+separately by the configuration selector. For implicit-GEMM convolution, the
+same logical tile structure is used, but each logical row index in $M_c$ is
+decoded into $(b,h_o,w_o)$ coordinates, and the template computes the
+corresponding input-window offsets on the fly.
+
+This abstraction provides a uniform interface between fusion and tuning. 
+Regardless of whether the fused region originates from GEMM, convolution, 
+or their combinations with epilogue operations, the configuration selector 
+operates over a consistent template family, primitive sequence, and 
+configuration space. This decoupling enables shape-adaptive tuning without 
+revisiting fusion decisions, which is essential for handling dynamic workloads.
 
 
 \subsection{Parameter Configuration Determination}
 \label{sec:determination}
 
-% 用analytical model或者cost model？但引入cost model的话得有ablation study，以及对于训练cost model的数据集输入要详细介绍
+Given a template family and a runtime shape, the remaining problem is to select
+a high-performance configuration without exhaustively profiling every
+candidate.  We use a trait-driven analytical model for this purpose.  The model
+projects the operator, candidate configuration, and target GPU into a set of execution
+traits, and then computes a relative score for configuration ranking.  This
+keeps online selection lightweight and avoids retraining when new dynamic shapes appear.
+
+\textbf{Unified operator and configuration representation.}
+The selector operates on three inputs. First, an operator specification
+(\textit{OpSpec}) describes the computation using a \textit{MainloopSpec}
+and an ordered list of \textit{FusionPrimitive} objects. Each primitive
+is characterized by execution traits such as per-output FLOPs, memory
+traffic, reduction axes, synchronization requirements, and preferred
+tile shapes. This representation abstracts diverse fused operators into
+a common semantic space.
+
+Second, a candidate \textit{TuneConfig} encodes tile sizes
+$(B_M,B_N,B_K)$, warp count, and pipeline depth. Third, a
+\textit{GPUSpec} captures hardware properties including SM count,
+memory bandwidth, and compute throughput. Together, these inputs define
+a structured interface that decouples operator semantics from
+configuration evaluation.
+
+\textbf{Execution trait projection.}
+For every pair of operator specification and candidate configuration, the model
+first computes a \textit{ConfigProjection}.  This projection summarizes how the
+current shape and tile configuration map to the GPU.  The main projected traits
+include the tile counts along each dimension, grid size, outputs per thread,
+mainloop iteration count, per-tile FLOPs and memory traffic, shared-memory
+usage, arithmetic intensity, estimated occupancy, resident blocks per SM, wave
+fill, and preferred pipeline depth.  For convolution, the projection also uses 
+the spatial reuse implied by the convolution kernel and stride to estimate input 
+and weight reuse.  By computing these traits once, all score terms consume the same 
+execution view of the candidate.
+
+\textbf{Analytical scoring.}
+The final score is a product of normalized efficiency terms:
+\[
+\begin{aligned}
+\mathrm{Score}(S,C,H) =
+& E_{\mathrm{main}} \cdot E_{\mathrm{mem}} \cdot E_{\mathrm{par}}
+  \cdot E_{\mathrm{pipe}} \\
+& \cdot E_{\mathrm{conv}} \cdot E_{\mathrm{epi}} \cdot E_{\mathrm{red}},
+\end{aligned}
+\]
+where $S$ is the operator specification under the current shape, $C$ is a
+candidate configuration, and $H$ is the target hardware.  Each term lies in
+$(0,1]$, We adopt a multiplicative formulation so that a severe bottleneck 
+in one dimension directly lowers the final score.
+
+$E_{\mathrm{main}}$ evaluates the main tiled computation.  It combines padding
+efficiency, the amount of work assigned to each thread, and the suitability of
+$B_K$.  The target outputs per thread is not fixed; it is adjusted according to
+wave fill and occupancy.  Therefore, large tiles are tolerated when the launch
+already exposes enough parallel work, but penalized when they reduce the number
+of schedulable blocks for small dynamic shapes.
+
+$E_{\mathrm{mem}}$ measures memory behavior using a roofline-inspired signal
+and shared-memory pressure.  The model compares the tile arithmetic intensity
+with the hardware ridge point to estimate whether the tile is likely to be
+memory limited, and penalizes configurations that consume too much shared
+memory per SM.  $E_{\mathrm{par}}$ captures SM-level parallelism through
+occupancy, wave fill, and warp-count efficiency, while
+$E_{\mathrm{pipe}}$ evaluates whether the chosen pipeline depth matches the
+number of mainloop iterations and the memory pressure of the operator.
+
+$E_{\mathrm{conv}}$ is enabled only for convolution.  It accounts
+for the extra address generation and input-window gathering cost that are not
+present in dense GEMM.  This term favors smaller tiles when spatial overlap is
+high and the launch is underfilled, because such shapes benefit more from
+exposing additional thread blocks.  $E_{\mathrm{epi}}$ evaluates the epilogue
+primitive sequence by comparing the candidate tile shape and outputs per thread
+with each primitive's preferred execution traits.  Finally,
+$E_{\mathrm{red}}$ handles reduction primitives by considering the reduction
+axis extent, extra passes, and synchronization cost.
+
+\textbf{Shape-adaptive selection.}
+At runtime, the selector evaluates the analytical score for every candidate
+configuration exposed by the template descriptor and returns the highest-ranked
+one.  Algorithm~\ref{alg:config-selection} summarizes this process.  The
+descriptor interface hides backend-specific details: each template only needs
+to provide a name, a function that builds its \textit{OpSpec} for a given
+shape, and a function that enumerates its candidate configurations.
+Then the scoring model, and returns the best raw configuration for kernel construction.
+
+\begin{algorithm}[t]
+\caption{Shape-adaptive configuration selection}
+\label{alg:config-selection}
+\KwIn{Template descriptor $D$, runtime shape $s$, hardware spec $H$}
+\KwOut{Best raw configuration $c^\star$}
+$\mathcal{C} \leftarrow D.\mathrm{getRawConfigs}(s)$\;
+$bestScore \leftarrow -\infty$, $c^\star \leftarrow \emptyset$\;
+\ForEach{$c \in \mathcal{C}$}{
+  $S \leftarrow D.\mathrm{makeOpSpec}(s,c)$\;
+  $C \leftarrow D.\mathrm{toTuneConfig}(c)$\;
+  $p \leftarrow \mathrm{project}(S,C,H)$\;
+  $score \leftarrow \mathrm{Score}(S,C,H)$\;
+  $score \leftarrow D.\mathrm{adjust}(c,score)$\;
+  \If{$score > bestScore$}{
+    $bestScore \leftarrow score$\;
+    $c^\star \leftarrow c$\;
+  }
+}
+\Return{$c^\star$}\;
+\end{algorithm}
+
+This process is shape-adaptive, as operator specifications and execution traits 
+are rebuilt per shape. Variations in problem dimensions alter execution characteristics 
+(e.g., grid size, occupancy, arithmetic intensity), enabling the selector to adapt to 
+unseen dynamic shapes without exhaustive tuning.
 
 \subsection{Implementation Details}
 \label{sec:impdetails}
+
+We implement a prototype system that integrates graph-level fusion,
+template-based kernel generation, and shape-adaptive configuration
+selection. The system is built on top of PyTorch FX for graph
+manipulation and TileLang for kernel implementation. The
+operator-fusion module operates on \texttt{fx.GraphModule}, where it
+performs memory-access analysis to identify fusible regions and
+rewrites them into template-backed operators when their access patterns
+match the supported abstraction.
+
+The tiled kernels are implemented in TileLang and connected to the
+configuration selector through a lightweight descriptor interface.
+Given a runtime shape, each descriptor constructs the corresponding
+operator specification and enumerates candidate configurations. The
+analytical model then selects the best configuration without exhaustive
+profiling, and the resulting kernel is instantiated for execution.
+Compiled kernels are cached based on template and configuration to
+amortize compilation overhead across dynamic shapes.
+
