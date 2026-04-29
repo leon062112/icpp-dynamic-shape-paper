@@ -296,6 +296,27 @@ to provide a name, a function that builds its \textit{OpSpec} for a given
 shape, and a function that enumerates its candidate configurations.
 Then the scoring model, and returns the best raw configuration for kernel construction.
 
+% \begin{algorithm}[t]
+% \caption{Shape-adaptive configuration selection}
+% \label{alg:config-selection}
+% \KwIn{Template descriptor $D$, runtime shape $s$, hardware spec $H$}
+% \KwOut{Best raw configuration $c^\star$}
+% $\mathcal{C} \leftarrow D.\mathrm{getRawConfigs}(s)$\;
+% $bestScore \leftarrow -\infty$, $c^\star \leftarrow \emptyset$\;
+% \ForEach{$c \in \mathcal{C}$}{
+%   $S \leftarrow D.\mathrm{makeOpSpec}(s,c)$\;
+%   $C \leftarrow D.\mathrm{toTuneConfig}(c)$\;
+%   $p \leftarrow \mathrm{project}(S,C,H)$\;
+%   $score \leftarrow \mathrm{Score}(S,C,H)$\;
+%   $score \leftarrow D.\mathrm{adjust}(c,score)$\;
+%   \If{$score > bestScore$}{
+%     $bestScore \leftarrow score$\;
+%     $c^\star \leftarrow c$\;
+%   }
+% }
+% \Return{$c^\star$}\;
+% \end{algorithm}
+
 \begin{algorithm}[t]
 \caption{Shape-adaptive configuration selection}
 \label{alg:config-selection}
@@ -303,12 +324,12 @@ Then the scoring model, and returns the best raw configuration for kernel constr
 \KwOut{Best raw configuration $c^\star$}
 $\mathcal{C} \leftarrow D.\mathrm{getRawConfigs}(s)$\;
 $bestScore \leftarrow -\infty$, $c^\star \leftarrow \emptyset$\;
+$S \leftarrow D.\mathrm{makeOpSpec}(s)$\;
 \ForEach{$c \in \mathcal{C}$}{
-  $S \leftarrow D.\mathrm{makeOpSpec}(s,c)$\;
   $C \leftarrow D.\mathrm{toTuneConfig}(c)$\;
   $p \leftarrow \mathrm{project}(S,C,H)$\;
-  $score \leftarrow \mathrm{Score}(S,C,H)$\;
-  $score \leftarrow D.\mathrm{adjust}(c,score)$\;
+  $score \leftarrow \mathrm{Score}(p)$\;
+  $score \leftarrow D.\mathrm{backendAdjust}(c, score)$\;
   \If{$score > bestScore$}{
     $bestScore \leftarrow score$\;
     $c^\star \leftarrow c$\;
