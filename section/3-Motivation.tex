@@ -1,11 +1,10 @@
 \section{Motivation}%0.75 pages
 \label{sec:motivation}
 
-\subsection{Operator Fusion Opportunities}
-\label{sec:fusion}
+% \subsection{Operator Fusion Opportunities}
+% \label{sec:fusion}
 
 % 可做两部分实验，以GEMM为例，dynamic shape下，一个是单独算子，另一个是融合算子，单独算子时triton/tilelang能够比得过cublas/cudnn的比例较低；但融合算子对比cutlass等NVIDIA实现的融合算子，很大程度上会显示出优势？
-
 % 从而服务于contribution 1-2，算子融合的必要性，以及triton/tilelang的模板保留了高性能和灵活性
 
 
@@ -13,6 +12,62 @@
 \label{sec:static}
 
 % 以基于GEMM的融合算子为例，可给出热力图，证明不同形状下最优配置是有差别的，没有one-fits-all，服务于contribution 3
+
+Dynamic shapes not only change the amount of work in an operator, but also
+alter the best low-level implementation strategy.  We use a GEMM-based fused
+operator to demonstrate this effect.  The operator keeps the reduction and
+output-channel dimensions fixed at $K=768$ and $N=2304$, while the dynamic
+batch/token dimension $M$ varies from 24 to 256.  For each shape, we
+exhaustively evaluate 154 valid configurations, including different
+\texttt{BLOCK\_M}, \texttt{BLOCK\_N}, \texttt{BLOCK\_K},
+\texttt{num\_warps}, and \texttt{num\_stages}.  This setting emulates a common
+case in dynamic-shape inference: the same fused computation is repeatedly
+invoked with different runtime shapes, but the best kernel configuration must
+still be selected for each invocation.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/3-moti-heatmap.pdf}
+  \caption{Configuration performance across shapes.}
+  \Description{A heatmap showing that different dynamic shapes select different
+  optimal tuning configurations.}
+  \label{fig:motivation-config-heatmap}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/3-moti-perfloss.pdf}
+  \caption{Static tuning performance loss.}
+  \Description{A bar chart comparing per-shape best latency with the latency of
+  a static configuration selected at the largest shape.}
+  \label{fig:motivation-static-loss}
+\end{figure}
+
+Figure~\ref{fig:motivation-config-heatmap} shows that the optimal
+configuration is not stable across shapes.  In the heatmap, each cell reports
+latency normalized to the best latency of the corresponding shape, and the star
+marks the per-shape optimum.  Among the eight tested shapes, the per-shape
+optimum comes from seven different configurations.  For example, using the tuple
+$(\texttt{BLOCK\_M}, \texttt{BLOCK\_N}, \texttt{BLOCK\_K},
+\texttt{warps}, \texttt{stages})$, the best configuration changes from
+$(32,64,64,2,4)$ at $M=24$, to $(64,64,32,4,5)$ at $M=100$, and to
+$(32,64,32,2,5)$ at $M=256$.  Such variation occurs because the same tile shape
+induces different trade-offs under different $M$ values: small shapes require
+enough parallel tasks to occupy the GPU, while larger shapes can benefit more
+from data reuse, pipeline depth, and reduced scheduling overhead.
+Consequently, a configuration that is close to optimal for one shape may be
+noticeably suboptimal for another.
+
+Figure~\ref{fig:motivation-static-loss} quantifies the consequence of using a
+single static configuration.  The static baseline chooses the best
+configuration at the largest shape ($M=256$) and reuses it for all shapes.  This
+baseline incurs an average latency loss of 11.6\%, and the loss reaches 52.9\%
+at $M=100$.  These results indicate that there is no one-size-fits-all
+configuration for dynamic-shape fused operators.  At the same time,
+exhaustively tuning every possible runtime shape is too expensive for
+end-to-end inference.  This motivates a shape-adaptive configuration selection
+mechanism that can quickly identify a high-performance configuration for each
+dynamic shape without running full autotuning.
 
 %\subsection{Tile Configuration Trade-offs}
 %\label{sec:atuo-fusion}
@@ -26,3 +81,48 @@
 
 % 以GEMM和卷积算子为例，各画一个roofline model？不同shape下不同configuration的差别，证明比如随着shape变化，更趋向于memory-bound或compute-bound
 
+The variation in optimal configurations is rooted in hardware-level bottleneck
+shifts.  To further understand this effect, we profile the same GEMM-based
+fused operator with a wider range of dynamic shapes, where $M$ increases from
+24 to 4096 while $N$ and $K$ remain fixed.  We compare two representative
+configurations selected from the tuning results: Config-A uses a larger tile
+$(128,128,32)$ and is favored by large shapes, while Config-B uses a smaller
+tile $(32,32,64)$ and is favored by small shapes.  We collect NCU metrics for
+both configurations, including achieved occupancy, L2 hit rate, and DRAM
+throughput.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/3-moti-bottleneck.pdf}
+  \caption{Bottleneck shifts across shapes.}
+  \Description{A line chart comparing two tuning configurations across dynamic
+  shapes, showing normalized latency, occupancy, L2 hit rate, and DRAM
+  throughput.}
+  \label{fig:motivation-bottleneck}
+\end{figure}
+
+Figure~\ref{fig:motivation-bottleneck} shows that the preferred configuration
+changes together with the hardware behavior.  The normalized latency is
+computed against the faster of the two configurations at each shape.  At small
+shapes, Config-B is up to 2.5$\times$ faster than Config-A.  This is because
+the large tile in Config-A creates too few thread blocks to keep the GPU busy,
+leading to low occupancy and poor latency amortization.  In contrast, Config-B
+generates more independent tiles and exposes more parallel work, making it more
+suitable for small dynamic dimensions.
+
+As $M$ increases, the bottleneck shifts.  Config-A becomes faster from
+$M=256$ onward and is 2.5$\times$ faster than Config-B at $M=4096$.  Although
+Config-B maintains higher occupancy, Config-A obtains increasingly better data
+reuse: its L2 hit rate grows from 42.8\% at $M=24$ to 92.7\% at $M=4096$.
+Meanwhile, the DRAM throughput of Config-B drops from 25.5\% to 4.3\%,
+indicating that the smaller tile spends more time on repeated memory traffic
+and scheduling overhead rather than sustained useful work.  Therefore, the
+optimization objective moves from exposing enough parallelism at small shapes
+to improving data reuse and execution efficiency at large shapes.
+
+This bottleneck migration explains why a static configuration cannot cover all
+runtime shapes.  The best configuration is determined not only by the operator
+template, but also by how the current shape maps the template to hardware
+resources.  A practical dynamic-shape compiler therefore needs to select
+tuning parameters in a shape-aware manner, instead of relying on a fixed
+configuration chosen offline.

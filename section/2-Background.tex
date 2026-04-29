@@ -7,28 +7,106 @@
 \label{sec:dynamic-shape}
 
 
-Deep learning systems were historically optimized under the static-shape assumption, where tensor dimensions are fixed before compilation and remain unchanged across executions. This assumption allows compilers and vendor libraries to specialize memory layouts, loop bounds, tiling factors, and kernel launch configurations for a single concrete shape. Modern deep learning workloads, however, frequently violate this assumption. Dynamic shapes arise from intrinsic data variability, such as variable sentence lengths in NLP~\cite{vaswani2017A,devlin2019bert,zhai2023byteTransformer}, different utterance durations in speech models~\cite{amodei2016deep}, and diverse image resolutions in vision and multimodal models~\cite{ren2015faster,dosovitskiy2020image}. They also arise from system-level execution dynamics, including changing batch sizes, request composition, prompt lengths, generated sequence lengths, and KV-cache sizes in LLM serving~\cite{touvron2023llama,dao2022flashattention,jiang2024minference}. Even within a fixed model architecture, the same operator type can appear with different dimensions at different layer positions or execution phases, which turns a single static operator into a family of dynamic tensor programs~\cite{zheng2022dietcode,zhou2025helix}.
+Deep learning systems were historically optimized under the static-shape assumption, 
+where tensor dimensions are fixed before compilation and remain unchanged across executions. 
+This assumption allows compilers and vendor libraries to specialize memory layouts, loop bounds, 
+tiling factors, and kernel launch configurations for a single concrete shape. Modern deep learning 
+workloads, however, frequently violate this assumption. Dynamic shapes arise from intrinsic data variability, 
+such as variable sentence lengths in NLP~\cite{vaswani2017A,devlin2019bert,zhai2023byteTransformer}, 
+different utterance durations in speech models~\cite{amodei2016deep}, and diverse image resolutions 
+in vision and multimodal models~\cite{ren2015faster,dosovitskiy2020image}. They also arise from system-level 
+execution dynamics, including changing batch sizes, request composition, prompt lengths, generated sequence lengths, 
+and KV-cache sizes in LLM serving~\cite{touvron2023llama,dao2022flashattention,jiang2024minference}. Even within 
+a fixed model architecture, the same operator type can appear with different dimensions at different layer positions 
+or execution phases, which turns a single static operator into a family of dynamic tensor programs~\cite{zheng2022dietcode,zhou2025helix}.
 
-The prevalence of dynamic shapes creates several practical problems for high-performance execution. A kernel schedule tuned for one sequence length, batch size, or matrix dimension may become inefficient for another because arithmetic intensity, memory footprint, data reuse, and available parallelism all change with the shape. Padding and bucketing are common workarounds, but they convert irregular inputs into a small set of supported shapes by adding redundant computation and memory traffic; when the actual input is much smaller than the padded shape, the wasted work can dominate execution~\cite{kosec2021packing,fegade2022cora,mu2024ftuner}. Compiling or auto-tuning a separate implementation for every possible shape is also impractical, since conventional tensor-program search spaces are often shape-dependent and the number of shape combinations grows quickly~\cite{chen2018tvm,ragan2013halide,zheng2020ansor,zheng2022dietcode}. Sample-driven dynamic-shape compilers reduce this cost by tuning for representative shapes, but their performance can degrade when runtime inputs fall outside the sampled set, and changing the sample set usually requires additional tuning~\cite{shen2021nimble,zhou2025helix}.
+The prevalence of dynamic shapes creates several practical problems for high-performance execution. 
+A kernel schedule tuned for one sequence length, batch size, or matrix dimension may become inefficient 
+for another because arithmetic intensity, memory footprint, data reuse, and available parallelism all 
+change with the shape. Padding and bucketing are common workarounds, but they convert irregular inputs into 
+a small set of supported shapes by adding redundant computation and memory traffic; when the actual input is 
+much smaller than the padded shape, the wasted work can dominate execution~\cite{kosec2021packing,fegade2022cora,mu2024ftuner}. 
+Compiling or auto-tuning a separate implementation for every possible shape is also impractical, since conventional 
+tensor-program search spaces are often shape-dependent and the number of shape combinations grows 
+quickly~\cite{chen2018tvm,ragan2013halide,zheng2020ansor,zheng2022dietcode}. Sample-driven dynamic-shape compilers 
+reduce this cost by tuning for representative shapes, but their performance can degrade when runtime inputs fall outside 
+the sampled set, and changing the sample set usually requires additional tuning~\cite{shen2021nimble,zhou2025helix}.
 
-Dynamic shapes further complicate graph-level optimizations. Operator fusion, memory planning, and template selection depend on tensor extents because shape values determine intermediate tensor sizes, reuse distance, and whether temporary data can fit in on-chip memory. A fusion decision that is profitable for one runtime shape may increase register pressure, exceed shared-memory capacity, or reduce occupancy for another. Therefore, dynamic-shape support is not only a representation problem; it also requires hardware-aware reasoning about how runtime shapes affect memory access behavior, fusion opportunities, and kernel configuration choices.
+Dynamic shapes further complicate graph-level optimizations. Operator fusion, memory planning, and template selection 
+depend on tensor extents because shape values determine intermediate tensor sizes, reuse distance, and whether temporary data 
+can fit in on-chip memory. A fusion decision that is profitable for one runtime shape may increase register pressure, 
+exceed shared-memory capacity, or reduce occupancy for another. Therefore, dynamic-shape support is not only a representation 
+problem; it also requires hardware-aware reasoning about how runtime shapes affect memory access behavior, fusion opportunities, 
+and kernel configuration choices.
 
-% 示意图：shape variability: Dynamic Workload → Dynamic Tensor Programs 
-% 左边是不同的 inference request，比如（seq len 16, batch 1），右边是对应的 tensor program （GEMM → Norm → Attention → GEMM）描述出每个算子的具体形状，和左边的request对应
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/2-bg-dynamic.pdf}
+  \caption{Dynamic inference requests produce different tensor-program instances.}
+  \Description{An illustration showing that inference requests with different
+  runtime shapes are mapped to tensor programs whose operators have different
+  concrete dimensions.}
+  \label{fig:bg-dynamic}
+\end{figure}
+
+Figure~\ref{fig:bg-dynamic} illustrates this effect in an inference workload. Different requests, such as those with different 
+batch sizes or sequence lengths, instantiate the same model graph with different concrete tensor dimensions. As a result, 
+operators such as GEMM, convolution, and attention are not optimized once for a fixed shape; instead, they form a set of 
+related tensor-program instances whose memory footprint, reuse pattern, and parallelism change with the runtime input. 
+This paper refers to such a family of shape-dependent operator instances as dynamic tensor programs.
 
 
 \subsection{Tiled Program Compilation}
 \label{sec:compilation}
 %Triton, TileLang, cuTile ...
 
-Tiled program compilation has become a cornerstone of modern deep learning compiler design, fundamentally transforming how tensor computations are mapped onto GPU architectures. The core principle of tiling involves partitioning large-scale tensor operations into smaller, cache-friendly sub-blocks (tiles) that fit within fast on-chip memory, such as shared memory (SMEM) and register files. By iteratively processing these tiles, compilers can maximize data reuse, drastically reduce costly global memory transactions, and expose fine-grained parallelism across GPU streaming multiprocessors (SMs). In the tiled compilation paradigm, high-level computational graphs are systematically decomposed into tile-level execution units, with explicit control over data movement, computation scheduling, and synchronization. This abstraction not only mitigates memory bandwidth bottlenecks but also provides a structured optimization space for hardware-aware kernel generation, laying the groundwork for domain-specific languages (DSLs) that automate low-level GPU programming.
+Tiled program compilation has become a cornerstone of modern deep learning compiler design, fundamentally transforming 
+how tensor computations are mapped onto GPU architectures. The core principle of tiling involves partitioning large-scale 
+tensor operations into smaller, cache-friendly sub-blocks (tiles) that fit within fast on-chip memory, such as 
+shared memory (SMEM) and register files. By iteratively processing these tiles, compilers can maximize data reuse, 
+drastically reduce costly global memory transactions, and expose fine-grained parallelism across GPU 
+streaming multiprocessors (SMs). In the tiled compilation paradigm, high-level computational graphs are systematically 
+decomposed into tile-level execution units, with explicit control over data movement, computation scheduling, and 
+synchronization. This abstraction not only mitigates memory bandwidth bottlenecks but also provides a structured optimization 
+space for hardware-aware kernel generation, laying the groundwork for domain-specific languages (DSLs) that automate low-level 
+GPU programming.
 
-Among the tiled programming works, Triton~\cite{tillet2019triton} has emerged as a paradigm-shifting Python-based DSL and compiler infrastructure, offering a high-level interface that abstracts CUDA complexities while serving as the default backend for PyTorch 2.x's \texttt{torch.compile} (\texttt{TorchInductor}). By translating framework-level IR into optimized GPU kernels through multi-stage transformations and tile-level scheduling, Triton effectively bridges high-level optimizations with hardware execution. Nevertheless, its tile scheduling and memory planning often rely on static heuristics or compile-time auto-tuning, which can struggle to adapt efficiently to highly dynamic tensor shapes and unpredictable runtime memory access patterns. To address hardware-specific tuning needs while preserving Triton compatibility, FlagTree~\cite{zhiyuan25flagtree} introduces TLE (Triton Language Extensions), which provides layered abstractions \texttt{Lite/Struct/Raw} for explicit control over distributed execution and memory access patterns with minimal migration cost.
+Among the tiled programming works, Triton~\cite{tillet2019triton} has emerged as a paradigm-shifting Python-based DSL and 
+compiler infrastructure, offering a high-level interface that abstracts CUDA complexities while serving as the default backend 
+for PyTorch 2.x's \texttt{torch.compile} (\texttt{TorchInductor}). By translating framework-level IR into optimized GPU kernels 
+through multi-stage transformations and tile-level scheduling, Triton effectively bridges high-level optimizations with 
+hardware execution. Nevertheless, its tile scheduling and memory planning often rely on static heuristics or compile-time 
+auto-tuning, which can struggle to adapt efficiently to highly dynamic tensor shapes and unpredictable runtime memory access 
+patterns. To address hardware-specific tuning needs while preserving Triton compatibility, FlagTree~\cite{zhiyuan25flagtree} 
+introduces TLE (Triton Language Extensions), which provides layered abstractions \texttt{Lite/Struct/Raw} for explicit control 
+over distributed execution and memory access patterns with minimal migration cost.
 
-Recent tiled compilation works further refine scheduling via hardware-aware abstractions. cuTile~\cite{nvidia25cutile} provides a Python-based interface that automatically leverages NVIDIA GPU features (e.g., Tensor Cores, TMAs) while treating tiles as first-class immutable values for fine-grained data movement control. TileLang~\cite{cheng2025pipethreader}, built upon TVM~\cite{chen2018tvm}, addresses the limitation of ad-hoc, operator-specific pipelining in prior works like Triton and CUTLASS~\cite{nvidia22cutlass} by introducing the sTask-graph abstraction, a fine-grained dependency representation that decouples tiling from pipeline scheduling, enabling automatic discovery of efficient schedules for both established patterns (e.g., FlashAttention) and emerging operators. Nevertheless, these approaches still predominantly assume static or profile-determined tensor shapes, leaving dynamic-shape adaptation as an open challenge that motivates our memory-access-guided fusion and shape-adaptive auto-tuning.
+Recent tiled compilation works further refine scheduling via hardware-aware abstractions. cuTile~\cite{nvidia25cutile} provides 
+a Python-based interface that automatically leverages NVIDIA GPU features (e.g., Tensor Cores, TMAs) while treating tiles as 
+first-class immutable values for fine-grained data movement control. TileLang~\cite{cheng2025pipethreader}, built upon 
+TVM~\cite{chen2018tvm}, addresses the limitation of ad-hoc, operator-specific pipelining in prior works like Triton and 
+CUTLASS~\cite{nvidia22cutlass} by introducing the sTask-graph abstraction, a fine-grained dependency representation that 
+decouples tiling from pipeline scheduling, enabling automatic discovery of efficient schedules for both established patterns 
+(e.g., FlashAttention) and emerging operators. Nevertheless, these approaches still predominantly assume static or profile-determined 
+tensor shapes, leaving dynamic-shape adaptation as an open challenge that motivates our memory-access-guided fusion and 
+shape-adaptive auto-tuning.
 
-% 示意图：左边是完整的gemm，体现出矩阵的形状，右边是左边的一小块放大，展示具体的block级别的计算，体现tile size，以及数据如何移动，
-% 看看能不能继续体现出tile计算是如何映射到 GPU 硬件资源上（SM，warp，shared memory...）
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/2-bg-tile.pdf}
+  \caption{Tile-level GPU execution for tensor programs.}
+  \Description{An illustration showing a tensor operation partitioned into
+  tiles, with each tile mapped to GPU execution resources such as SMs, warps,
+  registers, and shared memory.}
+  \label{fig:bg-tile}
+\end{figure}
+
+As shown in Figure~\ref{fig:bg-tile}, tiled compilation exposes a compact but performance-critical configuration space. Tile sizes 
+determine the amount of data loaded into shared memory and registers, the reuse opportunity inside a thread block, and the 
+number of blocks available to occupy SMs. The number of warps controls intra-block parallelism and scheduling pressure, 
+while pipeline stages trade memory-latency hiding against additional resource consumption. Because dynamic shapes change 
+the number of tiles, boundary padding, and reuse distance, the best balance among these parameters can vary across runtime
+inputs even for the same operator template.
 
 \subsection{Hierarchical Auto-tuning Techniques}
 \label{sec:autotuning}
