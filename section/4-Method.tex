@@ -5,7 +5,7 @@
 \subsection{Design Overview}
 \label{sec:overview}
 
-Figure shows the overall workflow of our framework.
+Figure shows the overall workflow of MAGSAT.
 The input is a dynamic tensor program represented as a computation graph, plus
 the runtime shape observed during execution.  The output is a fused tiled
 kernel instantiated with a shape-specific configuration.  The key design is 
@@ -16,20 +16,19 @@ for dynamic shapes while still enabling shape-adaptive performance optimization.
 % \begin{figure}[t]
 %   \centering
 %   \includegraphics[width=\linewidth]{figures/4-method-overview.pdf}
-%   \caption{Overview of the proposed framework.}
-%   \Description{The framework first analyzes fusion opportunities from the
+%   \caption{Overview of MAGSAT.}
+%   \Description{MAGSAT first analyzes fusion opportunities from the
 %   computation graph, maps fusible regions to tiled templates, and then selects
 %   shape-adaptive configurations using an analytical model.}
 %   \label{fig:method-overview}
 % \end{figure}
 
-The framework consists of three stages.  First, the fusion analysis inspects
-the producer-consumer structure of the graph and determines which
-mainloop-plus-epilogue regions can be fused.  This stage reasons about how the
-mainloop output, external inputs, and final outputs are accessed by the
-candidate region.  Because these access relationships are determined by the
-program structure, the resulting fusion plan is fixed for the compiled graph
-and does not change when runtime tensor extents vary.
+MAGSAT consists of three stages.  First, the fusion stage determines which 
+regions can be lowered to fused templates by analyzing memory-access semantics derived 
+from the computation graph. It first identifies candidate regions based on data 
+dependencies, then normalizes each region into load, compute, and store operations, 
+and determines fusibility based on whether the mainloop output can be kept on-chip 
+without intermediate global-memory writes.
 
 Second, each fusible region is mapped to a parameterized tiled template.  We
 represent the dominant computation with a small set of mainloop template
@@ -44,7 +43,7 @@ parameters for the selected template. The selector receives the template,
 primitive sequence, candidate configurations, and hardware specification.  
 It then builds an operator description for the current shape,
 projects each candidate into hardware-aware execution traits, and ranks the
-candidates with a lightweight analytical model.  In this way, the framework
+candidates with a lightweight analytical model.  In this way, MAGSAT
 keeps graph-level fusion decisions stable while adapting tile sizes, warp
 counts, and pipeline depths to dynamic shapes.
 
@@ -318,7 +317,7 @@ Then the scoring model, and returns the best raw configuration for kernel constr
 % \end{algorithm}
 
 \begin{algorithm}[t]
-\caption{Shape-adaptive configuration selection}
+  \caption{MAGSAT's shape-adaptive configuration selection}
 \label{alg:config-selection}
 \KwIn{Template descriptor $D$, runtime shape $s$, hardware spec $H$}
 \KwOut{Best raw configuration $c^\star$}
@@ -346,7 +345,7 @@ unseen dynamic shapes without exhaustive tuning.
 \subsection{Implementation Details}
 \label{sec:impdetails}
 
-We implement a prototype system that integrates graph-level fusion,
+We implement MAGSAT as a prototype system that integrates graph-level fusion,
 template-based kernel generation, and shape-adaptive configuration
 selection. The system is built on top of PyTorch FX for graph
 manipulation and TileLang for kernel implementation. The
@@ -363,4 +362,3 @@ analytical model then selects the best configuration without exhaustive
 profiling, and the resulting kernel is instantiated for execution.
 Compiled kernels are cached based on template and configuration to
 amortize compilation overhead across dynamic shapes.
-

@@ -143,9 +143,9 @@ techniques~\cite{ansel2024pytorch} unfold computation graphs sequentially to red
 context frequently leads to suboptimal end-to-end performance. Crucially, prior works rarely provide a unified mechanism to jointly reason about fusion strategies, 
 template selection, and tuning parameters under runtime shape variability, leaving dynamic workloads underserved by static or profile-dependent auto-tuning pipelines.
 
-To address these limitations, our framework introduces a unified approach that combines memory-access-guided fusion with shape-adaptive auto-tuning. 
+To address these limitations, MAGSAT introduces a unified approach that combines memory-access-guided fusion with shape-adaptive auto-tuning. 
 Instead of relying on static fusion rules or offline profiling, we analyze memory access patterns at compile time to guide fusion decisions and map candidates to 
-compilation templates. For configuration selection, the framework generates a hardware-pruned candidate space and ranks configurations with a trait-driven analytical 
+compilation templates. For configuration selection, MAGSAT generates a hardware-pruned candidate space and ranks configurations with a trait-driven analytical 
 scoring model based on kernel and hardware characteristics. This enables efficient selection of high-performance configurations for different runtime shapes without exhaustive per-shape tuning.
 
 }

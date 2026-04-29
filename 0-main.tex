@@ -49,7 +49,7 @@
 \begin{document}
 
 %% Title information
-\title{Memory-Access-Guided Fusion and Shape-Adaptive Auto-Tuning for Dynamic Tensor Programs}
+\title{MAGSAT: Memory-Access-Guided Fusion and Shape-Adaptive Auto-Tuning for Dynamic Tensor Programs}
 
 
 %\author{Haodong Deng}
@@ -110,8 +110,8 @@ Many critical operators in these workloads exhibit dynamic shapes, while their p
 However, existing approaches typically rely on static fusion rules or shape-specific tuning results, which fail to generalize across diverse runtime shapes 
 and often incur substantial performance loss under dynamic workloads. In addition, prior works rarely provide a unified mechanism to jointly decide 
 fusion strategies and tuning configurations based on hardware-level performance characteristics.
-To address these challenges, we propose a unified framework for dynamic GPU operator optimization that combines memory-access-guided fusion and shape-adaptive auto-tuning. For fused operator generation, our framework analyzes memory access behavior to determine whether and how operators should be fused, and maps different fusion decisions to corresponding compilation templates. For runtime optimization, our framework employs a shape-adaptive auto-tuning strategy that integrates an analytical cost model with residual learning to efficiently select high-performance kernel configurations under unseen shapes. In this way, the framework jointly optimizes fusion strategy, kernel template, and tuning parameters for dynamic workloads.
-Experimental results show that our approach consistently outperforms static fusion and static tuning baselines, achieving up to x speedup over existing methods.}
+To address these challenges, we propose MAGSAT, a unified framework for dynamic GPU operator optimization that combines memory-access-guided fusion and shape-adaptive auto-tuning. For fused operator generation, MAGSAT analyzes memory access behavior to determine whether and how operators should be fused, and maps different fusion decisions to corresponding compilation templates. For runtime optimization, MAGSAT employs a shape-adaptive auto-tuning strategy that integrates an analytical cost model with residual learning to efficiently select high-performance kernel configurations under unseen shapes. In this way, MAGSAT jointly optimizes fusion strategy, kernel template, and tuning parameters for dynamic workloads.
+Experimental results show that MAGSAT consistently outperforms static fusion and static tuning baselines, achieving up to x speedup over existing methods.}
 \end{abstract}
 
 

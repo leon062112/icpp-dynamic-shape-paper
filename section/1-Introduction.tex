@@ -83,14 +83,14 @@ must select kernel parameters efficiently across changing shapes, avoiding both
 static one-size-fits-all configurations and exhaustive per-shape profiling.
 
 % 第七段：据我们所知...这是第一份工作xxx....本文做出如下贡献....
-To address these challenges, we propose a unified framework for
-memory-access-guided fusion and shape-adaptive auto-tuning. The framework first
+To address these challenges, we propose MAGSAT, a unified framework for
+memory-access-guided fusion and shape-adaptive auto-tuning. MAGSAT first
 analyzes the memory access behavior of operators to identify profitable
 fusion opportunities and map them to parameterized tiled templates. It then
 constructs a hardware-pruned configuration space and uses a trait-driven
 analytical scoring model to select high-performance parameters for each
 runtime shape. By jointly reasoning about fusion strategy, compilation
-template, and tuning configuration, the framework adapts dynamic tensor
+template, and tuning configuration, MAGSAT adapts dynamic tensor
 programs without relying on static fusion rules or exhaustive shape-specific
 tuning.
 
@@ -115,7 +115,7 @@ kernel configurations with hardware-aware analytical traits, enabling
 low-overhead configuration selection for unseen runtime shapes without
 exhaustive per-shape profiling.
 
-\item We implement the proposed framework for representative GEMM, convolution,
+\item We implement MAGSAT for representative GEMM, convolution,
 and fused operators, and evaluate its operator-level and end-to-end performance
 against existing baselines. Experimental results show
 \textcolor{red}{up to X speedup} for fused kernels and
