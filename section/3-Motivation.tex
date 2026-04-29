@@ -25,19 +25,19 @@ case in dynamic-shape inference: the same fused computation is repeatedly
 invoked with different runtime shapes, but the best kernel configuration must
 still be selected for each invocation.
 
-\begin{figure}[t]
+\begin{figure*}[htbp]
   \centering
   \includegraphics[width=\linewidth]{figures/3-moti-heatmap.pdf}
-  \caption{Configuration performance across shapes.}
+  \caption{Configuration sensitivity to shape (M): latency normalized to per-shape optimum.}
   \Description{A heatmap showing that different dynamic shapes select different
   optimal tuning configurations.}
   \label{fig:motivation-config-heatmap}
-\end{figure}
+\end{figure*}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figures/3-moti-perfloss.pdf}
-  \caption{Static tuning performance loss.}
+  \caption{Performance loss of static baseline (best configuration at M=256) across dynamic shapes.}
   \Description{A bar chart comparing per-shape best latency with the latency of
   a static configuration selected at the largest shape.}
   \label{fig:motivation-static-loss}
@@ -86,10 +86,7 @@ shifts.  To further understand this effect, we profile the same GEMM-based
 fused operator with a wider range of dynamic shapes, where $M$ increases from
 24 to 4096 while $N$ and $K$ remain fixed.  We compare two representative
 configurations selected from the tuning results: Config-A uses a larger tile
-$(128,128,32)$ and is favored by large shapes, while Config-B uses a smaller
-tile $(32,32,64)$ and is favored by small shapes.  We collect NCU metrics for
-both configurations, including achieved occupancy, L2 hit rate, and DRAM
-throughput.
+$(128,128,32)$, while Config-B uses a smaller tile $(32,32,64)$. We collect NCU metrics for both configurations, including achieved SM occupancy, L2 cache hit rate, and DRAM throughput.
 
 \begin{figure}[t]
   \centering
@@ -101,24 +98,9 @@ throughput.
   \label{fig:motivation-bottleneck}
 \end{figure}
 
-Figure~\ref{fig:motivation-bottleneck} shows that the preferred configuration
-changes together with the hardware behavior.  The normalized latency is
-computed against the faster of the two configurations at each shape.  At small
-shapes, Config-B is up to 2.5$\times$ faster than Config-A.  This is because
-the large tile in Config-A creates too few thread blocks to keep the GPU busy,
-leading to low occupancy and poor latency amortization.  In contrast, Config-B
-generates more independent tiles and exposes more parallel work, making it more
-suitable for small dynamic dimensions.
+Figure~\ref{fig:motivation-bottleneck} shows that the preferred configuration changes with the hardware behavior. The normalized latency is computed against the faster of the two configurations at each shape. At small shapes, Config-B is up to 2.5$\times$ faster than Config-A because the Config-A' large tile creates too few thread blocks to keep the GPU busy, leading to low occupancy and poor latency amortization. In contrast, Config-B generates more independent tiles and exposes more parallel work, making it more suitable for small dynamic dimensions.
 
-As $M$ increases, the bottleneck shifts.  Config-A becomes faster from
-$M=256$ onward and is 2.5$\times$ faster than Config-B at $M=4096$.  Although
-Config-B maintains higher occupancy, Config-A obtains increasingly better data
-reuse: its L2 hit rate grows from 42.8\% at $M=24$ to 92.7\% at $M=4096$.
-Meanwhile, the DRAM throughput of Config-B drops from 25.5\% to 4.3\%,
-indicating that the smaller tile spends more time on repeated memory traffic
-and scheduling overhead rather than sustained useful work.  Therefore, the
-optimization objective moves from exposing enough parallelism at small shapes
-to improving data reuse and execution efficiency at large shapes.
+As $M$ increases, the bottleneck shifts. Config-A becomes faster from $M=256$ onward, reaching 2.5$\times$ faster than Config-B at $M=4096$.  Although Config-B maintains higher occupancy, Config-A obtains increasingly better data reuse: its L2 cache hit rate grows from 42.8\% at $M=24$ to 92.7\% at $M=4096$. Meanwhile, the DRAM throughput of Config-B drops from 25.5\% to 4.3\%, indicating that the smaller tile spends more time on repeated memory traffic and scheduling overhead rather than sustained useful work. Therefore, the optimization objective moves from exposing enough parallelism at small shapes to improving data reuse and execution efficiency at large shapes.
 
 This bottleneck migration explains why a static configuration cannot cover all
 runtime shapes.  The best configuration is determined not only by the operator
