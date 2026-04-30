@@ -31,10 +31,11 @@ reduce this cost by tuning for representative shapes, but their performance can 
 the sampled set, and changing the sample set usually requires additional tuning~\cite{shen2021nimble,zhou2025helix}.
 
 % SQX：没看懂图1要表达啥，输入batch_size，seq_len，parameter是有区别，为什么右边算子组合变了？
+% DHD: 修改成单模型 + 动态shape
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figures/2-bg-dynamic.pdf}
-  \caption{\textcolor{red}{Dynamic inference requests produce different tensor-program instances.}}
+  \caption{\textcolor{blue}{Dynamic inference requests produce different tensor-program instances.}}
   \Description{An illustration showing that inference requests with different
   runtime shapes are mapped to tensor programs whose operators have different
   concrete dimensions.}
@@ -46,9 +47,9 @@ depend on tensor extents because shape values determine intermediate tensor size
 can fit in on-chip memory. A fusion decision that is profitable for one runtime shape may increase register pressure, 
 exceed shared-memory capacity, or reduce occupancy for another. 
 % SQX：没看懂图1要表达啥，输入batch_size，seq_len，parameter是有区别，为什么右边算子组合变了？
-\textcolor{red}{Figure~\ref{fig:bg-dynamic} illustrates this effect in an inference workload. Different requests, such as those with different 
+\textcolor{blue}{Figure~\ref{fig:bg-dynamic} illustrates this effect in an inference workload. Different requests, such as those with different 
 batch sizes or sequence lengths, instantiate the same model graph with different concrete tensor dimensions. As a result, 
-operators such as GEMM, convolution, and attention are not optimized once for a fixed shape; instead, they form a set of 
+operators such as GEMM, layernorm are not optimized once for a fixed shape; instead, they form a set of 
 related tensor-program instances whose memory footprint, reuse pattern, and parallelism change with the runtime input. 
 This paper refers to such a family of shape-dependent operator instances as dynamic tensor programs.}
 
@@ -109,13 +110,12 @@ number of blocks available to occupy SMs. The number of warps controls intra-blo
 while pipeline stages trade memory-latency hiding against additional resource consumption. Since dynamic shapes change the number of tiles, boundary padding, and reuse distance, the best balance among these parameters can vary across inputs even for the same compilation template.
 
 % SQX: 和STOF那篇文章部分描述很像，注意全文差不多写完时，用iThenticate查下重，淘宝一次应该是几十元
-\subsection{\textcolor{red}{Hierarchical Auto-tuning Techniques}}
+\subsection{\textcolor{blue}{Hierarchical Auto-tuning Techniques}}
 \label{sec:autotuning}
 % 从算子融合到参数调优的分层自动调优技术，可借鉴STOF
 
 % Operator Fusion Opportunities. 
-% SQX：加一句话对于分层调优空间的定义。
-\textcolor{red}{defination of hiearchical ... graph-level: operator fusion, operator-level: parameters ...}
+\textcolor{blue}{In this paper, we define the hierarchical auto-tuning space as the coupled optimization space across graph-level fusion decisions, operator-level kernel mappings and configuration parameters such as tile sizes, warp counts, and pipeline stages.}
 Existing DL compilers~\cite{ansel2024pytorch,abadi2016tensorflow} typically rely on predefined fusion rules that apply only to specific operator combinations. To navigate this complexity, researchers often classify tensor operators into memory-intensive (MI) 
 and compute-intensive (CI) categories. Early approaches~\cite{zheng2022astitch,niu2021dnnfusion} treat CI operators as non-fusion boundaries, fusing only MI operators 
 to reduce off-chip memory traffic. Subsequent works~\cite{shi2023welder,zheng2023chimera} merge CI operators with adjacent MI ones or decompose CI chains into 
@@ -158,5 +158,4 @@ template selection, and tuning parameters under runtime shape variability.
 
 
 % 放在bg里面加一段描述，描述潜在融合机会
-
 
