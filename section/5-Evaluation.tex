@@ -8,12 +8,30 @@
 
 \subsubsection{Hardware and Software Platforms} 
 
-We evaluate MAGSAT on two GPU platforms: the NVIDIA A100 (Ampere architecture) and the H100 (Hopper architecture).
-These two platforms represent recent NVIDIA GPU generations with distinct differences in hardware resources,
-enabling us to assess whether the proposed framework remains effective across hardware generations.
+We evaluate MAGSAT on two GPU platforms: the NVIDIA A100 (Ampere architecture) and the H100 (Hopper architecture). 
+These two platforms represent recent NVIDIA GPU generations with distinct differences in hardware resources, 
+enabling us to assess whether the proposed framework remains effective across hardware generations. 
 All experiments are conducted on machines running Ubuntu 22.04, with CUDA 12.6 and PyTorch 2.9.0.
 
 \subsubsection{Comparison Configurations and Methods}
+
+We evaluate both operator-level and model-level workloads. At the
+operator level, we use representative GEMM and convolution workloads,
+which cover the compute-intensive primitives commonly appearing in
+Transformer and CNN models. At the model level, we evaluate four
+representative neural networks: BERT~\cite{devlin2019bert},
+LLaMA~\cite{touvron2023llama}, ResNet~\cite{he2016resnet}, and
+AlexNet~\cite{krizhevsky2012alexnet}. These models exercise both
+GEMM-dominated and Convolution-dominated computation patterns.
+
+We compare MAGSAT with five baselines. \textbf{Torch} denotes eager-mode
+PyTorch execution. \textbf{\texttt{torch.compile}} denotes the PyTorch 2.x
+compiler stack based on TorchDynamo and TorchInductor~\cite{ansel2024pytorch}.
+\textbf{CUTLASS} is NVIDIA's template-based GPU kernel library~\cite{nvidia22cutlass}.
+\textbf{DietCode}~\cite{zheng2022dietcode} and
+\textbf{Helix}~\cite{zhou2025helix} are state-of-the-art systems in dynamic-shape 
+tensor program compilation. All experiments use FP16 inputs and outputs. For timing, we
+perform 100 warm-up iterations before measurement to to record the average performance.
 
 
 
