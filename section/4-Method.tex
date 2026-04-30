@@ -5,7 +5,7 @@
 \subsection{Design Overview}
 \label{sec:overview}
 
-Figure shows the overall workflow of MAGSAT.
+Figure~\ref{fig:method-overview} shows the overall workflow of MAGSAT.
 The input is a dynamic tensor program represented as a computation graph, plus
 the runtime shape observed during execution.  The output is a fused tiled
 kernel instantiated with a shape-specific configuration.  The key design is 
@@ -13,15 +13,15 @@ to decouple fusion decisions from shape-dependent tuning, and reconnect them
 through a unified template and trait abstraction. This avoids redoing fusion 
 for dynamic shapes while still enabling shape-adaptive performance optimization.
 
-% \begin{figure}[t]
-%   \centering
-%   \includegraphics[width=\linewidth]{figures/4-method-overview.pdf}
-%   \caption{Overview of MAGSAT.}
-%   \Description{MAGSAT first analyzes fusion opportunities from the
-%   computation graph, maps fusible regions to tiled templates, and then selects
-%   shape-adaptive configurations using an analytical model.}
-%   \label{fig:method-overview}
-% \end{figure}
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/4-method-overview.pdf}
+  \caption{Overview of MAGSAT.}
+  \Description{MAGSAT first analyzes fusion opportunities from the
+  computation graph, maps fusible regions to tiled templates, and then selects
+  shape-adaptive configurations using an analytical model.}
+  \label{fig:method-overview}
+\end{figure*}
 
 MAGSAT consists of three stages.  First, the fusion stage determines which 
 regions can be lowered to fused templates by analyzing memory-access semantics derived 

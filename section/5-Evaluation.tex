@@ -1,13 +1,17 @@
 \section{Evaluation}  %3 pages
 \label{sec:evaluation}
 
+{\color{blue}
 
 \subsection{Experiment Setup} 
 \label{sec:setup}
 
 \subsubsection{Hardware and Software Platforms} 
 
-
+We evaluate MAGSAT on two GPU platforms: the NVIDIA A100 (Ampere architecture) and the H100 (Hopper architecture).
+These two platforms represent recent NVIDIA GPU generations with distinct differences in hardware resources,
+enabling us to assess whether the proposed framework remains effective across hardware generations.
+All experiments are conducted on machines running Ubuntu 22.04, with CUDA 12.6 and PyTorch 2.9.0.
 
 \subsubsection{Comparison Configurations and Methods}
 
@@ -23,19 +27,15 @@
 
 % 端到端网络推理的性能，LLM*2，CNN*2
 
+\subsection{Ablation Study}
+\label{sec:ablation}
+
+% 组件的ablation测试，还需要再想想有啥能拆出来的；或者有什么框架特定的设死的参数，可做参数敏感性分析
 
 \subsection{Parameter Tuning Efficiency}
 \label{sec:tuning}
 
 % 选到的配置相比全局最优配置的性能差别，以及在各种形状下取到最优配置的比例
-% 端到端还是单算子
-
-
-
-\subsection{Ablation Study}
-\label{sec:ablation}
-
-% 组件的ablation测试，还需要再想想有啥能拆出来的；或者有什么框架特定的设死的参数，可做参数敏感性分析
 
 
 
@@ -48,3 +48,5 @@
 \label{sec:case}
 
 % 可选（时间够用就加）：给个pretrained模型的端到端推理加速会更有说服力
+
+}
