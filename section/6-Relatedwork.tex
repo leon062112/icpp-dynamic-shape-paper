@@ -2,17 +2,24 @@
 \section{Related Work}  %0.25 pages
 \label{sec:relatedwork}
 
-{\color{blue}
+%{\color{blue}
 
 % 写优化 
 % 可分两段，从static shape算子优化，编译优化，全局（即端到端）优化；
 
 % 过渡到dynamic shape算子优化，编译优化，全局优化；每段说明本文的优势在哪
 
-\textbf{Static shapes.}
-Static-shape deep learning optimization has been studied at the operator, compiler, and graph levels. Vendor libraries and template-based systems such as cuBLAS~\cite{nvidia24cublas}, cuDNN~\cite{chetlur2014cudnn}, CUTLASS~\cite{nvidia22cutlass}, Triton~\cite{tillet2019triton}, and TileLang~\cite{cheng2025pipethreader} provide highly optimized kernels for common tensor operators. Tensor compilers and auto-schedulers, including TVM~\cite{chen2018tvm}, AutoTVM~\cite{chen2018autotvm}, Ansor~\cite{zheng2020ansor}, and Halide~\cite{ragan2013halide}, automate schedule generation through loop transformations, cost models, and hardware-aware search. At the graph or end-to-end level, PyTorch~\cite{ansel2024pytorch}, TASO~\cite{jia2019taso}, Rammer~\cite{ma2020rammer}, DNNFusion~\cite{niu2021dnnfusion}, Welder~\cite{shi2023welder}, Chimera~\cite{zheng2023chimera}, Souffle~\cite{xia2024souffle}, and Mirage~\cite{wu2025mirage} exploit graph rewriting, operator fusion, global analysis, or multi-level superoptimization. These approaches typically assume fixed tensor shapes, static fusion rules, or shape-specific tuning results, making them less effective when runtime shapes change frequently.
+%\textbf{Static shapes.}
+Static-shape deep learning optimizations have been widely studied. At the operator level, vendor libraries and template-based systems such as cuBLAS~\cite{nvidia24cublas}, cuDNN~\cite{chetlur2014cudnn}, CUTLASS~\cite{nvidia22cutlass}, Triton~\cite{tillet2019triton}, and TileLang~\cite{cheng2025pipethreader} provide highly optimized kernels for common tensor operators. At the graph level, PyTorch~\cite{ansel2024pytorch}, TASO~\cite{jia2019taso}, Rammer~\cite{ma2020rammer}, DNNFusion~\cite{niu2021dnnfusion}, Welder~\cite{shi2023welder}, Chimera~\cite{zheng2023chimera}, Souffle~\cite{xia2024souffle}, and Mirage~\cite{wu2025mirage} exploit graph rewriting, operator fusion and global analysis. 
+Tensor compilers and auto-schedulers, including TVM~\cite{chen2018tvm}, AutoTVM~\cite{chen2018autotvm}, Ansor~\cite{zheng2020ansor}, and Halide~\cite{ragan2013halide}, automate schedule generation through loop transformations, cost models, and heuristic search. 
+%At the graph or end-to-end level, PyTorch~\cite{ansel2024pytorch}, TASO~\cite{jia2019taso}, Rammer~\cite{ma2020rammer}, DNNFusion~\cite{niu2021dnnfusion}, Welder~\cite{shi2023welder}, Chimera~\cite{zheng2023chimera}, Souffle~\cite{xia2024souffle}, and Mirage~\cite{wu2025mirage} exploit graph rewriting, operator fusion, global analysis, or multi-level superoptimization. 
+These approaches typically assume fixed tensor shapes, static fusion rules, or shape-specific tuning results, making them less effective when runtime shapes change frequently.
 
-\textbf{Dynamic shapes.}
-Recent work has explored dynamic-shape workloads from both operator and compiler perspectives. At the operator level, DietCode~\cite{zheng2022dietcode}, MikPoly~\cite{yu2024mikpoly}, FTuner~\cite{mu2024ftuner}, and Helix~\cite{zhou2025helix} reduce dynamic-shape tuning or compilation overhead through shape-generic search spaces, runtime micro-kernel composition, uKernel-based tuning, or sample-free compilation. At the compiler level, Nimble~\cite{shen2021nimble}, DISC~\cite{zhu2021disc}, Relax~\cite{lai2025relax}, and CoRA~\cite{fegade2022cora} improve dynamic-shape execution through dispatching, symbolic shape representation, cross-level abstraction, or padding reduction. Unlike these works, MAGSAT jointly reasons about memory-access-guided fusion, compilation template mapping, and shape-adaptive parameter tuning, enabling dynamic tensor programs to adapt both fusion decisions and kernel configurations according to runtime shape characteristics.
+%\textbf{Dynamic shapes.}
+Recent work has explored dynamic-shape workloads from both operator and compiler perspectives. From the operator perspective, DietCode~\cite{zheng2022dietcode}, MikPoly~\cite{yu2024mikpoly}, FTuner~\cite{mu2024ftuner}, and Helix~\cite{zhou2025helix} reduce dynamic-shape tuning overhead through shape-generic search spaces, runtime micro-kernel composition, uKernel-based tuning, or sample-free compilation. From the compiler perspective, Nimble~\cite{shen2021nimble}, DISC~\cite{zhu2021disc}, Relax~\cite{lai2025relax}, and CoRA~\cite{fegade2022cora} improve dynamic-shape execution through dispatching, symbolic shape representation, cross-level abstraction, or padding reduction. In contrast, MAGSAT adapts both fusion decisions and kernel configurations to dynamic tensor programs through its holistic design.
 
-}
+%combines memory-access-guided fusion, compilation template mapping, and shape-adaptive parameter tuning, adapting  both fusion decisions and kernel configurations to dynamic tensor programs.
+
+%enabling dynamic tensor programs to adapt both fusion decisions and kernel configurations according to runtime characteristics.
+
+%}
