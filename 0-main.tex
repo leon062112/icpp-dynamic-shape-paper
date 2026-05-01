@@ -106,13 +106,35 @@
 
 \begin{abstract}
 % SQX：确定intro后再调整
-\textcolor{red}{Large language models (LLMs) have driven increasing demand for high-performance GPU kernels. 
-Many critical operators in these workloads exhibit dynamic shapes, while their performance is highly sensitive to shapes and kernel configurations. 
-However, existing approaches typically rely on static fusion rules or shape-specific tuning results, which fail to generalize across diverse runtime shapes 
-and often incur substantial performance loss under dynamic workloads. In addition, prior works rarely provide a unified mechanism to jointly decide 
-fusion strategies and tuning configurations based on hardware-level performance characteristics.
-To address these challenges, we propose MAGSAT, a unified framework for dynamic GPU operator optimization that combines memory-access-guided fusion and shape-adaptive auto-tuning. For fused operator generation, MAGSAT analyzes memory access behavior to determine whether and how operators should be fused, and maps different fusion decisions to corresponding compilation templates. For runtime optimization, MAGSAT employs a shape-adaptive auto-tuning strategy that integrates an analytical cost model with residual learning to efficiently select high-performance kernel configurations under unseen shapes. In this way, MAGSAT jointly optimizes fusion strategy, kernel template, and tuning parameters for dynamic workloads.
-Experimental results show that MAGSAT consistently outperforms static fusion and static tuning baselines, achieving up to x speedup over existing methods.}
+% \textcolor{red}{Large language models (LLMs) have driven increasing demand for high-performance GPU kernels. 
+% Many critical operators in these workloads exhibit dynamic shapes, while their performance is highly sensitive to shapes and kernel configurations. 
+% However, existing approaches typically rely on static fusion rules or shape-specific tuning results, which fail to generalize across diverse runtime shapes 
+% and often incur substantial performance loss under dynamic workloads. In addition, prior works rarely provide a unified mechanism to jointly decide 
+% fusion strategies and tuning configurations based on hardware-level performance characteristics.
+% To address these challenges, we propose MAGSAT, a unified framework for dynamic GPU operator optimization that combines memory-access-guided fusion and shape-adaptive auto-tuning.
+%  For fused operator generation, MAGSAT analyzes memory access behavior to determine whether and how operators should be fused, and maps different fusion decisions to corresponding 
+%  compilation templates. For runtime optimization, MAGSAT employs a shape-adaptive auto-tuning strategy that integrates an analytical cost model with residual learning to efficiently 
+%  select high-performance kernel configurations under unseen shapes. In this way, MAGSAT jointly optimizes fusion strategy, kernel template, and tuning parameters for dynamic workloads.
+% Experimental results show that MAGSAT consistently outperforms static fusion and static tuning baselines, achieving up to x speedup over existing methods.}
+{\color{blue}
+Dynamic tensor programs are increasingly common in deep learning, where
+operators such as GEMM, convolution, normalization, and attention execute under varying sequence
+lengths, batch sizes. Existing libraries and compilers provide
+highly optimized kernels, but their decisions are often tied to fixed operator
+patterns or concrete shapes. Dynamic-shape systems reduce tuning overhead, yet
+they typically optimize individual operators and leave graph-level fusion
+opportunities underexplored. We propose MAGSAT, a unified framework for memory-access-guided 
+fusion and shape-adaptive auto-tuning. MAGSAT analyzes memory-access semantics to identify
+fusion regions, maps them to parameterized tiled templates for GEMM,
+convolution, and common epilogues, and selects runtime kernel configurations
+with a lightweight trait-driven analytical model. This design decouples
+shape-invariant fusion decisions from shape-adaptive parameter selection,
+allowing MAGSAT to jointly optimize fusion strategy, kernel template, and tile
+configuration for dynamic workloads. We evaluate MAGSAT on A100 and H100 GPUs 
+across operator-level and end-to-end Transformer/CNN workloads. Results show 
+that MAGSAT consistently improves performance over existing baselines, 
+achieving up to XX$\times$ speedup for fused operators and XX$\times$ speedup for end-to-end inference.
+}
 \end{abstract}
 
 
