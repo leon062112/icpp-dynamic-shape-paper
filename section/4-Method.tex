@@ -71,6 +71,24 @@ change the underlying dataflow of the graph. As a result, fusion analysis is
 performed once on the compiled graph, and the resulting fusion pattern is
 reused across all runtime executions.
 
+Figure~\ref{fig:method-fusion} illustrates this analysis. MAGSAT first
+extracts a variable producer--consumer graph, then normalizes it into an
+access-flow form. In this form, external tensors are modeled as explicit
+loads, final outputs as stores, and the mainloop result as an in-flight value
+that flows through epilogue computation before the final global-memory write.
+Fusion is allowed only when the normalized flow matches a supported access
+pattern.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/4-method-fusion.pdf}
+  \caption{Memory-access-driven fusion analysis.}
+  \Description{A variable graph is normalized into a load-compute-store access
+  form that tracks external inputs, final outputs, and the in-flight mainloop
+  output.}
+  \label{fig:method-fusion}
+\end{figure}
+
 \textbf{Candidate extraction.}
 We analyze the program on a traced computation graph, focusing on mainloop–epilogue 
 regions where a GEMM or convolution feeds a small downstream subgraph. For each GEMM region, 
@@ -83,10 +101,8 @@ boundary required to reason about fusion feasibility.
 
 \textbf{Access-flow normalization.}
 To enable systematic reasoning about memory behavior, we introduce an
-access-flow normalization that rewrites the epilogue into a canonical
-form based on load, compute, and store semantics. External inputs are
-modeled as explicit loads, outputs as stores, and the mainloop result
-as an in-flight value that should ideally bypass global memory.
+access-flow normalization that rewrites the epilogue into the canonical
+load--compute--store form shown in Figure~\ref{fig:method-fusion}.
 
 We then apply a set of access-preserving rewrite rules to simplify the
 epilogue graph to a fixed point. These rules capture common patterns
