@@ -99,6 +99,8 @@ Native and 1.90$\times$ over \texttt{torch}.\texttt{compile}. The same
 trend holds on H100. MAGSAT achieves 3.47$\times$ and 2.91$\times$
 average speedup over Torch Native and \texttt{torch}.\texttt{compile} on
 BERT-base, respectively, and 4.10$\times$ and 2.50$\times$ on LLaMA-base.
+Figure~\ref{fig:e2e_performance} summarizes the end-to-end performance
+across Transformer and CNN workloads on both A100 and H100.
 These results show that MAGSAT is effective for GEMM-dominated models
 with dynamic sequence lengths, where each input length induces different
 matrix shapes and therefore benefits from shape-adaptive schedule
@@ -117,6 +119,14 @@ consistently outperforms both Torch Native and \texttt{torch}.\texttt{compile},
 especially on the deeper ResNet-101 model, where the benefits of
 operator fusion and per-shape tuning accumulate across many convolution
 layers.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/5-e2e-performance.pdf}
+  \caption{End-to-end performance on A100 and H100 across Transformer and CNN workloads, normalized to Torch Native.}
+  \Description{A two-platform end-to-end comparison showing grouped speedup bars for BERT-base, LLaMA-base, AlexNet, and ResNet-101 under dynamic input settings, with methods including Torch Native, torch.compile, and MAGSAT.}
+  \label{fig:e2e_performance}
+\end{figure*}
 
 \subsection{Ablation Study}
 \label{sec:ablation}
