@@ -48,6 +48,8 @@ inference, including plain operators and common fused variants such as
 \texttt{GEMM}-\texttt{bias}-\texttt{layernorm},
 \texttt{Conv}-\texttt{ReLU}, and
 \texttt{Conv}-\texttt{BN}-\texttt{Add}-\texttt{ReLU}. 
+Figure~\ref{fig:op_level_performance} presents the operator-level
+performance across these fused workloads on both A100 and H100.
 On A100, MAGSAT achieves an average speedup of 2.84$\times$ over Torch Native for
 \texttt{GEMM}, with a maximum speedup of 3.93$\times$. For convolution
 fusion, MAGSAT improves \texttt{Conv}-\texttt{ReLU} by 2.36$\times$ on
@@ -76,6 +78,13 @@ that MAGSAT's tuning strategy can select schedules that exploit both the
 current problem size and the surrounding post-operator computation,
 reducing intermediate memory traffic and avoiding unnecessary kernel
 launches. 
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/5-op-level-performance.pdf}
+  \caption{Operator-level performance on A100 and H100 across fused GEMM and convolution workloads, normalized to Torch Native.}
+  \label{fig:op_level_performance}
+\end{figure*}
 
 \subsection{End-to-end Performance}
 \label{sec:end2end}

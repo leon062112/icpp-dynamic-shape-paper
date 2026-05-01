@@ -23,6 +23,7 @@
   \label{fig:motivation-config-heatmap}
 \end{figure*}
 
+<<<<<<< HEAD
 Dynamic shapes not only change the amount of work in an operator, but also
 alter the optimal configuration of kernel parameters.
 We use a GEMM-based fused
@@ -40,6 +41,9 @@ invoked with different runtime shapes.
 
 % SQX：best改为optimal
 \begin{figure}[t]
+=======
+\begin{figure}[htbp]
+>>>>>>> 4ce06097186a84286dd4c193c68025d62d12faf5
   \centering
   \includegraphics[width=0.95\linewidth]{figures/3-moti-perfloss.pdf}
   \caption{\textcolor{red}{Performance loss of static baseline (optimal configuration at $M=256$) across dynamic shapes.}}
@@ -97,8 +101,9 @@ fused operator with a wider range of dynamic shapes, where $M$ increases from
 configurations: Config-A uses a larger tile
 $(128,128,32)$, while Config-B uses a smaller tile $(32,32,64)$. We collect NCU metrics including achieved SM occupancy, L2 cache hit rate, and DRAM throughput.
 
+<<<<<<< HEAD
 % SQX: 1）纵坐标轴已经体现含义了，子图标题直接去掉吧；2）改为(128,128,32,4,3)的tuple样式；3）线条颜色和图里数字颜色再深些；4）横坐标轴的M去掉；4）(b)和(C)的纵坐标轴分别改为Achieved Occupancy (%)和L2 Cache Hit Rate (%)。
-\begin{figure}[t]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=0.95\linewidth]{figures/3-moti-bottleneck.pdf}
   \caption{\textcolor{red}{Bottleneck shifts across variable shapes.}}
