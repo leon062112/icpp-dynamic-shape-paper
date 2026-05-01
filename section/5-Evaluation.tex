@@ -50,6 +50,13 @@ inference, including plain operators and common fused variants such as
 \texttt{Conv}-\texttt{BN}-\texttt{Add}-\texttt{ReLU}. 
 Figure~\ref{fig:op_level_performance} presents the operator-level
 performance across these fused workloads on both A100 and H100.
+The figure groups the results by operator family and reports speedup over
+Torch Native, making it possible to compare both the benefit of fusion and
+the portability of the selected configurations across GPU generations.
+Across the tested shapes, MAGSAT consistently remains above the baseline
+for both GEMM- and convolution-centered operators, showing that the
+analytical selector does not merely optimize a single kernel instance but
+tracks the changing execution characteristics of different dynamic shapes.
 On A100, MAGSAT achieves an average speedup of 2.84$\times$ over Torch Native for
 \texttt{GEMM}, with a maximum speedup of 3.93$\times$. For convolution
 fusion, MAGSAT improves \texttt{Conv}-\texttt{ReLU} by 2.36$\times$ on
@@ -83,6 +90,10 @@ launches.
   \centering
   \includegraphics[width=\textwidth]{figures/5-op-level-performance.pdf}
   \caption{Operator-level performance on A100 and H100 across fused GEMM and convolution workloads, normalized to Torch Native.}
+  \Description{A two-platform operator-level comparison showing speedups
+  for GEMM, fused GEMM, convolution, and fused convolution workloads on
+  A100 and H100 GPUs, with MAGSAT consistently outperforming Torch Native
+  and compiler or library baselines across dynamic shapes.}
   \label{fig:op_level_performance}
 \end{figure*}
 
@@ -101,6 +112,14 @@ average speedup over Torch Native and \texttt{torch}.\texttt{compile} on
 BERT-base, respectively, and 4.10$\times$ and 2.50$\times$ on LLaMA-base.
 Figure~\ref{fig:e2e_performance} summarizes the end-to-end performance
 across Transformer and CNN workloads on both A100 and H100.
+The bars in the figure reflect the cumulative effect of applying
+shape-adaptive fused kernels throughout each model rather than optimizing
+one isolated operator. MAGSAT delivers the largest gains on Transformer
+models, where dynamic sequence lengths repeatedly change GEMM dimensions
+and amplify the value of per-shape configuration selection. The CNN
+results are more modest but still consistently positive, indicating that
+the same mechanism also transfers to convolution-heavy workloads with
+dynamic batch sizes.
 These results show that MAGSAT is effective for GEMM-dominated models
 with dynamic sequence lengths, where each input length induces different
 matrix shapes and therefore benefits from shape-adaptive schedule
@@ -157,9 +176,9 @@ memory traffic.
 On CNNs, MAGSAT (full) achieves 1.7--1.9$\times$ on AlexNet
 and 2.4--2.7$\times$ on ResNet-101.
 Notably, tuning only occasionally underperforms Torch Native
-on AlexNet (e.g., batch sizes 20 and 32),
-indicating that without fusion, the kenrel with static config shows 
-inferior performance compared to Torch Native implementation under certain shapes.
+on AlexNet (e.g., batch sizes 20 and 32), indicating that without fusion,
+the kernel with static config shows inferior performance compared to Torch
+Native implementation under certain shapes.
 These results validate that both fusion and shape-adaptive tuning
 are necessary to achieve robust performance across diverse models
 and dynamic shapes.
