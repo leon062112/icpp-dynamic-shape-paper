@@ -8,8 +8,9 @@
 
 Deep learning systems were historically optimized under the static-shape assumption, 
 where tensor dimensions are fixed before compilation and remain unchanged across executions. 
-This assumption allows compilers and vendor libraries to specialize memory layouts, loop bounds, 
-tiling factors, and kernel launch configurations for a single concrete shape. Modern deep learning 
+%This assumption allows compilers and vendor libraries to specialize memory layouts, loop bounds, 
+%tiling factors, and kernel launch configurations for a single concrete shape. 
+Modern deep learning 
 workloads, however, frequently violate this assumption. Dynamic shapes arise from intrinsic data variability, 
 such as variable sentence lengths in NLP~\cite{vaswani2017A,devlin2019bert,zhai2023byteTransformer}, 
 different utterance durations in speech models~\cite{amodei2016deep}, and diverse image resolutions 
@@ -19,9 +20,10 @@ and KV-cache sizes in LLM serving~\cite{touvron2023llama,dao2022flashattention,j
 a fixed model architecture, the same operator type can appear with different dimensions at different layer positions 
 or execution phases, which turns a single static operator into a family of dynamic tensor programs~\cite{zheng2022dietcode,zhou2025helix}.
 
-The prevalence of dynamic shapes creates several practical problems for high-performance execution. 
-A kernel schedule tuned for one sequence length, batch size, or matrix dimension may become inefficient 
-for another because the change of arithmetic intensity, memory footprint, data reuse, and available parallelism. Padding and bucketing are common workarounds, but they convert irregular inputs into 
+% because the change of arithmetic intensity, memory footprint, data reuse, and available parallelism
+The prevalence of dynamic shapes creates practical problems for program execution. 
+A kernel schedule tuned for one sequence length or matrix dimension may become inefficient 
+for another. Padding and bucketing are common workarounds, but they convert irregular inputs into 
 a small set of supported shapes by adding redundant computation and memory traffic; when the actual input is 
 much smaller than the padded shape, the wasted work can dominate execution~\cite{kosec2021packing,fegade2022cora,mu2024ftuner}. 
 Compiling or auto-tuning a separate implementation for every possible shape is also impractical, since conventional 
@@ -32,15 +34,17 @@ the sampled set, and changing the sample set usually requires additional tuning~
 
 % SQX：没看懂图1要表达啥，输入batch_size，seq_len，parameter是有区别，为什么右边算子组合变了？
 % DHD: 修改成单模型 + 动态shape
-\begin{figure}[t]
+
+\begin{figure}[htbp]
   \centering
-  \includegraphics[scale=0.5]{figures/2-bg-dynamic.pdf}
+  \includegraphics[scale=0.47]{figures/2-bg-dynamic.pdf}
   \caption{An example of dynamic tensor programs generated from different inference requests.}
   \Description{An illustration showing that inference requests with different
   runtime shapes are mapped to tensor programs whose operators have different
   concrete dimensions.}
   \label{fig:bg-dynamic}
 \end{figure}
+
 
 Dynamic shapes further complicate graph-level optimizations. Operator fusion, memory planning, and template selection 
 depend on tensor extents because shape values determine intermediate tensor sizes, reuse distance, and whether temporary data 
@@ -50,6 +54,7 @@ exceed shared-memory capacity, or reduce occupancy for another.
 Figure~\ref{fig:bg-dynamic} illustrates this effect in an inference workload. Different requests, such as those with different 
 batch sizes or sequence lengths, instantiate the same model graph with different concrete tensor dimensions. As a result, 
 operators such as GEMM, layernorm are not optimized once for a fixed shape. Instead, they form a set of shape-dependent operator instances whose computational characteristics change with the runtime input, referred to as \textit{dynamic tensor programs}.
+
 
 
 %related tensor-program instances whose memory footprint, reuse pattern, and parallelism change with the runtime input. 
@@ -98,8 +103,8 @@ shape-adaptive auto-tuning.
 % SQX：图里细节再微调下，CTA改为thread block，Register改为Register File
 \begin{figure}[t]
   \centering
-  \includegraphics[scale=0.43]{figures/2-bg-tile.pdf}
-  \caption{\textcolor{blue}{Tile-level GPU execution for tensor programs.}}
+  \includegraphics[scale=0.4]{figures/2-bg-tile.pdf}
+  \caption{Tile-level GPU execution for tensor programs.}
   \Description{An illustration showing a tensor operation partitioned into
   tiles, with each tile mapped to GPU execution resources such as SMs, warps,
   registers, and shared memory.}
