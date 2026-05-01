@@ -48,19 +48,19 @@ inference, including plain operators and common fused variants such as
 \texttt{GEMM}-\texttt{bias}-\texttt{layernorm},
 \texttt{Conv}-\texttt{ReLU}, and
 \texttt{Conv}-\texttt{BN}-\texttt{Add}-\texttt{ReLU}. 
-On A100, MAGSAT achieves an average speedup of 2.84$\times$ over Torch for
+On A100, MAGSAT achieves an average speedup of 2.84$\times$ over Torch Native for
 \texttt{GEMM}, with a maximum speedup of 3.93$\times$. For convolution
 fusion, MAGSAT improves \texttt{Conv}-\texttt{ReLU} by 2.36$\times$ on
-average over Torch eager and 2.82$\times$ over \texttt{torch}.\texttt{compile};
+average over Torch Native and 2.82$\times$ over \texttt{torch}.\texttt{compile};
 for \texttt{Conv}-\texttt{BN}-\texttt{Add}-\texttt{ReLU}, the average
 speedups further increase to 4.55$\times$ and 4.73$\times$, respectively. 
 On H100, the fused GEMM operators show stronger performance. For
 \texttt{GEMM}-\texttt{bias}-\texttt{activation}, MAGSAT achieves an
-average speedup of 4.02$\times$ over Torch, with a maximum speedup of
+average speedup of 4.02$\times$ over Torch Native, with a maximum speedup of
 5.06$\times$. For \texttt{GEMM}-\texttt{bias}-\texttt{layernorm}, it
 achieves an average speedup of 2.17$\times$ and a maximum speedup of
 2.58$\times$. For convolution fusion on H100, MAGSAT improves
-\texttt{Conv}-\texttt{ReLU} by 1.98$\times$ on average over Torch eager 
+\texttt{Conv}-\texttt{ReLU} by 1.98$\times$ on average over Torch Native 
 and 3.22$\times$ over \texttt{torch}.\texttt{compile}, while 
 \texttt{Conv}-\texttt{BN}-\texttt{Add}-\texttt{ReLU} achieves average
 speedups of 5.33$\times$ and 2.97$\times$, respectively. These gains are
