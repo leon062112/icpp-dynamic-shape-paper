@@ -179,7 +179,19 @@ and dynamic shapes.
 \label{sec:tuning}
 
 % 选到的配置相比全局最优配置的性能差别，以及在各种形状下取到最优配置的比例
-To evaluate the efficiency of our tuning mechanism, we measure the performance gap between the configurations selected by MAGSAT and the per-shape global optimums obtained through exhaustive search. We focus on \texttt{GEMM} and its fused variants as representative case studies, given their dominance as the most critical and time-consuming components in modern Transformer-based dynamic shape workloads. Across a diverse set of 85 dynamic shapes, our tuner identifies configurations for the standard \texttt{GEMM} operator with a mean performance gap of 18.32\% relative to the theoretical oracle. More notably, when applied to complex fused kernels, this gap narrows significantly to 11.72\% for \texttt{GEMM\_bias\_layernorm} and 12.08\% for \texttt{GEMM\_bias\_act}. This reduction occurs due to the shifted performance bottleneck and the constrained valid search space in fused epilogues. Specifically, fusing operations like \texttt{layernorm} introduces thread-block reductions that inherently increase register pressure and shared memory consumption. This architectural constraint heavily prunes the valid search space by eliminating overly large tile sizes that would otherwise cause register spilling, effectively flattening the performance landscape and allowing the tuner to converge near the global optimum more easily. Ultimately, by accepting a marginal 11\% to 18\% performance trade-off compared to the oracle, our tuner successfully bypasses the prohibitively expensive exhaustive search process, delivering a highly practical and efficient compilation strategy for dynamic shapes.
+To evaluate the efficiency of our tuning mechanism, we measure the performance gap between the configurations selected 
+by MAGSAT and the per-shape global optimums obtained through exhaustive search. We focus on \texttt{GEMM} and its fused 
+variants as representative case studies, given their dominance as the most critical and time-consuming components in modern 
+Transformer-based dynamic shape workloads. Across a diverse set of 85 dynamic shapes, our tuner identifies configurations 
+for the standard \texttt{GEMM} operator with a mean performance gap of 18.32\% relative to the theoretical oracle. 
+More notably, when applied to complex fused kernels, this gap narrows significantly to 11.72\% for \texttt{GEMM\_bias\_layernorm} 
+and 12.08\% for \texttt{GEMM\_bias\_act}. This reduction occurs due to the shifted performance bottleneck and the constrained 
+valid search space in fused epilogues. Specifically, fusing operations like \texttt{layernorm} introduces thread-block reductions 
+that inherently increase register pressure and shared memory consumption. This architectural constraint heavily prunes the valid search 
+space by eliminating overly large tile sizes that would otherwise cause register spilling, effectively flattening the performance landscape 
+and allowing the tuner to converge near the global optimum more easily. Ultimately, by accepting a marginal 11\% to 18\% performance 
+trade-off compared to the oracle, our tuner successfully bypasses the prohibitively expensive exhaustive search process, delivering a highly 
+practical and efficient compilation strategy for dynamic shapes.
 
 \subsection{Overhead Analysis}
 \label{sec:overhead}
