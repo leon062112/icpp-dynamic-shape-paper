@@ -13,15 +13,18 @@ to decouple fusion decisions from shape-dependent tuning, and reconnect them
 through a unified template and trait abstraction. This avoids redoing fusion 
 for dynamic shapes while still enabling shape-adaptive performance optimization.
 
-\begin{figure*}[htbp]
+\begin{figure*}[t]
+  \vspace{-0.6em}
   \centering
-  \includegraphics[width=\textwidth]{figures/4-method-overview.pdf}
+  \captionsetup{aboveskip=2pt,belowskip=-4pt}
+  \includegraphics[width=0.92\textwidth]{figures/4-method-overview.pdf}
 %   \includegraphics[scale=0.5]{figures/4-method-overview.pdf}
-  \caption{Overview of MAGSAT.}
+  \caption{\textcolor{blue}{Overview of MAGSAT.}}
   \Description{MAGSAT first analyzes fusion opportunities from the
   computation graph, maps fusible regions to tiled templates, and then selects
   shape-adaptive configurations using an analytical model.}
   \label{fig:method-overview}
+  \vspace{-0.8em}
 \end{figure*}
 
 MAGSAT consists of three stages.  First, the fusion stage determines which 
