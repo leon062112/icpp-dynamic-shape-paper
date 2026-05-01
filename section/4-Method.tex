@@ -113,13 +113,32 @@ the fusion mechanism simple and predictable.
 \subsection{Template Mapping and Parallelization}
 \label{sec:template}
 
-After identifying a fusible region, we map it to a parameterized tiled template. 
-Rather than generating a specialized kernel for each graph pattern, 
-we introduce a unified abstraction that represents fused
-operators using a small set of reusable template families and
-composition primitives. This abstraction bridges graph-level fusion
-and low-level scheduling by exposing a common interface for
+After identifying a fusible region, MAGSAT maps it to a parameterized tiled
+template. Rather than generating a specialized kernel for each graph pattern,
+we represent fused operators with a small set of reusable template families and
+composable epilogue primitives. This abstraction connects graph-level fusion
+decisions with low-level scheduling through a common interface for
 shape-adaptive configuration.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/4-method-template.pdf}
+  \caption{Mapping fusible regions to compilation templates.}
+  \Description{Two example fusion regions are mapped to a compilation
+  template. The template contains GEMM and convolution mainloop families and a
+  composable epilogue primitive sequence including bias addition,
+  normalization, and activation.}
+  \label{fig:method-template}
+\end{figure}
+
+Figure~\ref{fig:method-template} illustrates this mapping. Each fusible region
+is decomposed into a dominant mainloop and a sequence of lightweight epilogue
+operations. The mainloop selects the template family, such as GEMM or
+implicit-GEMM convolution, while the remaining operations are encoded as
+ordered primitives such as bias addition, normalization, and activation. In
+this way, graph patterns such as GEMM--bias--LayerNorm and
+Conv--bias--activation share the same lowering interface while preserving the
+operator-specific information needed by code generation.
 
 \textbf{Template families.}
 Our current implementation supports two mainloop template families.  The first
@@ -147,11 +166,12 @@ construction of fused operators, where different combinations of
 pointwise and reduction operations are expressed through a shared
 primitive interface.
 
-For example, a GEMM followed by bias addition and ReLU is mapped to a GEMM mainloop 
-with \texttt{bias\_add} and \texttt{relu}, while a GEMM with row-wise normalization 
-is represented using \texttt{bias\_add} and \texttt{layernorm}. 
-Similarly, convolution epilogues such as batch normalization and activation are expressed
-through corresponding primitives.
+For example, a GEMM followed by bias addition and ReLU is mapped to a GEMM
+mainloop with \texttt{bias\_add} and \texttt{relu}, while a GEMM followed by
+bias addition and row-wise normalization is represented using
+\texttt{bias\_add} and \texttt{row\_layernorm}. Similarly, convolution
+epilogues such as batch normalization, bias addition, and activation are
+expressed through corresponding primitives.
 Table~\ref{tab:template-mapping} summarizes the template mapping used in our implementation.
 
 \begin{table}[H]
