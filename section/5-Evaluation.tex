@@ -84,7 +84,9 @@ dynamic shapes. The gains on fused GEMM and convolution variants indicate
 that MAGSAT's tuning strategy can select schedules that exploit both the
 current problem size and the surrounding post-operator computation,
 reducing intermediate memory traffic and avoiding unnecessary kernel
-launches. 
+launches. Compared with Helix on matched fused-operator workloads, MAGSAT
+achieves a 4.65$\times$ average throughput speedup and up to 33.00$\times$
+speedup.
 
 \begin{figure*}[t]
   \centering
@@ -137,7 +139,8 @@ highly optimized for many regular shapes. Nevertheless, MAGSAT still
 consistently outperforms both Torch Native and \texttt{torch}.\texttt{compile},
 especially on the deeper ResNet-101 model, where the benefits of
 operator fusion and per-shape tuning accumulate across many convolution
-layers.
+layers. Across the matched Helix end-to-end workloads, MAGSAT achieves a
+2.74$\times$ average speedup and up to 4.72$\times$ speedup.
 
 \begin{figure*}[t]
   \centering
