@@ -34,7 +34,7 @@ the sampled set, and changing the sample set usually requires additional tuning~
 % DHD: 修改成单模型 + 动态shape
 \begin{figure}[t]
   \centering
-  \includegraphics[width=\linewidth]{figures/2-bg-dynamic.pdf}
+  \includegraphics[scale=0.5]{figures/2-bg-dynamic.pdf}
   \caption{\textcolor{blue}{Dynamic inference requests produce different tensor-program instances.}}
   \Description{An illustration showing that inference requests with different
   runtime shapes are mapped to tensor programs whose operators have different
@@ -96,7 +96,7 @@ shape-adaptive auto-tuning.
 % SQX：图2再细致些，例如tile到register file/shared memory的映射，包括文中提到计算对于SM的映射；也就是将tile抽象和具体的硬件单元建立连接关系，是否能参考flashattention之类的来设计这张图？现在只有一个mapping过去没有给读者Insight。
 \begin{figure}[t]
   \centering
-  \includegraphics[width=\linewidth]{figures/2-bg-tile.pdf}
+  \includegraphics[scale=0.4]{figures/2-bg-tile.pdf}
   \caption{\textcolor{red}{Tile-level GPU execution for tensor programs.}}
   \Description{An illustration showing a tensor operation partitioned into
   tiles, with each tile mapped to GPU execution resources such as SMs, warps,
