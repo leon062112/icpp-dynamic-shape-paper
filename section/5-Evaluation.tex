@@ -230,10 +230,6 @@ exhaustive search and directly invokes compiled fused kernels. Configuration
 selection is performed online with sub-millisecond overhead and can be
 amortized across repeated executions of the same shape.
 
-For matmul-bias-ReLU, the fused kernel achieves a median latency of 0.022 ms,
-compared with 0.071 ms for the PyTorch baseline (3.26× speedup), demonstrating
-that runtime overhead is negligible relative to kernel execution.
-
 Overall, the primary bottleneck in traditional autotuning lies in the expensive
 offline benchmarking process. Our approach removes this cost entirely, reducing
 selection overhead to the millisecond level. The remaining compilation cost is
