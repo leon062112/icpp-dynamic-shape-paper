@@ -91,7 +91,7 @@ speedup.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/5-op-level-performance.pdf}
-  \caption{Operator-level performance on A100 and H100 across fused GEMM and convolution workloads, normalized to Torch Native.}
+  \caption{Operator-level performance on A100 and H100 across fused GEMM and convolution workloads, normalized to Torch Native. The x-axis represents the FLOPS of workloads, and the y-axis quantifies the speedups achieved relative to the baselines.}
   \Description{A two-platform operator-level comparison showing speedups
   for GEMM, fused GEMM, convolution, and fused convolution workloads on
   A100 and H100 GPUs, with MAGSAT consistently outperforming Torch Native
@@ -145,7 +145,7 @@ layers. Across the matched Helix end-to-end workloads, MAGSAT achieves a
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/5-e2e-performance.pdf}
-  \caption{End-to-end performance on A100 and H100 across Transformer and CNN workloads, normalized to Torch Native.}
+  \caption{End-to-end performance on A100 and H100 across Transformer and CNN workloads, normalized to Torch Native. The x-axis represents the sequence length for LLM and batch size for CNN, and the y-axis quantifies the speedups achieved relative to the baselines.}
   \Description{A two-platform end-to-end comparison showing grouped speedup bars for BERT-base, LLaMA-base, AlexNet, and ResNet-101 under dynamic input settings, with methods including Torch Native, torch.compile, and MAGSAT.}
   \label{fig:e2e_performance}
 \end{figure*}
