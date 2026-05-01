@@ -34,7 +34,7 @@ still be selected for each invocation.
   \label{fig:motivation-config-heatmap}
 \end{figure*}
 
-\begin{figure}[t]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{figures/3-moti-perfloss.pdf}
   \caption{Performance loss of static baseline (best configuration at M=256) across dynamic shapes.}
@@ -88,7 +88,7 @@ fused operator with a wider range of dynamic shapes, where $M$ increases from
 configurations selected from the tuning results: Config-A uses a larger tile
 $(128,128,32)$, while Config-B uses a smaller tile $(32,32,64)$. We collect NCU metrics for both configurations, including achieved SM occupancy, L2 cache hit rate, and DRAM throughput.
 
-\begin{figure}[t]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{figures/3-moti-bottleneck.pdf}
   \caption{Bottleneck shifts across shapes.}
