@@ -96,8 +96,8 @@ shape-adaptive auto-tuning.
 % SQX：图2再细致些，例如tile到register file/shared memory的映射，包括文中提到计算对于SM的映射；也就是将tile抽象和具体的硬件单元建立连接关系，是否能参考flashattention之类的来设计这张图？现在只有一个mapping过去没有给读者Insight。
 \begin{figure}[t]
   \centering
-  \includegraphics[scale=0.4]{figures/2-bg-tile.pdf}
-  \caption{\textcolor{red}{Tile-level GPU execution for tensor programs.}}
+  \includegraphics[scale=0.32]{figures/2-bg-tile.pdf}
+  \caption{\textcolor{blue}{Tile-level GPU execution for tensor programs.}}
   \Description{An illustration showing a tensor operation partitioned into
   tiles, with each tile mapped to GPU execution resources such as SMs, warps,
   registers, and shared memory.}
