@@ -91,7 +91,7 @@ introduces TLE (Triton Language Extensions), which provides layered abstractions
 over distributed execution and memory access patterns with minimal migration cost.
 
 Recent tiled compilation works further refine scheduling via hardware-aware abstractions. cuTile~\cite{nvidia25cutile} provides 
-a Python-based interface that automatically leverages NVIDIA GPU features (e.g., Tensor Cores, TMAs) while treating tiles as 
+a Python-based interface that automatically leverages NVIDIA GPU features (e.g., Tensor Cores(TC), TMAs) while treating tiles as 
 first-class immutable values for fine-grained data movement control. TileLang~\cite{cheng2025pipethreader}, built upon 
 TVM~\cite{chen2018tvm}, addresses the limitation of ad-hoc, operator-specific pipelining in prior works like Triton and 
 CUTLASS~\cite{nvidia22cutlass} by introducing the sTask-graph abstraction, a fine-grained dependency representation that 
