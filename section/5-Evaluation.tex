@@ -22,33 +22,139 @@ Transformer and CNN models. At the model level, we evaluate four
 representative neural networks: BERT~\cite{devlin2019bert},
 LLaMA~\cite{touvron2023llama}, ResNet~\cite{he2016resnet}, and
 AlexNet~\cite{krizhevsky2012alexnet}. These models exercise both
-GEMM-dominated and Convolution-dominated computation patterns.
+GEMM-dominated and convolution-dominated computation patterns.
 
-We compare MAGSAT with five baselines. \textbf{Torch} denotes eager-mode
-PyTorch execution. \textbf{\texttt{torch.compile}} denotes the PyTorch 2.x
-compiler stack based on TorchDynamo and TorchInductor~\cite{ansel2024pytorch}.
-\textbf{CUTLASS} is NVIDIA's template-based GPU kernel library~\cite{nvidia22cutlass}.
+We compare MAGSAT with five baselines. \textbf{Torch Native} denotes eager-mode
+PyTorch execution. \textbf{torch.compile} denotes the PyTorch
+2.x compiler stack based on TorchDynamo and
+TorchInductor~\cite{ansel2024pytorch}. \textbf{CUTLASS} is NVIDIA's
+template-based GPU kernel library~\cite{nvidia22cutlass}.
 \textbf{DietCode}~\cite{zheng2022dietcode} and
-\textbf{Helix}~\cite{zhou2025helix} are state-of-the-art systems in dynamic-shape 
-tensor program compilation. All experiments use FP16 inputs and outputs. For timing, we
-perform 100 warm-up iterations before measurement to to record the average performance.
+\textbf{Helix}~\cite{zhou2025helix} are state-of-the-art systems in
+dynamic-shape tensor program compilation. All experiments use FP16
+inputs and outputs. For timing, we perform 100 warm-up iterations before
+measurement and report the average performance.
 
 
 
 \subsection{Operator Performance}
 \label{sec:operatorperf}
 
-% 融合算子（单算子）的性能，如果单算子性能一般，就不用放
+We first evaluate MAGSAT at the operator level using \texttt{GEMM}- and
+\texttt{Conv2D}-based workloads on both A100 and H100 GPUs. These
+workloads cover the dominant computation patterns in Transformer and CNN
+inference, including plain operators and common fused variants such as
+\texttt{GEMM}-\texttt{bias}-\texttt{activation},
+\texttt{GEMM}-\texttt{bias}-\texttt{layernorm},
+\texttt{Conv}-\texttt{ReLU}, and
+\texttt{Conv}-\texttt{BN}-\texttt{Add}-\texttt{ReLU}. 
+On A100, MAGSAT achieves an average speedup of 2.84$\times$ over Torch for
+\texttt{GEMM}, with a maximum speedup of 3.93$\times$. For convolution
+fusion, MAGSAT improves \texttt{Conv}-\texttt{ReLU} by 2.36$\times$ on
+average over Torch eager and 2.82$\times$ over \texttt{torch}.\texttt{compile};
+for \texttt{Conv}-\texttt{BN}-\texttt{Add}-\texttt{ReLU}, the average
+speedups further increase to 4.55$\times$ and 4.73$\times$, respectively. 
+On H100, the fused GEMM operators show stronger performance. For
+\texttt{GEMM}-\texttt{bias}-\texttt{activation}, MAGSAT achieves an
+average speedup of 4.02$\times$ over Torch, with a maximum speedup of
+5.06$\times$. For \texttt{GEMM}-\texttt{bias}-\texttt{layernorm}, it
+achieves an average speedup of 2.17$\times$ and a maximum speedup of
+2.58$\times$. For convolution fusion on H100, MAGSAT improves
+\texttt{Conv}-\texttt{ReLU} by 1.98$\times$ on average over Torch eager 
+and 3.22$\times$ over \texttt{torch}.\texttt{compile}, while 
+\texttt{Conv}-\texttt{BN}-\texttt{Add}-\texttt{ReLU} achieves average
+speedups of 5.33$\times$ and 2.97$\times$, respectively. These gains are
+most visible for small and irregular shapes, where generic library kernels
+and compiler-generated kernels often suffer from launch overhead,
+conservative schedule choices, or insufficient specialization for the
+current tensor shape.
+
+Overall, the operator-level results show that MAGSAT improves not only
+individual kernel execution but also fused operator execution under
+dynamic shapes. The gains on fused GEMM and convolution variants indicate
+that MAGSAT's tuning strategy can select schedules that exploit both the
+current problem size and the surrounding post-operator computation,
+reducing intermediate memory traffic and avoiding unnecessary kernel
+launches. 
 
 \subsection{End-to-end Performance}
 \label{sec:end2end}
 
-% 端到端网络推理的性能，LLM*2，CNN*2
+We next evaluate whether the operator-level improvements translate into
+end-to-end model acceleration. For Transformer workloads, we evaluate
+BERT-base and LLaMA-base under dynamic sequence lengths. On A100, MAGSAT
+achieves an average latency speedup of 2.27$\times$ over Torch Native
+and 1.71$\times$ over \texttt{torch}.\texttt{compile} on BERT-base. On
+LLaMA-base, the average speedups increase to 5.21$\times$ over Torch
+Native and 1.90$\times$ over \texttt{torch}.\texttt{compile}. The same
+trend holds on H100. MAGSAT achieves 3.47$\times$ and 2.91$\times$
+average speedup over Torch Native and \texttt{torch}.\texttt{compile} on
+BERT-base, respectively, and 4.10$\times$ and 2.50$\times$ on LLaMA-base.
+These results show that MAGSAT is effective for GEMM-dominated models
+with dynamic sequence lengths, where each input length induces different
+matrix shapes and therefore benefits from shape-adaptive schedule
+selection.
+
+For CNN workloads, we evaluate AlexNet and ResNet-101 under dynamic batch
+sizes. On A100, MAGSAT achieves an average throughput speedup of
+1.62$\times$ over Torch Native and 1.23$\times$ over
+\texttt{torch}.\texttt{compile} on AlexNet, and 2.31$\times$ and
+1.30$\times$ on ResNet-101. On H100, MAGSAT further achieves
+1.76$\times$ and 1.38$\times$ average speedup on AlexNet, and
+2.46$\times$ and 1.35$\times$ on ResNet-101. The speedups on CNNs are
+more moderate than those on LLMs because convolution backends are already
+highly optimized for many regular shapes. Nevertheless, MAGSAT still
+consistently outperforms both Torch Native and \texttt{torch}.\texttt{compile},
+especially on the deeper ResNet-101 model, where the benefits of
+operator fusion and per-shape tuning accumulate across many convolution
+layers.
 
 \subsection{Ablation Study}
 \label{sec:ablation}
 
-% 组件的ablation测试，还需要再想想有啥能拆出来的；或者有什么框架特定的设死的参数，可做参数敏感性分析
+We use ablation experiments to quantify each MAGSAT component. The
+experiments cover both LLM and CNN workloads.
+We compare three variants. \textbf{Full} enables operator fusion and
+shape-adaptive configuration selection. \textbf{Fusion only} keeps
+fusion but uses one fixed tile configuration for all shapes.
+\textbf{Tuning only} disables fusion while retaining the analytical cost
+model for per-shape tuning. All variants are evaluated against
+\textbf{Torch Native}. For LLMs, we vary sequence length from 1 to 253
+with batch size 1. For CNNs, we vary batch size from 1 to 64.
+
+Figure~\ref{fig:ablation} shows the speedup of each configuration
+over Torch Native. Speedup is normalized to Torch Native (dashed line at 1.0).
+On BERT-base and LLaMA-base, MAGSAT (full) achieves
+3.3--4.7$\times$ and 3.6--5.1$\times$ speedup, respectively.
+Removing adaptive tuning (fusion only) reduces performance by
+0.3--1.0$\times$, especially at larger sequence lengths,
+confirming that shape-adaptive configuration selection is essential
+for dynamic workloads.
+Removing fusion (tuning only) further degrades performance to
+2.4--3.1$\times$ on BERT and 2.5--3.8$\times$ on LLaMA,
+demonstrating that operator fusion contributes significantly
+to end-to-end latency reduction by eliminating intermediate
+memory traffic.
+On CNNs, MAGSAT (full) achieves 1.7--1.9$\times$ on AlexNet
+and 2.4--2.7$\times$ on ResNet-101.
+Notably, tuning only occasionally underperforms Torch Native
+on AlexNet (e.g., batch sizes 20 and 32),
+indicating that without fusion, the kenrel with static config shows 
+inferior performance compared to Torch Native implementation under certain shapes.
+These results validate that both fusion and shape-adaptive tuning
+are necessary to achieve robust performance across diverse models
+and dynamic shapes.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/5-eval-ablation.pdf}
+  \caption{Ablation study on (a) BERT-base, (b) LLaMA-base,
+  (c) AlexNet, and (d) ResNet-101.}
+  \Description{Four ablation plots comparing the full MAGSAT system,
+  fusion-only variant, and tuning-only variant on BERT-base, LLaMA-base,
+  AlexNet, and ResNet-101.}
+  \label{fig:ablation}
+\end{figure}
 
 \subsection{Parameter Tuning Efficiency}
 \label{sec:tuning}
