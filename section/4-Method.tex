@@ -7,19 +7,21 @@
 
 Figure~\ref{fig:method-overview} shows the overall workflow of MAGSAT.
 The input is a dynamic tensor program represented as a computation graph, plus
-the runtime shape observed during execution.  The output is a fused tiled
+the shape observed at runtime.
+The output is a fused tiled
 kernel instantiated with a shape-specific configuration.  The key design is 
-to decouple fusion decisions from shape-dependent tuning, and reconnect them 
-through a unified template and trait abstraction. This avoids redoing fusion 
+to decouple fusion decisions from configuration tuning, and reconnect them 
+through a unified template and trait abstraction. This avoids repeated operator fusion 
 for dynamic shapes while still enabling shape-adaptive performance optimization.
 
+% SQX：1）信息量太少，看着不专业，挺丑，或者换成更简单的组件图，信息密度更大，也比这种表示好；换成组件图的话，文字描述也要变，比如三个stage换成三个module；换成组件图还有个好处，可以把其他信息量给到图7-图8，充实起来。2）仍存在截图部分，和主体格格不入；3）左边计算图怎么连个分支都没有？这太简单了；4）5.2-5.4的标题调大，且用黑色。
 \begin{figure*}[t]
   \vspace{-0.6em}
   \centering
   \captionsetup{aboveskip=2pt,belowskip=-4pt}
   \includegraphics[width=0.92\textwidth]{figures/4-method-overview.pdf}
 %   \includegraphics[scale=0.5]{figures/4-method-overview.pdf}
-  \caption{\textcolor{blue}{Overview of MAGSAT.}}
+  \caption{\textcolor{red}{Design Overview of MAGSAT.}}
   \Description{MAGSAT first analyzes fusion opportunities from the
   computation graph, maps fusible regions to tiled templates, and then selects
   shape-adaptive configurations using an analytical model.}
@@ -27,73 +29,82 @@ for dynamic shapes while still enabling shape-adaptive performance optimization.
   \vspace{-0.8em}
 \end{figure*}
 
-MAGSAT consists of three stages.  First, the fusion stage determines which 
+MAGSAT consists of three stages.  First, the \textit{operator fusion stage} determines which 
 regions can be lowered to fused templates by analyzing memory-access semantics derived 
-from the computation graph. It first identifies candidate regions based on data 
-dependencies, then normalizes each region into load, compute, and store operations, 
-and determines fusibility based on whether the mainloop output can be kept on-chip 
-without intermediate global-memory writes.
-
-Second, each fusible region is mapped to a parameterized tiled template.  We
-represent the dominant computation with a small set of mainloop template
-families, currently GEMM and convolution, and represent the remaining fused computation 
-as an ordered sequence of epilogue primitives such as bias addition, activation, 
-row layer normalization, or batch normalization. This mapping gives different fused 
-operators a common template interface while preserving the information needed 
-by the backend kernel implementation.
-
-Third, for each runtime shape, the configuration selector chooses tile
-parameters for the selected template. The selector receives the template, 
-primitive sequence, candidate configurations, and hardware specification.  
-It then builds an operator description for the current shape,
+from the computation graph. 
+%It first identifies candidate regions based on data 
+%dependencies, then normalizes each region into load, compute, and store operations, 
+%and determines fusibility based on whether the mainloop output can be kept on-chip 
+%without intermediate global-memory writes.
+Second, the \textit{template mapping stage} represents the dominant computation with a small set of mainloop template
+families, and the remaining fused computations as an ordered sequence of epilogue primitives.
+%each fusible region is mapped to a parameterized tiled template.  We
+%represent the dominant computation with a small set of mainloop template
+%families, currently GEMM and convolution, and represent the remaining fused computation 
+%as an ordered sequence of epilogue primitives such as bias addition, activation, 
+%row layer normalization, or batch normalization. This mapping gives different fused 
+%operators a common template interface while preserving the information needed 
+%by the backend kernel implementation.
+Third, the \textit{configuration selection stage} builds an operator description for the current shape,
 projects each candidate into hardware-aware execution traits, and ranks the
-candidates with a lightweight analytical model.  In this way, MAGSAT
-keeps graph-level fusion decisions stable while adapting tile sizes, warp
-counts, and pipeline depths to dynamic shapes.
+candidates with a lightweight analytical model.
+Through a three-stage coupling design, MAGSAT flexibly splits the computation graph into fused operators and maps them to stable compilation templates, as well as adjusting kernel parameter configurations under dynamic shapes to improve end-to-end inference performance.
 
-The rest of this section describes these stages in order.  Section~\ref{sec:memory-access}
-introduces the access-driven fusion analysis, Section~\ref{sec:template}
-describes the template mapping and parallelization strategy, and
-Section~\ref{sec:determination} presents the shape-adaptive configuration
-selection model. Section~\ref{sec:impdetails} describes the details of our implementation.
+
+%for each runtime shape, the configuration selector chooses tile
+%parameters for the selected template. The selector receives the template, 
+%primitive sequence, candidate configurations, and hardware specification.  
+%It then builds an operator description for the current shape,
+%projects each candidate into hardware-aware execution traits, and ranks the
+%candidates with a lightweight analytical model.  In this way, MAGSAT
+%keeps graph-level fusion decisions stable while adapting tile sizes, warp
+%counts, and pipeline depths to dynamic shapes.
+
+%The rest of this section describes these stages in order.  Section~\ref{sec:memory-access}
+%introduces the access-driven fusion analysis, Section~\ref{sec:template}
+%describes the template mapping and parallelization strategy, and
+%Section~\ref{sec:determination} presents the shape-adaptive configuration
+%selection model. Section~\ref{sec:impdetails} describes the details of our implementation.
 
 
 \subsection{Memory-Access-Driven Operator Fusion}
 \label{sec:memory-access}
 
-The fusion stage determines which producer–consumer regions can be lowered
-to our fused templates in Section~\ref{sec:template}. Unlike prior
-approaches that rely on operator patterns or predefined fusion rules, our
-method is driven by memory-access semantics. This makes the analysis robust
-to graph variations such as operator reordering or syntactic differences,
-while focusing on whether intermediate results can be kept on-chip.
-
-Importantly, fusion decisions depend only on the program’s data-dependence
-and memory-access structure, and are therefore invariant to runtime shapes.
-While dynamic shapes may affect the optimal tile configuration, they do not
-change the underlying dataflow of the graph. As a result, fusion analysis is
-performed once on the compiled graph, and the resulting fusion pattern is
+%The fusion stage determines which producer–consumer regions can be lowered
+%to our fused templates in Section~\ref{sec:template}. 
+Unlike prior
+approaches that rely on operator patterns or predefined fusion rules, the fusion decisions of MAGSAT depend only on the program’s data-dependence and memory-access structure, and are therefore invariant to runtime shapes. 
+%is driven by memory-access semantics. 
+%This makes the analysis robust
+%to graph variations such as operator reordering or syntactic differences,
+%while focusing on whether intermediate results can be kept on-chip.
+%Importantly, fusion decisions depend only on the program’s data-dependence
+%and memory-access structure, and are therefore invariant to runtime shapes.
+%While dynamic shapes may affect the optimal tile configuration, they do not
+%change the underlying dataflow of the graph. 
+In this way, the fusion analysis is
+performed once on the compiled graph, and the resulting decisions is
 reused across all runtime executions.
-
-Figure~\ref{fig:method-fusion} illustrates this analysis. MAGSAT first
-extracts a variable producer--consumer graph, then normalizes it into an
+As shown in Figure~\ref{fig:method-fusion}, 
+MAGSAT extracts a producer--consumer graph, then normalizes it into an
 access-flow form. In this form, external tensors are modeled as explicit
 loads, final outputs as stores, and the mainloop result as an in-flight value
 that flows through epilogue computation before the final global-memory write.
 Fusion is allowed only when the normalized flow matches a supported access
 pattern.
 
+% SQX：1）比图6和图8好，但还有改进空间；图7-8都反复出现算子的连接，太冗余了；2）而且正文中信息量挺多的呀，为什么体现不在图里？3）Load, Compute， Store应该用别的方式更突出显示，不要和算子揉在一起。
 \begin{figure}[htbp]
   \centering
   \includegraphics[scale=0.6]{figures/4-method-fusion.pdf}
-  \caption{Memory-access-driven fusion analysis.}
+  \caption{\textcolor{red}{Graph normalization with access-flow form.}}
   \Description{A variable graph is normalized into a load-compute-store access
   form that tracks external inputs, final outputs, and the in-flight mainloop
   output.}
   \label{fig:method-fusion}
 \end{figure}
 
-\textbf{Candidate extraction.}
+\subsubsection{Candidate Extraction}
 We analyze the program on a traced computation graph, focusing on mainloop–epilogue 
 regions where a GEMM or convolution feeds a small downstream subgraph. For each GEMM region, 
 we identify the matmul node and extract its downstream epilogue as a separate module, 
@@ -101,13 +112,12 @@ while recording which input corresponds to the mainloop output and which are ext
 tensors (e.g., bias, scale, residual, normalization). This classification helps
 determine whether the mainloop output can be kept within the fused computation 
 without being written to global memory and establishes the dataflow
-boundary required to reason about fusion feasibility.
+boundary to infer fusion feasibility.
 
-\textbf{Access-flow normalization.}
+\subsubsection{Access-flow Normalization}
 To enable systematic reasoning about memory behavior, we introduce an
 access-flow normalization that rewrites the epilogue into the canonical
-load--compute--store form shown in Figure~\ref{fig:method-fusion}.
-
+\texttt{load--compute--store} form.
 We then apply a set of access-preserving rewrite rules to simplify the
 epilogue graph to a fixed point. These rules capture common patterns
 such as pointwise transformations, accumulation with external tensors,
@@ -116,34 +126,45 @@ into a common access form, this step exposes whether the dataflow can
 be implemented within a fused kernel without introducing intermediate
 global-memory traffic.
 
-\textbf{Fusibility check.}
+\subsubsection{Fusibility Check}
 A candidate region is considered fusible if its normalized access flow
 can be fully expressed by the template abstraction. Concretely, all
-external tensors must correspond to supported load operations, all
-outputs must map to supported store patterns, and the mainloop value
+external tensors must correspond to supported \texttt{load} operations, all
+outputs must map to supported \texttt{store} patterns, and the mainloop value
 must have a valid producer–consumer path through the epilogue.
-
 This check ensures that fusion is not tied to specific operator
 sequences, but instead to whether the underlying dataflow can be
 realized within a single kernel. Regions that violate these constraints
-are conservatively left unfused, preserving correctness while keeping
-the fusion mechanism simple and predictable.
+are conservatively left unfused, preserving simplicity while ensuring correctness.
+
+%preserving correctness while keeping
+%the fusion mechanism simple and predictable.
 
 
 \subsection{Template Mapping and Parallelization}
 \label{sec:template}
 
 After identifying a fusible region, MAGSAT maps it to a parameterized tiled
-template. Rather than generating a specialized kernel for each graph pattern,
+template. Rather than generating specialized kernels,
 we represent fused operators with a small set of reusable template families and
-composable epilogue primitives. This abstraction connects graph-level fusion
-decisions with low-level scheduling through a common interface for
-shape-adaptive configuration.
+composable epilogue primitives. 
+%This abstraction connects graph-level fusion
+%decisions with low-level scheduling through a common interface for
+%shape-adaptive configuration.
+As shown in Figure~\ref{fig:method-template}, each fusible region
+is decomposed into a dominant mainloop and a sequence of lightweight epilogue
+operations. The mainloop selects the template family, such as GEMM or
+implicit-GEMM convolution, while the remaining operations are encoded as
+ordered primitives such as bias addition, normalization, and activation. In
+this way, graph patterns such as GEMM--bias--LayerNorm and
+Conv--bias--activation share the same lowering interface while preserving the
+operator-specific information required by code generation.
 
+% SQX：1）图中信息量还是少，尤其是左边，占了那么大空间；正文写的挺好，但没体现在图中；2）图中Kernel改为Filter，避免与正文中Kernel描述混淆。
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figures/4-method-template.pdf}
-  \caption{Mapping fusible regions to compilation templates.}
+  \caption{\textcolor{red}{Mapping fusion regions to compilation templates.}}
   \Description{Two example fusion regions are mapped to a compilation
   template. The template contains GEMM and convolution mainloop families and a
   composable epilogue primitive sequence including bias addition,
@@ -151,35 +172,28 @@ shape-adaptive configuration.
   \label{fig:method-template}
 \end{figure}
 
-Figure~\ref{fig:method-template} illustrates this mapping. Each fusible region
-is decomposed into a dominant mainloop and a sequence of lightweight epilogue
-operations. The mainloop selects the template family, such as GEMM or
-implicit-GEMM convolution, while the remaining operations are encoded as
-ordered primitives such as bias addition, normalization, and activation. In
-this way, graph patterns such as GEMM--bias--LayerNorm and
-Conv--bias--activation share the same lowering interface while preserving the
-operator-specific information needed by code generation.
 
-\textbf{Template families.}
-Our current implementation supports two mainloop template families.  The first
-family is a GEMM mainloop, which covers matrix multiplication and GEMM-based
+
+\subsubsection{Template Families}
+MAGSAT currently supports two mainloop template families.  The first
+family is a GEMM mainloop, which covers GEMM and GEMM-based
 fused operators.  A candidate is represented by its logical dimensions
 $(M,N,K)$, where $M$ often corresponds to the dynamic batch/token dimension in
-inference workloads.  The second family is an implicit-GEMM convolution
+LLM workloads.  The second family is an implicit-GEMM convolution
 mainloop.  For a convolution with batch size $B$, input channels $C$, output
-channels $O$, input height and width $(H,W)$, and kernel size $(R,S)$, we map
+channels $O$, input height and width $(H,W)$, and filter size $(R,S)$, we map
 the computation to an equivalent GEMM problem:
 \[
 M_c = B \cdot H_o \cdot W_o,\quad
 N_c = O,\quad
 K_c = C \cdot R \cdot S,
 \]
-where $H_o$ and $W_o$ are the output spatial dimensions.  This mapping allows
+where $H_o$ and $W_o$ are the output spatial dimensions. This mapping allows
 GEMM and convolution templates to share the same high-level tiling parameters,
-while the convolution template additionally handles the address generation
-needed to gather input windows.
+while the convolution template additionally handles the address generation required for convolution filters.
+%needed to gather input windows.
 
-\textbf{Fusion primitive mapping.}
+\subsubsection{Fusion Primitives}
 The non-mainloop portion of a fused region is represented as an ordered
 sequence of epilogue primitives. This design enables compositional
 construction of fused operators, where different combinations of
@@ -192,11 +206,11 @@ bias addition and row-wise normalization is represented using
 \texttt{bias\_add} and \texttt{row\_layernorm}. Similarly, convolution
 epilogues such as batch normalization, bias addition, and activation are
 expressed through corresponding primitives.
-Table~\ref{tab:template-mapping} summarizes the template mapping used in our implementation.
+Table~\ref{tab:template-mapping} summarizes the template mapping in our implementation.
 
 \begin{table}[H]
   \centering
-  \caption{Mapping fused operator regions to tiled templates.}
+  \caption{Mainloops and primitives of operator regions.}
   \label{tab:template-mapping}
   \small
   \begin{tabularx}{\linewidth}{l l X}
@@ -214,12 +228,11 @@ Table~\ref{tab:template-mapping} summarizes the template mapping used in our imp
   \end{tabularx}
 \end{table}
 
-\textbf{Parameterized tile templates.}
+\subsubsection{Parameterized Templates}
 Each template exposes a common set of tunable parameters: block sizes
-$(B_M,B_N,B_K)$, the number of warps, and the number of pipeline stages. 
+$(B_M,B_N,B_K)$, the warp count, and the pipeline depth. 
 These parameters define a shared configuration space across different operators, 
 enabling uniform exploration during shape-adaptive tuning.
-
 Given a configuration, the mainloop is tiled into a two dimensional grid with
 $\lceil M / B_M \rceil \times
  \lceil N / B_N \rceil$
@@ -235,9 +248,9 @@ primitives such as bias addition, ReLU, GELU, and SiLU are directly applied to
 the accumulator tile.  Reduction primitives, such as row layer normalization,
 introduce extra reduction work over the output tile and are therefore modeled
 separately by the configuration selector. For implicit-GEMM convolution, the
-same logical tile structure is used, but each logical row index in $M_c$ is
+same logical tile structure is used, but each row index in $M_c$ is
 decoded into $(b,h_o,w_o)$ coordinates, and the template computes the
-corresponding input-window offsets on the fly.
+corresponding filter offsets on the fly.
 
 This abstraction provides a uniform interface between fusion and tuning. 
 Regardless of whether the fused region originates from GEMM, convolution, 
@@ -255,17 +268,17 @@ a high-performance configuration without exhaustively profiling every
 candidate.  We use a trait-driven analytical model for this purpose.  The model
 projects the operator, candidate configuration, and target GPU into a set of execution
 traits, and then computes a relative score for configuration ranking.  This
-keeps online selection lightweight and avoids retraining when new dynamic shapes appear.
+keeps online selection lightweight when new shapes appear.
 
-\textbf{Unified operator and configuration representation.}
+\subsubsection{Configuration Representation}
 The selector operates on three inputs. First, an operator specification
 (\textit{OpSpec}) describes the computation using a \textit{MainloopSpec}
 and an ordered list of \textit{FusionPrimitive} objects. Each primitive
 is characterized by execution traits such as per-output FLOPs, memory
 traffic, reduction axes, synchronization requirements, and preferred
-tile shapes. This representation abstracts diverse fused operators into
-a common semantic space.
-
+tile shapes. 
+%This representation abstracts diverse fused operators into
+%a common semantic space.
 Second, a candidate \textit{TuneConfig} encodes tile sizes
 $(B_M,B_N,B_K)$, warp count, and pipeline depth. Third, a
 \textit{GPUSpec} captures hardware properties including SM count,
@@ -273,26 +286,29 @@ memory bandwidth, and compute throughput. Together, these inputs define
 a structured interface that decouples operator semantics from
 configuration evaluation.
 
-\textbf{Execution trait projection.}
+\subsubsection{Execution Trait Projection}
 For every pair of operator specification and candidate configuration, the model
-first computes a \textit{ConfigProjection}.  This projection summarizes how the
-current shape and tile configuration map to the GPU.  The main projected traits
+first computes a \textit{ConfigProjection}.  
+%This projection summarizes how the
+%current shape and tile configuration map to the GPU.  
+% SQX：这一长串太多了，可分类别来描述
+\textcolor{red}{The main projected traits
 include the tile counts along each dimension, grid size, outputs per thread,
 mainloop iteration count, per-tile FLOPs and memory traffic, shared-memory
 usage, arithmetic intensity, estimated occupancy, resident blocks per SM, wave
-fill, and preferred pipeline depth.  For convolution, the projection also uses 
-the spatial reuse implied by the convolution kernel and stride to estimate input 
-and weight reuse.  By computing these traits once, all score terms consume the same 
+fill, and preferred pipeline depth.}  For convolution, the projection also uses the convolution filter and stride to estimate spatial input and weight reuse.  By computing these traits once, all score terms consume the same 
 execution view of the candidate.
 
-\textbf{Analytical scoring.}
-The final score is a product of normalized efficiency terms:
+%the spatial reuse implied by 
+
+\subsubsection{Analytical Scoring}
+The final score is formalized as a product of normalized efficiency terms:
 \[
 \begin{aligned}
 \mathrm{Score}(S,C,H) =
-& E_{\mathrm{main}} \cdot E_{\mathrm{mem}} \cdot E_{\mathrm{par}}
-  \cdot E_{\mathrm{pipe}} \\
-& \cdot E_{\mathrm{conv}} \cdot E_{\mathrm{epi}} \cdot E_{\mathrm{red}},
+E_{\mathrm{main}} \cdot E_{\mathrm{mem}} \cdot E_{\mathrm{par}}
+  \cdot E_{\mathrm{pipe}} 
+\cdot E_{\mathrm{conv}} \cdot E_{\mathrm{epi}} \cdot E_{\mathrm{red}},
 \end{aligned}
 \]
 where $S$ is the operator specification under the current shape, $C$ is a
@@ -300,23 +316,24 @@ candidate configuration, and $H$ is the target hardware.  Each term lies in
 $(0,1]$, We adopt a multiplicative formulation so that a severe bottleneck 
 in one dimension directly lowers the final score.
 
-$E_{\mathrm{main}}$ evaluates the main tiled computation.  It combines padding
+% SQX：每个efficiency term如何计算的，给出详细公式，至少要给出几个关键的，显得更直观
+\textcolor{red}{$E_{\mathrm{main}}$ evaluates the main tiled computation.  It combines padding
 efficiency, the amount of work assigned to each thread, and the suitability of
 $B_K$.  The target outputs per thread is not fixed; it is adjusted according to
 wave fill and occupancy.  Therefore, large tiles are tolerated when the launch
 already exposes enough parallel work, but penalized when they reduce the number
-of schedulable blocks for small dynamic shapes.
+of schedulable blocks for small dynamic shapes.}
 
-$E_{\mathrm{mem}}$ measures memory behavior using a roofline-inspired signal
+\textcolor{red}{$E_{\mathrm{mem}}$ measures memory behavior using a roofline-inspired signal
 and shared-memory pressure.  The model compares the tile arithmetic intensity
 with the hardware ridge point to estimate whether the tile is likely to be
 memory limited, and penalizes configurations that consume too much shared
 memory per SM.  $E_{\mathrm{par}}$ captures SM-level parallelism through
 occupancy, wave fill, and warp-count efficiency, while
 $E_{\mathrm{pipe}}$ evaluates whether the chosen pipeline depth matches the
-number of mainloop iterations and the memory pressure of the operator.
+number of mainloop iterations and the memory pressure of the operator.}
 
-$E_{\mathrm{conv}}$ is enabled only for convolution.  It accounts
+\textcolor{red}{$E_{\mathrm{conv}}$ is enabled only for convolution.  It accounts
 for the extra address generation and input-window gathering cost that are not
 present in dense GEMM.  This term favors smaller tiles when spatial overlap is
 high and the launch is underfilled, because such shapes benefit more from
@@ -324,16 +341,7 @@ exposing additional thread blocks.  $E_{\mathrm{epi}}$ evaluates the epilogue
 primitive sequence by comparing the candidate tile shape and outputs per thread
 with each primitive's preferred execution traits.  Finally,
 $E_{\mathrm{red}}$ handles reduction primitives by considering the reduction
-axis extent, extra passes, and synchronization cost.
-
-\textbf{Shape-adaptive selection.}
-At runtime, the selector evaluates the analytical score for every candidate
-configuration exposed by the template descriptor and returns the highest-ranked
-one.  Algorithm~\ref{alg:config-selection} summarizes this process.  The
-descriptor interface hides backend-specific details: each template only needs
-to provide a name, a function that builds its \textit{OpSpec} for a given
-shape, and a function that enumerates its candidate configurations.
-Then the scoring model, and returns the best raw configuration for kernel construction.
+axis extent, extra passes, and synchronization cost.}
 
 % \begin{algorithm}[t]
 % \caption{Shape-adaptive configuration selection}
@@ -357,9 +365,9 @@ Then the scoring model, and returns the best raw configuration for kernel constr
 % \end{algorithm}
 
 \begin{algorithm}[t]
-  \caption{MAGSAT's shape-adaptive configuration selection}
+ \caption{Shape-adaptive configuration selection.}
 \label{alg:config-selection}
-\KwIn{Template descriptor $D$, runtime shape $s$, hardware spec $H$}
+\KwIn{Template descriptor $D$, runtime shape $s$, hardware specification $H$}
 \KwOut{Best raw configuration $c^\star$}
 $\mathcal{C} \leftarrow D.\mathrm{getRawConfigs}(s)$\;
 $bestScore \leftarrow -\infty$, $c^\star \leftarrow \emptyset$\;
@@ -376,10 +384,16 @@ $S \leftarrow D.\mathrm{makeOpSpec}(s)$\;
 }
 \Return{$c^\star$}\;
 \end{algorithm}
-
+\subsubsection{Shape-adaptive Selection}
+At runtime, the selector evaluates the analytical score for every candidate
+configuration exposed by the template descriptor and returns the highest-ranked
+one.  Algorithm~\ref{alg:config-selection} summarizes this process.  The
+descriptor interface hides backend-specific details: each template only needs
+to provide a name, a function that builds its \textit{OpSpec} for a given
+shape, and a function that enumerates its candidate configurations.
+Then the scoring model returns the best raw configuration for kernel construction.
 This process is shape-adaptive, as operator specifications and execution traits 
-are rebuilt per shape. Variations in problem dimensions alter execution characteristics 
-(e.g., grid size, occupancy, arithmetic intensity), enabling the selector to adapt to 
+are rebuilt per shape. Variations in problem dimensions alter execution characteristics, enabling the selector to adapt to 
 unseen dynamic shapes without exhaustive tuning.
 
 \subsection{Implementation Details}
@@ -387,18 +401,18 @@ unseen dynamic shapes without exhaustive tuning.
 
 We implement MAGSAT as a prototype system that integrates graph-level fusion,
 template-based kernel generation, and shape-adaptive configuration
-selection. The system is built on top of PyTorch FX for graph
-manipulation and TileLang for kernel implementation. The
-operator-fusion module operates on \texttt{fx.GraphModule}, where it
-performs memory-access analysis to identify fusible regions and
-rewrites them into template-backed operators when their access patterns
-match the supported abstraction.
+selection. The system is built on top of PyTorch FX~\cite{ansel2024pytorch} for graph
+manipulation. 
+We modify \texttt{fx.GraphModule} to support the operator-fusion module,
+which performs pattern matching based on memory-access analysis to identify fusible regions and
+rewrites them into template-backed operators.
 
-The tiled kernels are implemented in TileLang and connected to the
+% and TileLang~\cite{cheng2025pipethreader}  for kernel implementatio
+
+The tiled templates are implemented in TileLang~\cite{cheng2025pipethreader} and passed to the
 configuration selector through a lightweight descriptor interface.
 Given a runtime shape, each descriptor constructs the corresponding
 operator specification and enumerates candidate configurations. The
-analytical model then selects the best configuration without exhaustive
-profiling, and the resulting kernel is instantiated for execution.
-Compiled kernels are cached based on template and configuration to
-amortize compilation overhead across dynamic shapes.
+analytical model then selects the best configuration, and the resulting kernel is instantiated for execution.
+Compiled kernels are cached to
+amortize compilation overhead at runtime.

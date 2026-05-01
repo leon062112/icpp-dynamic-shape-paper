@@ -28,7 +28,7 @@ alter the optimal configuration of kernel parameters.
 We use a GEMM-based fused
 operator to demonstrate this effect.  The operator keeps the reduction and
 output-channel dimensions fixed at $K=768$ and $N=2304$, while the dynamic token dimension $M$ varies from 24 to 256.  For each shape, we
-exhaustively evaluate 154 valid configurations represented as tuples $(\texttt{BLOCK\_M}, \texttt{BLOCK\_N}, \texttt{BLOCK\_K}, \texttt{num\_warps}, and \texttt{num\_stages})$.
+exhaustively evaluate 154 valid configurations represented as tuples $(\texttt{BLOCK\_M}, \texttt{BLOCK\_N}, \texttt{BLOCK\_K}, \texttt{num\_warps}, \texttt{num\_stages})$.
 %, including different
 %\texttt{BLOCK\_M}, \texttt{BLOCK\_N}, \texttt{BLOCK\_K},
 %\texttt{num\_warps}, and \texttt{num\_stages}.  
