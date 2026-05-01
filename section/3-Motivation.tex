@@ -13,11 +13,11 @@
 
 % 以基于GEMM的融合算子为例，可给出热力图，证明不同形状下最优配置是有差别的，没有one-fits-all，服务于contribution 3
 
-% SQX: 1）横坐标标题改为(32,64,64,2,4)这种格式，和正文中tuple的描述统一；2）Per-shape Best Configuration的描述去掉，我在图标题里说了；3）Normalised改为Normalized；4）在保证可读性的前提下，是否能再压扁些。
+
 \begin{figure*}[htbp]
   \centering
   \includegraphics[width=0.9\linewidth]{figures/3-moti-heatmap.pdf}
-  \caption{\textcolor{blue}{Configuration sensitivity to shape (M): operator latency normalized to per-shape optimum (marked with $\bigstar$).}}
+  \caption{Configuration sensitivity to shape ($M$): operator latency normalized to per-shape optimum (marked with $\bigstar$).}
   \Description{A heatmap showing that different dynamic shapes select different
   optimal tuning configurations.}
   \label{fig:motivation-config-heatmap}
@@ -38,11 +38,10 @@ invoked with different runtime shapes.
 % but the best kernel configuration has to be selected for each invocation.
 
 
-% SQX：best改为optimal
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.95\linewidth]{figures/3-moti-perfloss.pdf}
-  \caption{\textcolor{blue}{Performance loss of static baseline (optimal configuration at $M=256$) across dynamic shapes.}}
+  \caption{Performance loss of static baseline (optimal configuration at $M=256$) across dynamic shapes.}
   \Description{A bar chart comparing per-shape best latency with the latency of
   a static configuration selected at the largest shape.}
   \label{fig:motivation-static-loss}
@@ -97,11 +96,10 @@ fused operator with a wider range of dynamic shapes, where $M$ increases from
 configurations: Config-A uses a larger tile
 $(128,128,32)$, while Config-B uses a smaller tile $(32,32,64)$. We collect NCU metrics including achieved SM occupancy, L2 cache hit rate, and DRAM throughput.
 
-% SQX: 1）纵坐标轴已经体现含义了，子图标题直接去掉吧；2）改为(128,128,32,4,3)的tuple样式；3）线条颜色和图里数字颜色再深些；4）横坐标轴的M去掉；4）(b)和(C)的纵坐标轴分别改为Achieved Occupancy (%)和L2 Cache Hit Rate (%)。
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.95\linewidth]{figures/3-moti-bottleneck.pdf}
-  \caption{\textcolor{blue}{Bottleneck shifts across variable shapes.}}
+  \caption{Bottleneck shifts across variable shapes.}
   \Description{A line chart comparing two tuning configurations across dynamic
   shapes, showing normalized latency, occupancy, L2 hit rate, and DRAM
   throughput.}
