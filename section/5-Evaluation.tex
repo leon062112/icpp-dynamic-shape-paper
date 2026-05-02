@@ -37,7 +37,7 @@ measurement and report the average performance.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/5-op-level-performance.pdf}
-  \caption{\textcolor{blue}{Operator-level performance on A100 and H100 GPUs across fused GEMM and convolution workloads. The x-axis represents the FLOPs of workloads, and the y-axis represents the speedup over Torch Native.}}
+  \caption{Operator-level performance on A100 and H100 GPUs across fused GEMM and convolution workloads. The x-axis represents the FLOPs of workloads, and the y-axis represents the speedup over Torch Native.}
   \Description{A two-platform operator-level comparison showing speedups
   for GEMM, fused GEMM, convolution, and fused convolution workloads on
   A100 and H100 GPUs, with MAGSAT consistently outperforming Torch Native
@@ -112,7 +112,7 @@ launches.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/5-e2e-performance.pdf}
-  \caption{\textcolor{blue}{End-to-end performance on A100 and H100 GPUs across Transformer and CNN workloads. The x-axis represents the sequence length for LLM and batch size for CNN, and the y-axis represents the speedup over Torch Native.}}
+  \caption{End-to-end performance on A100 and H100 GPUs across Transformer and CNN workloads. The x-axis represents the sequence length for LLM and batch size for CNN, and the y-axis represents the speedup over Torch Native.}
   \Description{A two-platform end-to-end comparison showing grouped speedup bars for BERT-base, LLaMA-base, AlexNet, and ResNet-101 under dynamic input settings, with methods including Torch Native, torch.compile, and MAGSAT.}
   \label{fig:e2e_performance}
 \end{figure*}
@@ -180,23 +180,22 @@ Figure~\ref{fig:ablation} shows the speedup of each configuration
 over Torch Native. 
 %Speedup is normalized to Torch Native (dashed line at 1.0).F
 % SQX：补充数据，和下文是一样的指标
-\textcolor{blue}{For LLM workloads, MAGSAT (Full) achieves
-3.3--4.7$\times$ and 3.7--5.1$\times$ speedup on BERT-Base and LLaMA-Base, respectively,
-excluding a few outlier points.
+For LLM workloads, MAGSAT (Full) achieves
+3.3--4.7$\times$ and 3.7--5.1$\times$ speedup on BERT-Base and LLaMA-Base, respectively.
 MAGSAT (Fusion only) degrades performance to
-2.7--3.9$\times$ and 2.9--4.8$\times$, especially at larger sequence lengths,
-confirming that shape-adaptive configuration selection is essential
-for dynamic workloads.}
+2.7--3.9$\times$ and 2.9--4.8$\times$, confirming that shape-adaptive configuration selection is essential
+for dynamic workloads.
 MAGSAT (Tuning only) degrades performance to
 2.4--3.1$\times$ and 2.5--3.8$\times$ on BERT-Base and LLaMA-Base,
 demonstrating that operator fusion contributes significantly
-to end-to-end latency reduction by eliminating intermediate
+to latency reduction by eliminating intermediate
 memory traffic.
 For CNN workloads, MAGSAT (Full) achieves speedups of 1.7--1.9$\times$
 and 2.3--2.7$\times$ on AlexNet and ResNet-101, respectively.
 MAGSAT (Fusion only) reaches 1.3--1.5$\times$ and 2.0--2.4$\times$,
 while MAGSAT (Tuning only) reaches 0.8--1.2$\times$ and 1.4--1.5$\times$.
-Notably, MAGSAT (Tuning only) occasionally underperforms Torch Native on AlexNet (e.g., batch sizes of 20 and 32).
+%especially at larger sequence lengths, 
+%Notably, MAGSAT (Tuning only) occasionally underperforms Torch Native on AlexNet (e.g., batch sizes of 20 and 32).
 % due to the efficiency of highly optimized vendor libraries.
 %%indicating that without fusion,
 %indicating that static operators without fusion are in to highly  vendor libraries.
@@ -211,8 +210,8 @@ and dynamic shapes.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{figures/5-eval-ablation.pdf}
-  \caption{\textcolor{blue}{Individual effects of fusion and tuning on (a) BERT-Base, (b) LLaMA-Base,
-  (c) AlexNet, and (d) ResNet-101.}}
+  \caption{Individual effects of fusion and tuning on (a) BERT-Base, (b) LLaMA-Base,
+  (c) AlexNet, and (d) ResNet-101.}
   \Description{Four ablation plots comparing the full MAGSAT system,
   fusion-only variant, and tuning-only variant on BERT-Base, LLaMA-Base,
   AlexNet, and ResNet-101.}
