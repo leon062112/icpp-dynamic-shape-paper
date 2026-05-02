@@ -121,7 +121,7 @@ while pipeline stages trade memory-latency hiding against additional resource co
 
 % Operator Fusion Opportunities. 
 In this paper, we define the hierarchical auto-tuning space as the coupled optimization space across graph-level fusion decisions, operator-level kernel mappings and configuration parameters such as tile sizes, warp counts, and pipeline stages.
-Existing DL compilers~\cite{ansel2024pytorch,abadi2016tensorflow} typically rely on predefined fusion rules that apply only to specific operator combinations. To navigate this complexity, researchers often classify tensor operators into memory-intensive (MI) 
+Existing DL compilers~\cite{ansel2024pytorch} typically rely on predefined fusion rules that apply only to specific operator combinations. To navigate this complexity, researchers often classify tensor operators into memory-intensive (MI) 
 and compute-intensive (CI) categories. Early approaches~\cite{zheng2022astitch,niu2021dnnfusion} treat CI operators as non-fusion boundaries, fusing only MI operators 
 to reduce off-chip memory traffic. Subsequent works~\cite{shi2023welder,zheng2023chimera} merge CI operators with adjacent MI ones or decompose CI chains into 
 fine-grained blocks to balance hardware resource utilization. However, category-based schemes provide limited visibility into whether certain operators 

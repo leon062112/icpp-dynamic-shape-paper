@@ -33,7 +33,7 @@ fused operators beyond the scope of prebuilt library routines.
 % 第三段：深度学习编译器支持张量程序的自动生成，且伴有调优器来最大化性能...然而其普遍针对静态形状...动态形状很常见...以Qwen模型为例...GEMM算子形状有几百个（具体数字）...针、对每一种形状单独调优不现实...
 Deep learning compilers and auto-tuning systems address this programmability
 problem by automatically generating tensor programs and searching for efficient
-schedules~\cite{abadi2016tensorflow,chen2018tvm,chen2018autotvm,zheng2020ansor,ansel2024pytorch}.
+schedules~\cite{chen2018tvm,chen2018autotvm,zheng2020ansor,ansel2024pytorch}.
 However, many of their optimization decisions remain tied to concrete shapes.
 The tiling factor, pipeline depth, or memory layout tuned for one
 shape may become inefficient for another as tensor dimensions change.
