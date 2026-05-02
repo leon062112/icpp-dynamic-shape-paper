@@ -53,7 +53,7 @@ exceed shared-memory capacity, or reduce occupancy for another.
 % SQX：没看懂图1要表达啥，输入batch_size，seq_len，parameter是有区别，为什么右边算子组合变了？
 Figure~\ref{fig:bg-dynamic} illustrates this effect in an inference workload. Different requests, such as those with different 
 batch sizes or sequence lengths, instantiate the same model graph with different concrete tensor dimensions. As a result, 
-operators such as GEMM, layernorm are not optimized once for a fixed shape. Instead, they form a set of shape-dependent operator instances whose computational characteristics change with the runtime input, referred to as \textit{dynamic tensor programs}.
+operators such as GEMM, layer normalization are not optimized once for a fixed shape. Instead, they form a set of shape-dependent operator instances whose computational characteristics change with the runtime input, referred to as \textit{dynamic tensor programs}.
 
 
 

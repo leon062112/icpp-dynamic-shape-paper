@@ -6,7 +6,7 @@
 \label{sec:overview}
 
 Figure~\ref{fig:method-overview} shows the overall workflow of MAGSAT.
-The input is a dynamic tensor program represented as a computation graph, plus
+The input is a dynamic tensor program represented as a computation graph along with
 the shape observed at runtime.
 The output is a fused tiled
 kernel instantiated with a shape-specific configuration.  The key design is 
@@ -85,7 +85,7 @@ approaches that rely on operator patterns or predefined fusion rules, the fusion
 %While dynamic shapes may affect the optimal tile configuration, they do not
 %change the underlying dataflow of the graph. 
 In this way, the fusion analysis is
-performed once on the compiled graph, and the resulting decisions is
+performed once on the compiled graph, and the resulting decisions are
 reused across all runtime executions.
 As shown in Figure~\ref{fig:method-fusion}, 
 MAGSAT extracts a producer--consumer graph, then normalizes it into an
