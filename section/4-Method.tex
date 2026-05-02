@@ -325,15 +325,14 @@ where $S$ is the operator specification under the current shape, $C$ is a
 candidate configuration, and $H$ is the target hardware.  Each term lies in
 $(0,1]$, and we adopt a multiplicative formulation so that a severe bottleneck 
 in one dimension directly lowers the final score.
-
 % SQX：每个具体因子，每个efficiency term如何计算的，给出详细公式，至少要给出几个关键的，显得更直观
-The generic terms score the tiled mainloop, memory behavior,
-parallelism, and pipeline choice.  We keep these terms simple so that each one
-corresponds to a small number of projection signals:
+The generic terms are formalized as follows:
 
+%.  We keep these terms simple so that each one
+%corresponds to a small number of projection signals
+ 
 % SQX：这个符号是什么含义？可能我错过描述了
 \[
-{\color{blue}
 \begin{aligned}
 E_{\mathrm{main}} &=
 \eta_{\mathrm{pad}}\eta_{\mathrm{work}}\eta_K,\\
@@ -352,10 +351,9 @@ E_{\mathrm{pipe}} &=
 \frac{L_K}{L_K+s-1}
 \cdot \frac{1}{1+|s-s^\star|}.
 \end{aligned}
-}
 \]
-{\color{blue}
-Here $B_d$ is the tile size along dimension $d$, $o=B_MB_N/(32W)$ is the
+
+In the mainloop term, $B_d$ is the tile size along dimension $d$, $o=B_MB_N/(32W)$ is the
 number of output elements per thread, $W$ is the warp count, and $o^\star$ and
 $B_K^\star$ are template-level preferred values for per-thread work and the
 reduction tile size.  The mainloop term therefore penalizes boundary padding,
@@ -366,17 +364,17 @@ per block, and $S_H$ is the shared-memory budget used for normalization.
 % SQX：这和上面的occ是一回事吗？
 $\phi_{\mathrm{occ}}$ and $\phi_{\mathrm{wave}}$ are normalized occupancy and
 wave-fill factors, and $\rho_w$ penalizes warp counts that are too small to
-expose parallelism or too large to maintain residency.  Finally, $L_K$ is the
+expose parallelism or too large to maintain residency.  In the pipeline term, $L_K$ is the
 number of mainloop iterations along the reduction dimension, $s$ is the
 candidate pipeline depth, and $s^\star$ is the template-preferred pipeline
 depth.  All normalization factors are computed from the projection, so the
 score introduces no shape-specific tuning knobs.
-}
+
 The remaining structure-specific terms are lightweight:
 $E_{\mathrm{conv}}$ is active only for implicit-GEMM convolution and accounts for
-spatial-overlap and launch-underfill effects; $E_{\mathrm{epi}}$ aggregates
-epilogue primitive efficiencies; and $E_{\mathrm{red}}$ penalizes reduction-axis
-mismatch, extra passes, and synchronization cost.
+spatial-overlap effects; $E_{\mathrm{epi}}$ aggregates
+epilogue primitive efficiencies; $E_{\mathrm{red}}$ penalizes reduction-axis
+mismatch and synchronization cost.
 
 % \begin{algorithm}[t]
 % \caption{Shape-adaptive configuration selection}
