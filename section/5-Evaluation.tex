@@ -127,12 +127,7 @@ across Transformer and CNN workloads on both A100 and H100 GPUs.
 For Transformer workloads, we evaluate
 BERT-Base and LLaMA-Base under dynamic sequence lengths. 
 Note that we statically map the multi-head attention (MHA) structure to the tiled template of FlashAttention~\cite{dao2023flashattention2}.
-\textcolor{red}{For BERT-Base, MAGSAT
-achieves an average speedup of 1.71$\times$ over Torch Compile and xx$\times$ over Helix on A100.
-%latency speedup of 2.27$\times$ over Torch Native
-%and 1.71$\times$ over \texttt{torch}.\texttt{compile} on BERT-base. 
-For LLaMA-base, the average speedups increase to 1.90$\times$ and xx$\times$. The same
-trend holds on H100. MAGSAT achieves xx$\times$ and xx$\times$ speedups over Torch Compile and Helix, respectively.}
+\textcolor{blue}{On A100, MAGSAT achieves an average speedup of 1.71$\times$ over Torch Compile and 1.90$\times$ over Helix for BERT-Base. For LLaMA-Base, these speedups are 1.58$\times$ and 3.63$\times$, respectively. The same trend holds on H100, where MAGSAT achieves speedups of 2.91$\times$ and 2.54$\times$ for BERT-Base, and 2.50$\times$ and 3.66$\times$ for LLaMA-Base, compared to Torch Compile and Helix.}
 %3.47$\times$ and 2.91$\times$
 %average speedup over Torch Native and \texttt{torch}.\texttt{compile} on
 %BERT-base, respectively, and 4.10$\times$ and 2.50$\times$ on LLaMA-base.
@@ -154,14 +149,14 @@ selection.
 
 For CNN workloads, we evaluate AlexNet and ResNet-101 under dynamic batch sizes. 
 % SQX：只展示相比PyTorch Compile和Helix的加速比
-\textcolor{red}{On A100, MAGSAT achieves average speedups of 1.23$\times$ over PyTorch Compile and XX$\times$ over Helix for AlexNet, as well as XX$\times$ and XX$\times$ for ReseNet-101.
+\textcolor{blue}{On A100, MAGSAT achieves average speedups of 1.23$\times$ over PyTorch Compile and 1.47$\times$ over Helix for AlexNet, as well as 1.30$\times$ and 1.32$\times$ for ReseNet-101.
 %\texttt{torch}.\texttt{compile} on AlexNeton AlexNet
 %1.62$\times$ over Torch Native and 1.23$\times$ over
 %\texttt{torch}.\texttt{compile} on AlexNet, and 2.31$\times$ and
 %1.30$\times$ on ResNet-101. 
 On H100, MAGSAT further achieves
-1.38$\times$ and xx$\times$ average speedups on AlexNet, and
-1.35$\times$ and xx$\times$ on ResNet-101.}
+1.38$\times$ and 1.10$\times$ average speedups on AlexNet, and
+1.35$\times$ and 1.53$\times$ on ResNet-101.}
 The speedups on CNNs are
 more moderate than those on LLMs because convolution operators are already
 highly optimized for many regular shapes. Nevertheless, MAGSAT still
