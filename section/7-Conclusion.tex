@@ -4,12 +4,13 @@
 
 This paper presents MAGSAT, a unified framework for optimizing dynamic tensor programs 
 through memory-access-driven operator fusion and shape-adaptive configuration selection. 
-Instead of relying on static operator categories or exhaustive per-shape profiling, 
-MAGSAT analyzes data-dependence and memory-access semantics to identify reusable 
-fusion regions, maps them to parameterized tiled templates for GEMM, convolution, and 
-common fused epilogues, and selects high-performance kernel configurations with a 
-lightweight trait-driven analytical model. This design decouples shape-invariant 
+%Instead of relying on static operator categories or exhaustive per-shape profiling, 
+%MAGSAT analyzes data-dependence and memory-access semantics to identify reusable 
+%fusion regions, maps them to parameterized tiled templates for GEMM, convolution, and 
+%common fused epilogues, and selects high-performance kernel configurations with a 
+%lightweight trait-driven analytical model. 
+This design decouples shape-invariant 
 fusion decisions from shape-dependent tuning choices, allowing fused kernels to adapt
- efficiently to changing sequence lengths, batch sizes, and hardware characteristics. 
+ efficiently to varying sequence lengths, batch sizes, and hardware characteristics. 
  Experiments on A100 and H100 GPUs across operator-level and end-to-end Transformer/CNN 
  workloads show that MAGSAT consistently outperform the state-of-the-art baseline. 
