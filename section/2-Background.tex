@@ -12,9 +12,9 @@ where tensor dimensions are fixed before compilation and remain unchanged across
 %tiling factors, and kernel launch configurations for a single concrete shape. 
 Modern deep learning 
 workloads, however, frequently violate this assumption. Dynamic shapes arise from intrinsic data variability, 
-such as variable sentence lengths in NLP~\cite{vaswani2017A,devlin2019bert,zhai2023byteTransformer}, 
-different utterance durations in speech models~\cite{amodei2016deep}, and diverse image resolutions 
-in vision and multimodal models~\cite{ren2015faster,dosovitskiy2020image}. They also arise from system-level 
+such as variable sentence lengths in NLP~\cite{vaswani2017A,devlin2019bert} 
+and diverse image resolutions in vision models~\cite{ren2015faster}. 
+They also arise from system-level 
 execution dynamics, including changing batch sizes, request composition, prompt lengths, generated sequence lengths, 
 and KV-cache sizes in LLM serving~\cite{touvron2023llama,dao2022flashattention,jiang2024minference}. Even within 
 a fixed model architecture, the same operator type can appear with different dimensions at different layer positions 
@@ -25,7 +25,7 @@ The prevalence of dynamic shapes creates practical problems for program executio
 A kernel schedule tuned for one sequence length or matrix dimension may become inefficient 
 for another. Padding and bucketing are common workarounds, but they convert irregular inputs into 
 a small set of supported shapes by adding redundant computation and memory traffic; when the actual input is 
-much smaller than the padded shape, the wasted work can dominate execution~\cite{kosec2021packing,fegade2022cora,mu2024ftuner}. 
+much smaller than the padded shape, the wasted work can dominate execution~\cite{fegade2022cora,mu2024ftuner}. 
 Compiling or auto-tuning a separate implementation for every possible shape is also impractical, since conventional 
 tensor-program search spaces are often shape-dependent and the number of shape combinations grows 
 quickly~\cite{chen2018tvm,ragan2013halide,zheng2020ansor,zheng2022dietcode}. Sample-driven dynamic-shape compilers 
@@ -70,7 +70,7 @@ operators such as GEMM, layernorm are not optimized once for a fixed shape. Inst
 \label{sec:compilation}
 % Triton, TileLang, cuTile ...
 
-Tiled program compilation has become a cornerstone of modern deep learning compiler design, fundamentally mapping tensor computations onto GPU architectures. The core principle of tiling involves partitioning large-scale 
+Tiled program compilation has become a cornerstone of modern deep learning compiler design by mapping tensor computations onto GPU architectures. The core principle of tiling involves partitioning large-scale 
 tensor operations into smaller, cache-friendly sub-blocks (\textit{tiles}) that fit within fast on-chip memory, such as 
 shared memory (SMEM) and register files. By iteratively processing these tiles, compilers can maximize data reuse, 
 drastically reduce costly global memory transactions, and expose fine-grained parallelism across streaming multiprocessors (SMs). In the tiled compilation paradigm, computational graphs are systematically 
@@ -86,12 +86,10 @@ for PyTorch 2.x's \texttt{torch.compile} (\texttt{TorchInductor}). By translatin
 through multi-stage transformations and tile-level scheduling, Triton effectively bridges high-level optimizations with 
 hardware execution. Nevertheless, its tile scheduling and memory planning often rely on static heuristics or compile-time 
 auto-tuning, which can struggle to adapt efficiently to highly dynamic tensor shapes and unpredictable runtime memory access 
-patterns. To address hardware-specific tuning needs while preserving Triton compatibility, FlagTree~\cite{zhiyuan25flagtree} 
-introduces TLE (Triton Language Extensions), which provides layered abstractions \texttt{Lite/Struct/Raw} for explicit control 
-over distributed execution and memory access patterns with minimal migration cost.
+patterns.
 
-Recent tiled compilation works further refine scheduling via hardware-aware abstractions. cuTile~\cite{nvidia25cutile} provides 
-a Python-based interface that automatically leverages NVIDIA GPU features (e.g., Tensor Cores(TC), TMAs) while treating tiles as 
+Recent tiled compilation systems further refine scheduling via hardware-aware abstractions. 
+cuTile~\cite{nvidia25cutile} provides a Python-based interface that automatically leverages NVIDIA GPU features (e.g., Tensor Cores (TC) and TMAs) while treating tiles as
 first-class immutable values for fine-grained data movement control. TileLang~\cite{cheng2025pipethreader}, built upon 
 TVM~\cite{chen2018tvm}, addresses the limitation of ad-hoc, operator-specific pipelining in prior works like Triton and 
 CUTLASS~\cite{nvidia22cutlass} by introducing the sTask-graph abstraction, a fine-grained dependency representation that 
@@ -127,7 +125,7 @@ Existing DL compilers~\cite{ansel2024pytorch,abadi2016tensorflow} typically rely
 and compute-intensive (CI) categories. Early approaches~\cite{zheng2022astitch,niu2021dnnfusion} treat CI operators as non-fusion boundaries, fusing only MI operators 
 to reduce off-chip memory traffic. Subsequent works~\cite{shi2023welder,zheng2023chimera} merge CI operators with adjacent MI ones or decompose CI chains into 
 fine-grained blocks to balance hardware resource utilization. However, category-based schemes provide limited visibility into whether certain operators 
-can be fused and whether such fusion can bring real performance benefits. In addition, the category alone do not reveal how intermediate values are accessed, reused, or materialized in memory, resulting in fused operators whose memory behavior is poorly matched to the target compilation template. 
+can be fused and whether such fusion can yield real performance benefits. In addition, the category alone does not reveal how intermediate values are accessed, reused, or materialized in memory, resulting in fused operators whose memory behavior is poorly matched to the target compilation template.
 %Consequently, effective fusion decisions require reasoning about access behavior beyond operator names or static fusion patterns.
 
 
@@ -138,7 +136,7 @@ can be fused and whether such fusion can bring real performance benefits. In add
 % Search Space Construction
 The optimization space for tensor programs is typically constructed via loop-based~\cite{zheng2020ansor,li2023exploiting} or 
 template-based~\cite{xing2022bolt,chen2024evt} paradigms. Loop-based approaches represent operators as deeply nested loops and explore performance through loop 
-transformations (e.g., tiling, unrolling, vectorization). While hardware-portable, they often lag behind vendor-optimized libraries due to limited exposure to instructions (e.g., WMMA, TMA, or warp-level primitives). Conversely, template-based methods leverage vendor-provided building blocks 
+transformations (e.g., tiling, unrolling, vectorization). While hardware-portable, they often lag behind vendor-optimized libraries due to limited exposure to hardware-specific instructions (e.g., WMMA, TMA, or warp-level primitives). Conversely, template-based methods leverage vendor-provided building blocks
 (e.g., CUTLASS~\cite{nvidia22cutlass} or Triton~\cite{tillet2019triton} primitives) to directly map computations to specialized execution units. This 
 hardware-knowledge-driven tuning enables peak performance but introduces significant engineering overhead; extending template coverage to novel fusion patterns 
 or emerging operators remains highly demanding. Moreover, both paradigms struggle to accommodate shape variability: loop schedules require exhaustive re-derivation 
@@ -147,7 +145,7 @@ tensor programs.
 
 % Auto-tuning Techniques.
 To navigate the exponentially large search space, existing auto-tuning frameworks employ rule-based pruning, machine learning-driven cost 
-models~\cite{zheng2021tenset}, or analytical heuristics~\cite{kao2023flat,ragan2013halide}. 
+models~\cite{zheng2021tenset}, or analytical heuristics~\cite{ragan2013halide}. 
 Learning-based predictors train on extensive runtime profiling data to 
 estimate performance, guiding evolutionary searches (e.g., genetic algorithms or Bayesian optimization) toward high-performing configurations. 
 However, they incur substantial online profiling overhead and lack generalization to unseen shapes or novel fusion boundaries. Analytical models reduce profiling costs by incorporating 
@@ -165,4 +163,3 @@ template selection, and tuning parameters under runtime shape variability.
 
 
 % 放在bg里面加一段描述，描述潜在融合机会
-
