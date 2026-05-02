@@ -260,7 +260,7 @@ and dynamic shapes.
 
 We divide the overhead of our system into offline and runtime components.
 Offline overhead includes graph-level fusibility analysis, which takes 244.0 ms
-on median for matmul-bias-ReLU. This analysis occurs only once with a fixed the network structure, independent of dynamic input.
+on median for matmul-bias-ReLU. This analysis occurs only once with a fixed network structure, independent of dynamic input.
 Also, the compilation cost is only incurred for unseen shapes and can be effectively amortized via cache reuse.
 For runtime overhead, 
 we compare against exhaustive autotuning, which
