@@ -7,8 +7,8 @@
 %speech, recommendation, 
 Deep learning has become a dominant computing paradigm across computer vision,
 natural language processing, and multimodal
-applications~\cite{ren2015faster,dosovitskiy2020image,vaswani2017A,devlin2019bert,amodei2016deep}. 
-Large language models~\cite{brown2020language,touvron2023llama,achiam2023gpt} 
+applications~\cite{ren2015faster,vaswani2017A,devlin2019bert}. 
+Large language models~\cite{touvron2023llama} 
 further amplify this trend by turning inference into a latency-critical and throughput-intensive 
 service workload.
 % where requests differ in prompt length, generated length, and batch composition. 
@@ -33,7 +33,7 @@ fused operators beyond the scope of prebuilt library routines.
 % 第三段：深度学习编译器支持张量程序的自动生成，且伴有调优器来最大化性能...然而其普遍针对静态形状...动态形状很常见...以Qwen模型为例...GEMM算子形状有几百个（具体数字）...针、对每一种形状单独调优不现实...
 Deep learning compilers and auto-tuning systems address this programmability
 problem by automatically generating tensor programs and searching for efficient
-schedules~\cite{abadi2016tensorflow,paszke2019pytorch,chen2018tvm,chen2018autotvm,zheng2020ansor,ansel2024pytorch}.
+schedules~\cite{abadi2016tensorflow,chen2018tvm,chen2018autotvm,zheng2020ansor,ansel2024pytorch}.
 However, many of their optimization decisions remain tied to concrete shapes.
 The tiling factor, pipeline depth, or memory layout tuned for one
 shape may become inefficient for another as tensor dimensions change.
@@ -51,7 +51,7 @@ independently over our candidate configuration space.
 % 第四段：动态形状编译器（给出学术界和工业界的典型例子）被提出...但其普遍只针对单独算子来调优...未考虑整网的算子融合机会...例如CI-MI之类的...只能取得次优性能...
 Recent dynamic-shape systems reduce this cost through shape-generic search
 spaces, symbolic shape representations, padding reduction, representative-shape
-tuning, or runtime dispatching~\cite{zheng2022dietcode,shen2021nimble,zhu2021disc,fegade2022cora,mu2024ftuner,zhou2025helix,lai2025relax}.
+tuning, or runtime dispatching~\cite{zheng2022dietcode,shen2021nimble,fegade2022cora,mu2024ftuner,zhou2025helix,lai2025relax}.
 These techniques make dynamic-shape execution more practical, but they
 typically focus on compiling or tuning individual operators, or on choosing
 among pre-generated implementations. Such a local view fails to exploit graph-level optimizations. In particular, operator
