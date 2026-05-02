@@ -274,16 +274,13 @@ shape on median across 170 cases. In contrast, our approach directly invokes com
 \label{sec:case}
 \textcolor{blue}{
 % 可选（时间够用就加）：给个pretrained模型的端到端推理加速会更有说服力
-<<<<<<< Updated upstream
-To further validate MAGSAT in a real-world scenario, we conduct an end-to-end inference case study using the large-scale MoE model, Qwen3.5-35B-A3B. By integrating MAGSAT into the model's inference part, we evaluate the performance under various sequence lengths. As shown in Figure~\ref{fig:qwen_case_study}, MAGSAT accelerates the end-to-end inference process. On average, it achieves a 2.80$\times$ speedup over Torch Compile and a 1.29$\times$ speedup over Helix, demonstrating its practical effectiveness in accelerating highly dynamic MoE workloads.
-=======
 To further validate MAGSAT in a real-world scenario, we conduct a purely end-to-end inference case study 
 using the large-scale MoE model, Qwen3.5-35B-A3B. By directly integrating MAGSAT into the model's inference pipeline, 
 we evaluate the overall generation performance under various sequence lengths. As shown in Figure~\ref{fig:qwen_case_study}, 
 MAGSAT consistently accelerates the end-to-end inference process. On average, it achieves a 2.80$\times$ speedup over \texttt{torch}.
 \texttt{compile} and a 1.29$\times$ speedup over Helix, demonstrating its practical effectiveness in accelerating highly dynamic MoE workloads.
 }
->>>>>>> Stashed changes
+
 
 \begin{figure}[t]
   \centering
