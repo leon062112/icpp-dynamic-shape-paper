@@ -135,7 +135,7 @@ can be fused and whether such fusion can yield real performance benefits. In add
 
 % Search Space Construction
 The optimization space for tensor programs is typically constructed via loop-based~\cite{zheng2020ansor,li2023exploiting} or 
-template-based~\cite{xing2022bolt,chen2024evt} paradigms. Loop-based approaches represent operators as deeply nested loops and explore performance through loop 
+template-based~\cite{chen2024evt} paradigms. Loop-based approaches represent operators as deeply nested loops and explore performance through loop 
 transformations (e.g., tiling, unrolling, vectorization). While hardware-portable, they often lag behind vendor-optimized libraries due to limited exposure to hardware-specific instructions (e.g., WMMA, TMA, or warp-level primitives). Conversely, template-based methods leverage vendor-provided building blocks
 (e.g., CUTLASS~\cite{nvidia22cutlass} or Triton~\cite{tillet2019triton} primitives) to directly map computations to specialized execution units. This 
 hardware-knowledge-driven tuning enables peak performance but introduces significant engineering overhead; extending template coverage to novel fusion patterns 
