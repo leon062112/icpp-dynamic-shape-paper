@@ -37,7 +37,7 @@ measurement and report the average performance.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/5-op-level-performance.pdf}
-  \caption{\textcolor{red}{Operator-level performance on A100 and H100 GPUs across fused GEMM and convolution workloads. The x-axis represents the FLOPs of workloads, and the y-axis represents the speedups over Torch Native.}}
+  \caption{\textcolor{blue}{Operator-level performance on A100 and H100 GPUs across fused GEMM and convolution workloads. The x-axis represents the FLOPs of workloads, and the y-axis represents the speedups over Torch Native.}}
   \Description{A two-platform operator-level comparison showing speedups
   for GEMM, fused GEMM, convolution, and fused convolution workloads on
   A100 and H100 GPUs, with MAGSAT consistently outperforming Torch Native
@@ -112,7 +112,7 @@ launches.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/5-e2e-performance.pdf}
-  \caption{\textcolor{red}{End-to-end performance on A100 and H100 GPUs across Transformer and CNN workloads. The x-axis represents the sequence length for LLM and batch size for CNN, and the y-axis represents the speedups over Torch Native.}}
+  \caption{\textcolor{blue}{End-to-end performance on A100 and H100 GPUs across Transformer and CNN workloads. The x-axis represents the sequence length for LLM and batch size for CNN, and the y-axis represents the speedups over Torch Native.}}
   \Description{A two-platform end-to-end comparison showing grouped speedup bars for BERT-base, LLaMA-base, AlexNet, and ResNet-101 under dynamic input settings, with methods including Torch Native, torch.compile, and MAGSAT.}
   \label{fig:e2e_performance}
 \end{figure*}
@@ -285,9 +285,7 @@ MAGSAT consistently accelerates the end-to-end inference process. On average, it
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figures/5-qwen-e2e-inference.pdf}
-  \caption{Case study on Qwen3.5-35B-A3B inference. The x-axis denotes
-  sequence length, and the y-axis reports speedup over
-  Torch Compile.}
+    \caption{\textcolor{blue}{Case study on Qwen3.5-35B-A3B inference. The x-axis denotes sequence length, and the y-axis reports speedup over Torch Compile.}}
   \Description{Scatter plot of MAGSAT and Helix speedups on Qwen3.5-35B-A3B inference.}
   \label{fig:qwen_case_study}
 \end{figure}
