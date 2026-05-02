@@ -37,7 +37,7 @@ measurement and report the average performance.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/5-op-level-performance.pdf}
-  \caption{\textcolor{blue}{Operator-level performance on A100 and H100 GPUs across fused GEMM and convolution workloads. The x-axis represents the FLOPs of workloads, and the y-axis represents the speedups over Torch Native.}}
+  \caption{\textcolor{blue}{Operator-level performance on A100 and H100 GPUs across fused GEMM and convolution workloads. The x-axis represents the FLOPs of workloads, and the y-axis represents the speedup over Torch Native.}}
   \Description{A two-platform operator-level comparison showing speedups
   for GEMM, fused GEMM, convolution, and fused convolution workloads on
   A100 and H100 GPUs, with MAGSAT consistently outperforming Torch Native
@@ -112,7 +112,7 @@ launches.
 \begin{figure*}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/5-e2e-performance.pdf}
-  \caption{\textcolor{blue}{End-to-end performance on A100 and H100 GPUs across Transformer and CNN workloads. The x-axis represents the sequence length for LLM and batch size for CNN, and the y-axis represents the speedups over Torch Native.}}
+  \caption{\textcolor{blue}{End-to-end performance on A100 and H100 GPUs across Transformer and CNN workloads. The x-axis represents the sequence length for LLM and batch size for CNN, and the y-axis represents the speedup over Torch Native.}}
   \Description{A two-platform end-to-end comparison showing grouped speedup bars for BERT-base, LLaMA-base, AlexNet, and ResNet-101 under dynamic input settings, with methods including Torch Native, torch.compile, and MAGSAT.}
   \label{fig:e2e_performance}
 \end{figure*}
@@ -127,7 +127,7 @@ across Transformer and CNN workloads on both A100 and H100 GPUs.
 For Transformer workloads, we evaluate
 BERT-Base and LLaMA-Base under dynamic sequence lengths. 
 Note that we statically map the multi-head attention (MHA) structure to the tiled template of FlashAttention~\cite{dao2023flashattention2}.
-\textcolor{blue}{On A100, MAGSAT achieves an average speedup of 1.71$\times$ over Torch Compile and 1.90$\times$ over Helix for BERT-Base. For LLaMA-Base, these speedups are 1.58$\times$ and 3.63$\times$, respectively. The same trend holds on H100, where MAGSAT achieves speedups of 2.91$\times$ and 2.54$\times$ for BERT-Base, and 2.50$\times$ and 3.66$\times$ for LLaMA-Base, compared to Torch Compile and Helix.}
+On A100, MAGSAT achieves an average speedup of 1.71$\times$ over Torch Compile and 1.90$\times$ over Helix for BERT-Base. For LLaMA-Base, these speedups are 1.58$\times$ and 3.63$\times$, respectively. The same trend holds on H100, where MAGSAT achieves speedups of 2.91$\times$ and 2.54$\times$ for BERT-Base, as well as 2.50$\times$ and 3.66$\times$ for LLaMA-Base.
 %3.47$\times$ and 2.91$\times$
 %average speedup over Torch Native and \texttt{torch}.\texttt{compile} on
 %BERT-base, respectively, and 4.10$\times$ and 2.50$\times$ on LLaMA-base.
@@ -149,14 +149,13 @@ selection.
 
 For CNN workloads, we evaluate AlexNet and ResNet-101 under dynamic batch sizes. 
 % SQX：只展示相比PyTorch Compile和Helix的加速比
-\textcolor{blue}{On A100, MAGSAT achieves average speedups of 1.23$\times$ over PyTorch Compile and 1.47$\times$ over Helix for AlexNet, as well as 1.30$\times$ and 1.32$\times$ for ResNet-101.
+On A100, MAGSAT achieves average speedups of 1.23$\times$ over PyTorch Compile and 1.47$\times$ over Helix for AlexNet, as well as 1.30$\times$ and 1.32$\times$ for ResNet-101.
 %\texttt{torch}.\texttt{compile} on AlexNeton AlexNet
 %1.62$\times$ over Torch Native and 1.23$\times$ over
 %\texttt{torch}.\texttt{compile} on AlexNet, and 2.31$\times$ and
 %1.30$\times$ on ResNet-101. 
 On H100, MAGSAT further achieves
-1.38$\times$ and 1.10$\times$ average speedups on AlexNet, and
-1.35$\times$ and 1.53$\times$ on ResNet-101.}
+1.38$\times$ and 1.10$\times$ average speedups on AlexNet, 1.35$\times$ and 1.53$\times$ on ResNet-101.
 The speedups on CNNs are
 more moderate than those on LLMs because convolution operators are already
 highly optimized for many regular shapes. Nevertheless, MAGSAT still
@@ -220,27 +219,27 @@ and dynamic shapes.
   \label{fig:ablation}
 \end{figure}
 
-\subsection{Parameter Tuning Efficiency}
-\label{sec:tuning}
-
-% 选到的配置相比全局最优配置的性能差别，以及在各种形状下取到最优配置的比例
-To evaluate the efficiency of our tuning mechanism, we measure the performance gap between the configurations selected 
-by MAGSAT and the per-shape global optimums obtained through exhaustive search. We focus on \texttt{GEMM}-based variants as representative cases, given their dominance as the most critical and time-consuming components in modern 
-Transformer-based workloads. Across a diverse set of 85 dynamic shapes, MAGSAT identifies configurations
-with a mean performance gap of 11.72\% for \texttt{GEMM\_bias\_layernorm} 
-and 12.08\% for \texttt{GEMM\_bias\_act} relative to the theoretical oracle. 
-%More notably, when applied to complex fused kernels, this gap narrows significantly to 11.72\% for \texttt{GEMM\_bias\_layernorm} 
-%and 12.08\% for \texttt{GEMM\_bias\_act}. 
-%This reduction occurs due to the shifted performance bottleneck and the constrained 
-%valid search space in fused epilogues. 
-Fusing operations like \texttt{layernorm} introduces thread-block reductions 
-that inherently increase register pressure and shared memory consumption. This architectural constraint heavily prunes the valid search 
-space by eliminating overly large tile sizes that would otherwise cause register spilling.
-%, effectively flattening the performance landscape 
-%and allowing the tuner to converge near the global optimum more easily. 
-Ultimately, by accepting a marginal performance 
-loss compared to the oracle, MAGSAT successfully bypasses the prohibitively expensive exhaustive search process, delivering a highly 
-practical strategy for dynamic shapes.
+%\subsection{Parameter Tuning Efficiency}
+%\label{sec:tuning}
+%
+%% 选到的配置相比全局最优配置的性能差别，以及在各种形状下取到最优配置的比例
+%To evaluate the efficiency of our tuning mechanism, we measure the performance gap between the configurations selected 
+%by MAGSAT and the per-shape global optimums obtained through exhaustive search. We focus on \texttt{GEMM}-based variants as representative cases, given their dominance as the most critical and time-consuming components in modern 
+%Transformer-based workloads. Across a diverse set of 85 dynamic shapes, MAGSAT identifies configurations
+%with a mean performance gap of 11.72\% for \texttt{GEMM\_bias\_layernorm} 
+%and 12.08\% for \texttt{GEMM\_bias\_act} relative to the theoretical oracle. 
+%%More notably, when applied to complex fused kernels, this gap narrows significantly to 11.72\% for \texttt{GEMM\_bias\_layernorm} 
+%%and 12.08\% for \texttt{GEMM\_bias\_act}. 
+%%This reduction occurs due to the shifted performance bottleneck and the constrained 
+%%valid search space in fused epilogues. 
+%Fusing operations like \texttt{layernorm} introduces thread-block reductions 
+%that inherently increase register pressure and shared memory consumption. This architectural constraint heavily prunes the valid search 
+%space by eliminating overly large tile sizes that would otherwise cause register spilling.
+%%, effectively flattening the performance landscape 
+%%and allowing the tuner to converge near the global optimum more easily. 
+%Ultimately, by accepting a marginal performance 
+%loss compared to the oracle, MAGSAT successfully bypasses the prohibitively expensive exhaustive search process, delivering a highly 
+%practical strategy for dynamic shapes.
 
 \subsection{Overhead Analysis}
 \label{sec:overhead}
@@ -267,19 +266,21 @@ shape on median across 170 cases. In contrast, our approach directly invokes com
 
 \subsection{Case Study: Qwen3.5-35B-A3B Inference}
 \label{sec:case}
-\textcolor{blue}{
+
 % 可选（时间够用就加）：给个pretrained模型的端到端推理加速会更有说服力
-To further validate MAGSAT in a real-world scenario, we conduct a purely end-to-end inference case study 
-using the large-scale MoE model, Qwen3.5-35B-A3B. By directly integrating MAGSAT into the model's inference pipeline, 
-we evaluate the overall generation performance under various sequence lengths. As shown in Figure~\ref{fig:qwen_case_study}, 
-MAGSAT consistently accelerates the end-to-end inference process. On average, it achieves a 2.80$\times$ speedup over Torch Compile and a 1.29$\times$ speedup over Helix, demonstrating its practical effectiveness in accelerating highly dynamic MoE workloads.
-}
+To further validate MAGSAT in real-world scenarios, we conduct a case study 
+using the large-scale MoE model, Qwen3.5-35B-A3B. By integrating MAGSAT into the model's inference pipeline, 
+we evaluate the performance under various sequence lengths. As shown in Figure~\ref{fig:qwen_case_study}, 
+MAGSAT outperforms Torch Compile and Helix at most cases, with 2.80$\times$ and 1.29$\times$ speedups on average, demonstrating its practical effectiveness in accelerating dynamic workloads.
+
+%accelerates the inference process under most cases.
+%On average, it achieves a 2.80$\times$ speedup over Torch Compile and a 1.29$\times$ speedup over Helix, demonstrating its practical effectiveness in accelerating highly dynamic MoE workloads.
 
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figures/5-qwen-e2e-inference.pdf}
-    \caption{\textcolor{blue}{Case study on Qwen3.5-35B-A3B inference. The x-axis denotes sequence length, and the y-axis reports speedup over Torch Compile.}}
+    \caption{Case study on Qwen3.5-35B-A3B inference. The x-axis denotes the sequence length, and the y-axis represents the speedup over Torch Compile.}
   \Description{Scatter plot of MAGSAT and Helix speedups on Qwen3.5-35B-A3B inference.}
   \label{fig:qwen_case_study}
 \end{figure}
