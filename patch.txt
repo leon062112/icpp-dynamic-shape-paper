@@ -1,0 +1,6 @@
+  s num.names$ 'numnames :=
+  numnames #3 >
+    { #4 'numnames := }
+    'skip$
+  if$
+  numnames 'namesleft :=

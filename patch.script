@@ -1,0 +1,9 @@
+s/              s nameptr "{ll}" format.name\$ duplicate\$ "others" =/              nameptr #3 >\
+                { "others" 't := }\
+                {\
+                  s nameptr "{ll}" format.name\$ duplicate\$ "others" =\
+                    { 't := }\
+                    { pop\$ }\
+                  if\$\
+                }\
+              if\$/g
