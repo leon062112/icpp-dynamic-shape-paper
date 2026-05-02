@@ -62,7 +62,7 @@ performance across these fused workloads on both A100 and H100.
 % SQX：补充Shape如何选择的，和横轴的FLOPS什么关系？
 %, where the effective token dimension changes at runtime
 For GEMM-based operators, we use a dynamic-shape setting derived from
-common Transformer inference workload. Specifically, we fix $N=2,304$ and $K=768$, and vary
+common Transformer inference workloads. Specifically, we fix $N=2{,}304$ and $K=768$, and vary
 $M$ from 1 to 256, which corresponds to token counts. 
 For Conv2D-based operators, we collect convolution configurations from representative CNN models with varying batch sizes, filter sizes, and feature-map sizes. 
 %The resulting convolution shapes cover batch sizes from 1 to 64,
@@ -77,9 +77,9 @@ each operator instance.
 %The figure groups the results by operator family and reports speedup over
 %Torch Native, making it possible to compare both the benefit of fusion and
 %the portability of the selected configurations across GPU generations.
-Across the tested shapes, MAGSAT consistently remains above the baseline
+Across the tested shapes, MAGSAT consistently remains above the baselines
 for both GEMM-based and Conv2D-based operators.
-On A100, MAGSAT improves GEMM-  and convolution-based operator by 1.78$\times$ and 2.59$\times$ on average over the-state-of-the-art Helix implementation, respectively.
+On A100, MAGSAT improves GEMM-based and convolution-based operators by 1.78$\times$ and 2.59$\times$ on average over the state-of-the-art Helix implementation, respectively.
 %MAGSAT achieves an average speedup of 2.84$\times$ over Torch Native for
 %GEMM, with a maximum speedup of 3.93$\times$. 
 % showing that the
@@ -91,7 +91,7 @@ On A100, MAGSAT improves GEMM-  and convolution-based operator by 1.78$\times$ a
 %average over Torch Native and 2.82$\times$ over \texttt{torch}.\texttt{compile};
 %for \texttt{Conv}-\texttt{BN}-\texttt{Add}-\texttt{ReLU}, the average
 %speedups further increase to 4.55$\times$ and 4.73$\times$, respectively. 
-On H100, the GEMM-based operators reveal stronger performance. For GEMM-bias-activation, MAGSAT achieves an average speedup of 2.89$\times$ over Helix; For GEMM-bias-layernorm, it achieves 1.38$\times$ on average over Torch Compile.
+On H100, the GEMM-based operators show stronger performance. For GEMM-bias-activation, MAGSAT achieves an average speedup of 2.89$\times$ over Helix; for GEMM-bias-layernorm, it achieves 1.38$\times$ on average over Torch Compile.
 %\textcolor{blue}{For
 %GEMM-bias-activation, MAGSAT achieves an
 %average speedup of 2.89$\times$ over Helix, with a maximum speedup of
@@ -149,7 +149,7 @@ On A100, MAGSAT achieves an average speedup of 1.71$\times$ over Torch Compile a
 The bars in the figure reflect the cumulative effect of applying
 shape-adaptive fused kernels throughout each model rather than optimizing
 one isolated operator. 
-The large gains on the Transformer model comes from the dynamic sequence lengths constantly changing the GEMM size, amplifying the value of per-shape configuration.
+The large gains on the Transformer models come from dynamic sequence lengths constantly changing the GEMM size, amplifying the value of per-shape configuration.
 %MAGSAT delivers the large gains on Transformer
 %models, where dynamic sequence lengths repeatedly change GEMM dimensions
 %and amplify the value of per-shape configuration selection. 
@@ -158,19 +158,19 @@ The large gains on the Transformer model comes from the dynamic sequence lengths
 %the same mechanism also transfers to convolution-heavy workloads with
 %dynamic batch sizes.
 These results show that MAGSAT is effective for GEMM-dominated models where dynamic sequence lengths induce different
-matrix shapes and therefore benefits from shape-adaptive schedule
+matrix shapes and therefore benefit from shape-adaptive schedule
 selection.
 %with dynamic sequence lengths,
 
 For CNN workloads, we evaluate AlexNet and ResNet-101 under dynamic batch sizes. 
 % SQX：只展示相比PyTorch Compile和Helix的加速比
-On A100, MAGSAT achieves average speedups of 1.23$\times$ over PyTorch Compile and 1.47$\times$ over Helix for AlexNet, as well as 1.30$\times$ and 1.32$\times$ for ResNet-101.
+On A100, MAGSAT achieves average speedups of 1.23$\times$ over Torch Compile and 1.47$\times$ over Helix for AlexNet, as well as 1.30$\times$ and 1.32$\times$ for ResNet-101.
 %\texttt{torch}.\texttt{compile} on AlexNeton AlexNet
 %1.62$\times$ over Torch Native and 1.23$\times$ over
 %\texttt{torch}.\texttt{compile} on AlexNet, and 2.31$\times$ and
 %1.30$\times$ on ResNet-101. 
 On H100, MAGSAT further achieves
-1.38$\times$ and 1.10$\times$ average speedups on AlexNet, 1.35$\times$ and 1.53$\times$ on ResNet-101.
+1.38$\times$ and 1.10$\times$ average speedups on AlexNet, and 1.35$\times$ and 1.53$\times$ on ResNet-101.
 The speedups on CNNs are
 more moderate than those on LLMs because convolution operators are already
 highly optimized for many regular shapes. Nevertheless, MAGSAT still
@@ -196,7 +196,7 @@ over Torch Native.
 %Speedup is normalized to Torch Native (dashed line at 1.0).F
 % SQX：补充数据，和下文是一样的指标
 For LLM workloads, MAGSAT (Full) achieves
-3.3--4.7$\times$ and 3.7--5.1$\times$ speedup on BERT-Base and LLaMA-Base, respectively.
+3.3--4.7$\times$ and 3.7--5.1$\times$ speedups on BERT-Base and LLaMA-Base, respectively.
 MAGSAT (Fusion only) degrades performance to
 2.7--3.9$\times$ and 2.9--4.8$\times$, confirming that shape-adaptive configuration selection is essential
 for dynamic workloads.
@@ -260,12 +260,12 @@ and dynamic shapes.
 
 We divide the overhead of our system into offline and runtime components.
 Offline overhead includes graph-level fusibility analysis, which takes 244.0 ms
-on median for matmul-bias-ReLU. This analysis occurs only once with a fixed network structure, independent of dynamic input.
-Also, the compilation cost is only incurred for unseen shapes and can be effectively amortized via cache reuse.
+at the median for GEMM-bias-ReLU. This analysis occurs only once with a fixed network structure, independent of dynamic input.
+Compilation cost is only incurred for unseen shapes and can be effectively amortized via cache reuse.
 For runtime overhead, 
 we compare against exhaustive autotuning, which
 evaluates all candidate configurations for each shape and takes 363.5 s per
-shape on median across 170 cases. In contrast, our approach directly invokes compiled fused kernels and performs online configuration selection with sub-millisecond overhead.
+shape at the median across 170 cases. In contrast, our approach directly invokes compiled fused kernels and performs online configuration selection with sub-millisecond overhead.
 %eliminates
 %exhaustive search and directly invokes compiled fused kernels. Configuration
 %selection is performed online with sub-millisecond overhead and can be
@@ -284,8 +284,8 @@ shape on median across 170 cases. In contrast, our approach directly invokes com
 % 可选（时间够用就加）：给个pretrained模型的端到端推理加速会更有说服力
 To further validate MAGSAT in real-world scenarios, we conduct a case study 
 using the large-scale MoE model, Qwen3.5-35B-A3B. By integrating MAGSAT into the model's inference pipeline, 
-we evaluate the performance under various sequence lengths. As shown in Figure~\ref{fig:qwen_case_study}, 
-MAGSAT outperforms Torch Compile and Helix at most cases, with 2.80$\times$ and 1.29$\times$ speedups on average, demonstrating its practical effectiveness in accelerating dynamic workloads.
+we evaluate performance across various sequence lengths. As shown in Figure~\ref{fig:qwen_case_study}, 
+MAGSAT outperforms Torch Compile and Helix in most cases, with 2.80$\times$ and 1.29$\times$ speedups on average, demonstrating its practical effectiveness in accelerating dynamic workloads.
 
 %accelerates the inference process under most cases.
 %On average, it achieves a 2.80$\times$ speedup over Torch Compile and a 1.29$\times$ speedup over Helix, demonstrating its practical effectiveness in accelerating highly dynamic MoE workloads.
