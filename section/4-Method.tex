@@ -18,19 +18,18 @@ for dynamic shapes while still enabling shape-adaptive performance optimization.
 % 换成组件图的话，文字描述也要变，比如三个stage换成三个module；换成组件图还有个好处，可以把其他信息量给到图7-图8，充实起来。
 % 2）仍存在截图部分，和主体格格不入；3）左边计算图怎么连个分支都没有？这太简单了；4）5.2-5.4的标题调大，且用黑色。
 
-\begin{figure*}[t]
+\begin{figure}[t]
   \vspace{-0.6em}
   \centering
   \captionsetup{aboveskip=2pt,belowskip=-4pt}
-  \includegraphics[width=0.92\textwidth]{figures/4-method-overview.pdf}
-%   \includegraphics[scale=0.5]{figures/4-method-overview.pdf}
-  \caption{\textcolor{red}{Design Overview of MAGSAT.}}
+  \includegraphics[scale=0.62]{figures/4-method-overview.pdf}
+  \caption{\textcolor{blue}{Design Overview of MAGSAT.}}
   \Description{MAGSAT first analyzes fusion opportunities from the
   computation graph, maps fusible regions to tiled templates, and then selects
   shape-adaptive configurations using an analytical model.}
   \label{fig:method-overview}
   \vspace{-0.8em}
-\end{figure*}
+\end{figure}
 
 MAGSAT consists of three stages.  First, the \textit{operator fusion stage} determines which 
 regions can be lowered to fused templates by analyzing memory-access semantics derived 
@@ -96,11 +95,12 @@ that flows through epilogue computation before the final global-memory write.
 Fusion is allowed only when the normalized flow matches a supported access
 pattern.
 
-% SQX：1）比图6和图8好，但还有改进空间；图7-8都反复出现算子的连接，太冗余了；2）而且正文中信息量挺多的呀，为什么体现不在图里？3）Load, Compute， Store应该用别的方式更突出显示，不要和算子揉在一起。
+% SQX：1）比图6和图8好，但还有改进空间；图7-8都反复出现算子的连接，太冗余了；2）而且正文中信息量挺多的呀，为什么体现不在图里？
+% 3）Load, Compute， Store应该用别的方式更突出显示，不要和算子揉在一起。 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[scale=0.5]{figures/4-method-fusion.pdf}
-  \caption{\textcolor{red}{Graph normalization with access-flow form.}}
+  \includegraphics[scale=0.65]{figures/4-method-fusion.pdf}
+  \caption{\textcolor{blue}{Graph normalization with access-flow form.}}
   \Description{A variable graph is normalized into a load-compute-store access
   form that tracks external inputs, final outputs, and the in-flight mainloop
   output.}
@@ -167,7 +167,7 @@ operator-specific information required by code generation.
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figures/4-method-template.pdf}
-  \caption{\textcolor{red}{Mapping fusion regions to compilation templates.}}
+  \caption{\textcolor{blue}{Mapping fusion regions to compilation templates.}}
   \Description{Two example fusion regions are mapped to a compilation
   template. The template contains GEMM and convolution mainloop families and a
   composable epilogue primitive sequence including bias addition,
@@ -295,12 +295,18 @@ first computes a \textit{ConfigProjection}.
 %This projection summarizes how the
 %current shape and tile configuration map to the GPU.  
 % SQX：这一长串太多了，可分类别来描述
-\textcolor{red}{The main projected traits
-include the tile counts along each dimension, grid size, outputs per thread,
-mainloop iteration count, per-tile FLOPs and memory traffic, shared-memory
-usage, arithmetic intensity, estimated occupancy, resident blocks per SM, wave
-fill, and preferred pipeline depth.}  For convolution, the projection also uses the convolution filter and stride to estimate spatial input and weight reuse.  By computing these traits once, all score terms consume the same 
-execution view of the candidate.
+\textcolor{blue}{The projection groups execution traits into four categories.  \emph{Tiling
+traits} describe how the runtime shape is partitioned, including tile counts,
+grid size, outputs per thread, and mainloop iteration count.  \emph{Workload
+traits} summarize the computation and data movement of each tile, including
+mainloop and epilogue FLOPs, global-memory traffic, shared-memory usage, and
+tile arithmetic intensity.  \emph{Resource traits} estimate how the candidate
+occupies the GPU, including occupancy, resident blocks per SM, and wave fill.
+Finally, \emph{scheduling traits} capture preferences that affect execution
+strategy, such as the preferred pipeline depth and epilogue/reduction execution
+requirements.  For convolution, the projection also uses the convolution filter
+and stride to estimate spatial input and weight reuse.  By computing these
+traits once, all score terms consume the same execution view of the candidate.}
 
 %the spatial reuse implied by 
 
@@ -316,35 +322,53 @@ E_{\mathrm{main}} \cdot E_{\mathrm{mem}} \cdot E_{\mathrm{par}}
 \]
 where $S$ is the operator specification under the current shape, $C$ is a
 candidate configuration, and $H$ is the target hardware.  Each term lies in
-$(0,1]$, We adopt a multiplicative formulation so that a severe bottleneck 
+$(0,1]$, and we adopt a multiplicative formulation so that a severe bottleneck 
 in one dimension directly lowers the final score.
 
-% SQX：每个efficiency term如何计算的，给出详细公式，至少要给出几个关键的，显得更直观
-\textcolor{red}{$E_{\mathrm{main}}$ evaluates the main tiled computation.  It combines padding
-efficiency, the amount of work assigned to each thread, and the suitability of
-$B_K$.  The target outputs per thread is not fixed; it is adjusted according to
-wave fill and occupancy.  Therefore, large tiles are tolerated when the launch
-already exposes enough parallel work, but penalized when they reduce the number
-of schedulable blocks for small dynamic shapes.}
-
-\textcolor{red}{$E_{\mathrm{mem}}$ measures memory behavior using a roofline-inspired signal
-and shared-memory pressure.  The model compares the tile arithmetic intensity
-with the hardware ridge point to estimate whether the tile is likely to be
-memory limited, and penalizes configurations that consume too much shared
-memory per SM.  $E_{\mathrm{par}}$ captures SM-level parallelism through
-occupancy, wave fill, and warp-count efficiency, while
-$E_{\mathrm{pipe}}$ evaluates whether the chosen pipeline depth matches the
-number of mainloop iterations and the memory pressure of the operator.}
-
-\textcolor{red}{$E_{\mathrm{conv}}$ is enabled only for convolution.  It accounts
-for the extra address generation and input-window gathering cost that are not
-present in dense GEMM.  This term favors smaller tiles when spatial overlap is
-high and the launch is underfilled, because such shapes benefit more from
-exposing additional thread blocks.  $E_{\mathrm{epi}}$ evaluates the epilogue
-primitive sequence by comparing the candidate tile shape and outputs per thread
-with each primitive's preferred execution traits.  Finally,
-$E_{\mathrm{red}}$ handles reduction primitives by considering the reduction
-axis extent, extra passes, and synchronization cost.}
+% SQX：每个具体因子，每个efficiency term如何计算的，给出详细公式，至少要给出几个关键的，显得更直观
+{\color{blue}The generic terms score the tiled mainloop, memory behavior,
+parallelism, and pipeline choice.  The mainloop term is
+\[
+\begin{aligned}
+E_{\mathrm{main}} &=
+\eta_{\mathrm{pad}}\eta_{\mathrm{thr}}\eta_K,\\
+\eta_{\mathrm{pad}} &=
+\prod_{d\in\{M,N,K\}}
+\frac{d}{\lceil d/B_d\rceil B_d},\\
+\eta_{\mathrm{thr}} &=
+\frac{1}{1+\lambda_t|\log_2(o/o^\star)|},\quad
+o=\frac{B_MB_N}{32W},\\
+o^\star &= o_{\min}+(o_{\max}-o_{\min})
+\sqrt{\phi_{\mathrm{wave}}\phi_{\mathrm{occ}}},\quad
+\eta_K=\sqrt{\min(1,B_K/B_K^\star)} .
+\end{aligned}
+\]
+where $\eta_{\mathrm{pad}}$ removes boundary padding, $\eta_{\mathrm{thr}}$
+matches outputs per thread to a target $o^\star$ that grows with wave fill and
+occupancy, and $\eta_K$ favors the preferred $K$ tile size.  The other generic
+terms are
+\[
+\begin{aligned}
+E_{\mathrm{mem}} &=
+\min(1,I_{\mathrm{tile}}/R_H)^{\alpha}
+\cdot \frac{1}{1+\lambda_s S_{\mathrm{tile}}/S_H},\\
+E_{\mathrm{par}} &=
+\min(1,\Omega/\Omega^\star)^{\beta}
+\cdot \phi_{\mathrm{wave}}^{\gamma}
+\cdot \rho_w,\\
+E_{\mathrm{pipe}} &=
+\left(\frac{L_K}{L_K+s-1}\right)^{\mu}
+\cdot \frac{1}{1+\lambda_p|s-s^\star|}.
+\end{aligned}
+\]
+Here $I_{\mathrm{tile}}/R_H$ is the roofline signal, $S_{\mathrm{tile}}/S_H$ is
+shared-memory pressure, $\Omega$ and $\phi_{\mathrm{wave}}$ measure occupancy and
+wave fill, $\rho_w$ penalizes excessive warp counts, and $s^\star$ is the
+preferred pipeline depth.  The remaining structure-specific terms are lightweight:
+$E_{\mathrm{conv}}$ is active only for implicit-GEMM convolution and accounts for
+spatial-overlap and launch-underfill effects; $E_{\mathrm{epi}}$ aggregates
+epilogue primitive efficiencies; and $E_{\mathrm{red}}$ penalizes reduction-axis
+mismatch, extra passes, and synchronization cost.}
 
 % \begin{algorithm}[t]
 % \caption{Shape-adaptive configuration selection}
