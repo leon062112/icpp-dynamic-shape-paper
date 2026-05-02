@@ -23,7 +23,7 @@
   \label{fig:motivation-config-heatmap}
 \end{figure*}
 
-Dynamic shapes not only change the amount of work in an operator, but also
+Dynamic shapes not only change the amount of work in an operator but also
 alter the optimal configuration of kernel parameters.
 We use a GEMM-based fused
 operator to demonstrate this effect.  The operator keeps the reduction and
@@ -33,7 +33,7 @@ exhaustively evaluate 154 valid configurations represented as tuples $(\texttt{B
 %\texttt{BLOCK\_M}, \texttt{BLOCK\_N}, \texttt{BLOCK\_K},
 %\texttt{num\_warps}, and \texttt{num\_stages}.  
 This emulates a common
-case in dynamic-shape inference: the same fused operators is repeatedly
+case in dynamic-shape inference: the same fused operator is repeatedly
 invoked with different runtime shapes.
 % but the best kernel configuration has to be selected for each invocation.
 
@@ -106,7 +106,7 @@ $(128,128,32)$, while Config-B uses a smaller tile $(32,32,64)$. We collect NCU 
   \label{fig:motivation-bottleneck}
 \end{figure}
 
-Figure~\ref{fig:motivation-bottleneck} shows that the preferred configuration changes with the hardware behavior. The normalized latency is computed against the faster of the two configurations at each shape. At small shapes, Config-B is up to 2.5$\times$ faster than Config-A because Config-A' large tile creates too few thread blocks to keep the GPU busy, leading to low occupancy. In contrast, Config-B generates more independent tiles and exhibits high thread block-level parallelism.
+Figure~\ref{fig:motivation-bottleneck} shows that the preferred configuration changes with hardware behavior. The normalized latency is computed against the faster of the two configurations at each shape. At small shapes, Config-B is up to 2.5$\times$ faster than Config-A because Config-A's large tile creates too few thread blocks to keep the GPU busy, leading to low occupancy. In contrast, Config-B generates more independent tiles and exhibits high thread-block-level parallelism.
 %, making it more suitable for small dynamic dimensions.
 
 % and poor latency amortization
