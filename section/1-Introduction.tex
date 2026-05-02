@@ -36,7 +36,7 @@ problem by automatically generating tensor programs and searching for efficient
 schedules~\cite{abadi2016tensorflow,paszke2019pytorch,chen2018tvm,chen2018autotvm,zheng2020ansor,ansel2024pytorch}.
 However, many of their optimization decisions remain tied to concrete shapes.
 The tiling factor, pipeline depth, or memory layout tuned for one
-shape may become inefficient for another due to the change of tensor dimensions.
+shape may become inefficient for another as tensor dimensions change.
 %because the amount of parallelism,
 %padding overhead, data reuse, and memory footprint all change with tensor
 %dimensions. 
@@ -67,9 +67,9 @@ They expose tile-level computation and data movement while retaining
 the productivity of high-level programming, making them suitable for building
 custom fused operators. We observe that such templates can achieve high
 performance after tuning, and can even outperform vendor-library baselines.
-They can also express fusion patterns that are 
-difficult to cover with fixed vendor-libraries. 
-Nevertheless, the presence of dynamic shapes significantly enlarges the tuning space: 
+They can also express fusion patterns that are
+difficult to cover with fixed vendor libraries.
+Nevertheless, the presence of dynamic shapes significantly enlarges the tuning space:
 each runtime shape may favor a different tile size, warp configuration, or pipeline depth.
 %As a result, achieving high performance requires extensive auto-tuning, whose cost 
 %becomes too costly in dynamic-shape scenarios. 
@@ -126,9 +126,9 @@ and evaluate its operator-level and graph-level performance.
 %against existing baselines. 
 % SQX：只给出相比最好的对比工作的平均加速比
 
-Experimental results show that MAGSAT achieves average speedups of 
-4.65$\times$ for fused operators and 2.74$\times$ for end-to-end-inference 
-over the state-of-the-art baseline.
+Experimental results show that MAGSAT achieves average speedups of
+4.65$\times$ for fused operators and 2.74$\times$ for end-to-end inference
+over a state-of-the-art baseline.
 
 %\textcolor{red}{up to X speedup} for fused operators and
 %\textcolor{red}{up to X speedup} for end-to-end inference compared with
