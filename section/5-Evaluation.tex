@@ -60,7 +60,17 @@ inference.
 Figure~\ref{fig:op_level_performance} presents the operator-level
 performance across these fused workloads on both A100 and H100. 
 % SQX：补充Shape如何选择的，和横轴的FLOPS什么关系？
-\textcolor{red}{Shape details...}
+\textcolor{blue}{For GEMM-based operators, we use a dynamic-shape setting derived from
+common Transformer inference workload, where the effective token dimension changes at
+runtime. Specifically, we fix $N=2304$ and $K=768$, and vary
+$M$ from 1 to 256, which corresponds to different effective sequence or
+token counts. For \texttt{Conv2D}-based operators, we collects  convolution configurations from representative CNN models. The resulting convolution shapes cover batch sizes from 1 to 64,
+feature-map sizes from 4 to 700, filter sizes from 1 to 20, input channels
+from 1 to 2048, and output channels from 16 to 2048. The x-axis in
+Figure~\ref{fig:op_level_performance} reports the computational scale of
+each operator instance: $2MNK$ FLOPs for GEMM and
+$2B H_{\mathrm{out}} W_{\mathrm{out}} C_{\mathrm{out}} C_{\mathrm{in}} R S$
+FLOPs for convolution.}
 %The figure groups the results by operator family and reports speedup over
 %Torch Native, making it possible to compare both the benefit of fusion and
 %the portability of the selected configurations across GPU generations.
@@ -89,7 +99,7 @@ achieves an average speedup of 1.38$\times$ and a maximum speedup of
 %\texttt{Conv}-\texttt{BN}-\texttt{Add}-\texttt{ReLU} achieves average
 %speedups of 5.33$\times$ and 2.97$\times$, respectively. 
 % 从GEMM类算子来看，MAGSAT相比baseline在大shape优势更明显，给出原因，而且大shape也更贴近发展趋势
-\textcolor{red}{These gains are often more visible for large shapes, xxx.}
+\textcolor{blue}{These gains are often more visible for large shapes. Since the H100 greatly accelerates the \texttt{GEMM} itself, the unfused epilogue costs of \texttt{Torch Native} become severe performance bottlenecks. MAGSAT avoids this by lowering the \texttt{GEMM}-centered region to a fused tiled template, dynamically tailoring block sizes, warp counts, and pipeline depths to each runtime shape. Consequently, MAGSAT exhibits an increasingly pronounced advantage over the baselines at larger shapes on the H100.}
 %most visible for small and irregular shapes, where generic library kernels
 %and compiler-generated kernels often suffer from launch overhead,
 %conservative schedule choices, or insufficient specialization for the
