@@ -60,46 +60,51 @@ inference.
 Figure~\ref{fig:op_level_performance} presents the operator-level
 performance across these fused workloads on both A100 and H100. 
 % SQX：补充Shape如何选择的，和横轴的FLOPS什么关系？
-\textcolor{blue}{For GEMM-based operators, we use a dynamic-shape setting derived from
-common Transformer inference workload, where the effective token dimension changes at
-runtime. Specifically, we fix $N=2304$ and $K=768$, and vary
-$M$ from 1 to 256, which corresponds to different effective sequence or
-token counts. For Conv2D-based operators, we collect convolution configurations from representative CNN models. The resulting convolution shapes cover batch sizes from 1 to 64,
-feature-map sizes from 4 to 700, filter sizes from 1 to 20, input channels
-from 1 to 2048, and output channels from 16 to 2048. The x-axis in
+%, where the effective token dimension changes at runtime
+For GEMM-based operators, we use a dynamic-shape setting derived from
+common Transformer inference workload. Specifically, we fix $N=2,304$ and $K=768$, and vary
+$M$ from 1 to 256, which corresponds to token counts. 
+For Conv2D-based operators, we collect convolution configurations from representative CNN models with varying batch sizes, filter sizes, and feature-map sizes. 
+%The resulting convolution shapes cover batch sizes from 1 to 64,
+%feature-map sizes from 4 to 700, filter sizes from 1 to 20, input channels
+%from 1 to 2048, and output channels from 16 to 2048. 
+The x-axis in
 Figure~\ref{fig:op_level_performance} reports the computational scale of
-each operator instance: $2MNK$ FLOPs for GEMM and
-$2B H_{\mathrm{out}} W_{\mathrm{out}} C_{\mathrm{out}} C_{\mathrm{in}} R S$
-FLOPs for convolution.}
+each operator instance.
+% $2MNK$ FLOPs for GEMM and
+%$2B H_{\mathrm{out}} W_{\mathrm{out}} C_{\mathrm{out}} C_{\mathrm{in}} R S$
+%FLOPs for convolution.
 %The figure groups the results by operator family and reports speedup over
 %Torch Native, making it possible to compare both the benefit of fusion and
 %the portability of the selected configurations across GPU generations.
 Across the tested shapes, MAGSAT consistently remains above the baseline
-for both GEMM- and convolution-centered operators, showing that the
-analytical selector does not merely optimize a single kernel instance but
-tracks the changing execution characteristics of different dynamic shapes.
-On A100, MAGSAT achieves an average speedup of 2.84$\times$ over Torch Native for
-GEMM, with a maximum speedup of 3.93$\times$. 
-\textcolor{blue}{Furthermore, MAGSAT improved GEMM-  and convolution-centered operator by 1.78$\times$ and 2.59$\times$ on average over the-state-of-the-art Helix implementation, respectively.}
+for both GEMM-based and Conv2D-based operators.
+On A100, MAGSAT improves GEMM-  and convolution-based operator by 1.78$\times$ and 2.59$\times$ on average over the-state-of-the-art Helix implementation, respectively.
+%MAGSAT achieves an average speedup of 2.84$\times$ over Torch Native for
+%GEMM, with a maximum speedup of 3.93$\times$. 
+% showing that the
+%analytical selector does not merely optimize a single kernel instance but
+%tracks the changing execution characteristics of different dynamic shapes.
+%Furthermore, 
 %For convolution
 %fusion, MAGSAT improves \texttt{Conv}-\texttt{ReLU} by 2.36$\times$ on
 %average over Torch Native and 2.82$\times$ over \texttt{torch}.\texttt{compile};
 %for \texttt{Conv}-\texttt{BN}-\texttt{Add}-\texttt{ReLU}, the average
 %speedups further increase to 4.55$\times$ and 4.73$\times$, respectively. 
-
-On H100, the fused GEMM operators reveal stronger performance. \textcolor{blue}{For
-GEMM-bias-activation, MAGSAT achieves an
-average speedup of 2.89$\times$ over Helix, with a maximum speedup of
-3.19$\times$. For GEMM-bias-layernorm, it
-achieves an average speedup of 1.38$\times$ and a maximum speedup of
-1.78$\times$ over Torch Compile.} 
+On H100, the GEMM-based operators reveal stronger performance. For GEMM-bias-activation, MAGSAT achieves an average speedup of 2.89$\times$ over Helix; For GEMM-bias-layernorm, it achieves 1.38$\times$ on average over Torch Compile.
+%\textcolor{blue}{For
+%GEMM-bias-activation, MAGSAT achieves an
+%average speedup of 2.89$\times$ over Helix, with a maximum speedup of
+%3.19$\times$. For GEMM-bias-layernorm, it
+%achieves an average speedup of 1.38$\times$ and a maximum speedup of
+%1.78$\times$ over Torch Compile.} 
 %For convolution fusion on H100, MAGSAT improves
 %\texttt{Conv}-\texttt{ReLU} by 1.98$\times$ on average over Torch Native 
 %and 3.22$\times$ over \texttt{torch}.\texttt{compile}, while 
 %\texttt{Conv}-\texttt{BN}-\texttt{Add}-\texttt{ReLU} achieves average
 %speedups of 5.33$\times$ and 2.97$\times$, respectively. 
 % 从GEMM类算子来看，MAGSAT相比baseline在大shape优势更明显，给出原因，而且大shape也更贴近发展趋势
-\textcolor{blue}{These gains are often more visible for large shapes. Since the H100 greatly accelerates GEMM itself, the unfused epilogue costs of Torch Native become severe performance bottlenecks. MAGSAT avoids this by lowering the GEMM-centered region to a fused tiled template, dynamically tailoring block sizes, warp counts, and pipeline depths to each runtime shape. Consequently, MAGSAT exhibits an increasingly pronounced advantage over the baselines at larger shapes on the H100.}
+%\textcolor{blue}{These gains are often more visible for large shapes. Since the H100 greatly accelerates GEMM itself, the unfused epilogue costs of Torch Native become severe performance bottlenecks. MAGSAT avoids this by lowering the GEMM-centered region to a fused tiled template, dynamically tailoring block sizes, warp counts, and pipeline depths to each runtime shape. Consequently, MAGSAT exhibits an increasingly pronounced advantage over the baselines at larger shapes on the H100.}
 %most visible for small and irregular shapes, where generic library kernels
 %and compiler-generated kernels often suffer from launch overhead,
 %conservative schedule choices, or insufficient specialization for the
@@ -288,7 +293,7 @@ MAGSAT outperforms Torch Compile and Helix at most cases, with 2.80$\times$ and 
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=\linewidth]{figures/5-qwen-e2e-inference.pdf}
+  \includegraphics[width=0.9\linewidth]{figures/5-qwen-e2e-inference.pdf}
     \caption{Case study on Qwen3.5-35B-A3B inference. The x-axis denotes the sequence length, and the y-axis represents the speedup over Torch Compile.}
   \Description{Scatter plot of MAGSAT and Helix speedups on Qwen3.5-35B-A3B inference.}
   \label{fig:qwen_case_study}
