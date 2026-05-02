@@ -19,16 +19,16 @@ for dynamic shapes while still enabling shape-adaptive performance optimization.
 % 2）仍存在截图部分，和主体格格不入；3）左边计算图怎么连个分支都没有？这太简单了；4）5.2-5.4的标题调大，且用黑色。
 
 \begin{figure}[t]
-  \vspace{-0.6em}
+%  \vspace{-0.6em}
   \centering
   \captionsetup{aboveskip=2pt,belowskip=-4pt}
   \includegraphics[scale=0.58]{figures/4-method-overview.pdf}
-  \caption{\textcolor{blue}{Design Overview of MAGSAT.}}
+  \caption{Design Overview of MAGSAT.}
   \Description{MAGSAT first analyzes fusion opportunities from the
   computation graph, maps fusible regions to tiled templates, and then selects
   shape-adaptive configurations using an analytical model.}
   \label{fig:method-overview}
-  \vspace{-0.8em}
+%  \vspace{-0.8em}
 \end{figure}
 
 MAGSAT consists of three stages.  First, the \textit{operator fusion stage} determines which 
@@ -47,7 +47,7 @@ families, and the remaining fused computations as an ordered sequence of epilogu
 %row layer normalization, or batch normalization. This mapping gives different fused 
 %operators a common template interface while preserving the information needed 
 %by the backend kernel implementation.
-Third, the \textit{configuration selection stage} builds an operator description for the current shape,
+Third, the \textit{configuration determination stage} builds an operator description for the current shape,
 projects each candidate into hardware-aware execution traits, and ranks the
 candidates with a lightweight analytical model.
 Through a three-stage coupling design, MAGSAT flexibly splits the computation graph into fused operators and maps them to stable compilation templates, as well as adjusting kernel parameter configurations under dynamic shapes to improve end-to-end inference performance.
@@ -100,7 +100,7 @@ pattern.
 \begin{figure}[htbp]
   \centering
   \includegraphics[scale=0.65]{figures/4-method-fusion.pdf}
-  \caption{\textcolor{blue}{Graph normalization with access-flow form.}}
+  \caption{Graph normalization with access-flow form.}
   \Description{A variable graph is normalized into a load-compute-store access
   form that tracks external inputs, final outputs, and the in-flight mainloop
   output.}
@@ -167,7 +167,7 @@ operator-specific information required by code generation.
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figures/4-method-template.pdf}
-  \caption{\textcolor{blue}{Mapping fusion regions to compilation templates.}}
+  \caption{Mapping fusion regions to compilation templates.}
   \Description{Two example fusion regions are mapped to a compilation
   template. The template contains GEMM and convolution mainloop families and a
   composable epilogue primitive sequence including bias addition,
@@ -295,18 +295,18 @@ first computes a \textit{ConfigProjection}.
 %This projection summarizes how the
 %current shape and tile configuration map to the GPU.  
 % SQX：这一长串太多了，可分类别来描述
-\textcolor{blue}{The projection groups execution traits into four categories.  \emph{Tiling
+The projection groups execution traits into four categories.  \emph{Tiling
 traits} describe how the runtime shape is partitioned, including tile counts,
 grid size, outputs per thread, and mainloop iteration count.  \emph{Workload
 traits} summarize the computation and data movement of each tile, including
 mainloop and epilogue FLOPs, global-memory traffic, shared-memory usage, and
-tile arithmetic intensity.  \emph{Resource traits} estimate how the candidate
+arithmetic intensity.  \emph{Resource traits} estimate how the candidate
 occupies the GPU, including occupancy, resident blocks per SM, and wave fill.
 Finally, \emph{scheduling traits} capture preferences that affect execution
 strategy, such as the preferred pipeline depth and epilogue/reduction execution
 requirements.  For convolution, the projection also uses the convolution filter
 and stride to estimate spatial input and weight reuse.  By computing these
-traits once, all score terms consume the same execution view of the candidate.}
+traits once, all score terms consume the same execution view of the candidate.
 
 %the spatial reuse implied by 
 
@@ -326,8 +326,9 @@ $(0,1]$, and we adopt a multiplicative formulation so that a severe bottleneck
 in one dimension directly lowers the final score.
 
 % SQX：每个具体因子，每个efficiency term如何计算的，给出详细公式，至少要给出几个关键的，显得更直观
-{\color{blue}The generic terms score the tiled mainloop, memory behavior,
-parallelism, and pipeline choice.  The mainloop term is
+The generic terms score the tiled mainloop, memory behavior,
+parallelism, and pipeline choice.  The mainloop term is:
+% SQX：这个符号是什么含义？可能我错过描述了
 \[
 \begin{aligned}
 E_{\mathrm{main}} &=
@@ -336,39 +337,41 @@ E_{\mathrm{main}} &=
 \prod_{d\in\{M,N,K\}}
 \frac{d}{\lceil d/B_d\rceil B_d},\\
 \eta_{\mathrm{thr}} &=
-\frac{1}{1+\lambda_t|\log_2(o/o^\star)|},\quad
-o=\frac{B_MB_N}{32W},\\
+\frac{1}{1+\textcolor{red}{\lambda_t}|\log_2(o/o^\star)|},\\
+\eta_K&=\sqrt{\min(1,B_K/B_K^\star)}, \\
+o=\frac{B_MB_N}{32W}, \quad
 o^\star &= o_{\min}+(o_{\max}-o_{\min})
-\sqrt{\phi_{\mathrm{wave}}\phi_{\mathrm{occ}}},\quad
-\eta_K=\sqrt{\min(1,B_K/B_K^\star)} .
+\sqrt{\phi_{\mathrm{wave}}\textcolor{red}{\phi_{\mathrm{occ}}}}.
 \end{aligned}
 \]
 where $\eta_{\mathrm{pad}}$ removes boundary padding, $\eta_{\mathrm{thr}}$
 matches outputs per thread to a target $o^\star$ that grows with wave fill and
 occupancy, and $\eta_K$ favors the preferred $K$ tile size.  The other generic
-terms are
+terms are:
+% SQX：这些都啥意思？没解释的符号很容易被喷，或者就简化抽象公式，或者就说明白含义
 \[
 \begin{aligned}
 E_{\mathrm{mem}} &=
-\min(1,I_{\mathrm{tile}}/R_H)^{\alpha}
-\cdot \frac{1}{1+\lambda_s S_{\mathrm{tile}}/S_H},\\
+\min(1,I_{\mathrm{tile}}/R_H)^{\textcolor{red}{\alpha}}
+\cdot \frac{1}{1+\textcolor{red}{\lambda_s} S_{\mathrm{tile}}/S_H},\\
 E_{\mathrm{par}} &=
-\min(1,\Omega/\Omega^\star)^{\beta}
-\cdot \phi_{\mathrm{wave}}^{\gamma}
+\min(1,\Omega/\Omega^\star)^{\textcolor{red}{\beta}}
+\cdot \phi_{\mathrm{wave}}^{\textcolor{red}{\gamma}}
 \cdot \rho_w,\\
 E_{\mathrm{pipe}} &=
-\left(\frac{L_K}{L_K+s-1}\right)^{\mu}
-\cdot \frac{1}{1+\lambda_p|s-s^\star|}.
+\left(\frac{\textcolor{red}{L_K}}{L_K+s-1}\right)^{\textcolor{red}{\mu}}
+\cdot \frac{1}{1+\textcolor{red}{\lambda_p}|s-s^\star|}.
 \end{aligned}
 \]
+% SQX：这和上面的occ是一回事吗？
 Here $I_{\mathrm{tile}}/R_H$ is the roofline signal, $S_{\mathrm{tile}}/S_H$ is
-shared-memory pressure, $\Omega$ and $\phi_{\mathrm{wave}}$ measure occupancy and
+shared-memory pressure, \textcolor{red}{$\Omega$} and $\phi_{\mathrm{wave}}$ measure occupancy and
 wave fill, $\rho_w$ penalizes excessive warp counts, and $s^\star$ is the
 preferred pipeline depth.  The remaining structure-specific terms are lightweight:
 $E_{\mathrm{conv}}$ is active only for implicit-GEMM convolution and accounts for
 spatial-overlap and launch-underfill effects; $E_{\mathrm{epi}}$ aggregates
 epilogue primitive efficiencies; and $E_{\mathrm{red}}$ penalizes reduction-axis
-mismatch, extra passes, and synchronization cost.}
+mismatch, extra passes, and synchronization cost.
 
 % \begin{algorithm}[t]
 % \caption{Shape-adaptive configuration selection}
